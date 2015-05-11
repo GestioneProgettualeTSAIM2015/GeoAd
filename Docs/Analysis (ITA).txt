@@ -1,5 +1,5 @@
 NOME
-
+GeoAd
 
 REQUISITI
 - Visualizzazione attività commerciali/punti interesse culturale
@@ -24,6 +24,16 @@ FUNZIONALITA' AGGIUNTIVE
 - Salvataggio preferiti, persistenti in locale
 - Possibilità di ignorare le push di un negozio
 
-
 - Server si memorizza il mio ultimo quadrato e quindi sa se deve mandarmi un eventuale nuova offerta.
-- OAuth per fare il login dello stronzo
+- OAuth per fare il login dell'amministratore
+- Categoria secondaria opzionale
+- Upload foto da cell
+- Salvataggio dimensione immagini su db per preparare spazio in galleria
+
+Ricerca
+Realtà aumenta
+Preferiti 
+Ignorati
+
+Login x paroni
+- Mia attività
