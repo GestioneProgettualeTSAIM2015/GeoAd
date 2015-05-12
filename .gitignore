@@ -16,7 +16,7 @@ x64/
 x86/
 build/
 bld/
-[Bb]in/
+[Bb]in/*
 [Oo]bj/
 # Visual Studo 2015 cache/options directory
 .vs/
@@ -159,6 +159,7 @@ FakesAssemblies/
 # Visual Studio 6 workspace options file
 *.opt
 
+
 ##Gitignore for Android Studio
 #built application files
 *.apk
@@ -171,11 +172,11 @@ FakesAssemblies/
 *.class
 
 # generated files
-bin/
-gen/
+**/bin/*
+**/gen/
 
 # Local configuration file (sdk path, etc)
-local.properties
+**/local.properties
 
 # Windows thumbnail db
 Thumbs.db
@@ -184,12 +185,16 @@ Thumbs.db
 .DS_Store
 
 # Eclipse project files
-.classpath
-.project
+**/*.classpath
+**/*.project
 
 # Android Studio
 *.iml
-.idea
+.idea/
 #.idea/workspace.xml - remove # and delete .idea if it better suit your needs.
-.gradle
+*.gradle
 build/
+
+
+##Exceptions
+!Npgsql.dll
