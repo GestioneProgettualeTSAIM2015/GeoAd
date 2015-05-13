@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("GeoAdServer.Postgresql.Test")]
+[assembly: AssemblyTitle("GeoAdServer.Domain.ContractsImplementations.Test")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("GeoAdServer.Postgresql.Test")]
+[assembly: AssemblyProduct("GeoAdServer.Domain.ContractsImplementations.Test")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("161086d2-695d-4915-99fc-5d1de3703f5c")]
+[assembly: Guid("ceac0e22-57d6-4cfd-b576-dd26f5597e75")]
 
 // Version information for an assembly consists of the following four values:
 //
