@@ -4,7 +4,7 @@
 
 -- Dumped from database version 9.4.1
 -- Dumped by pg_dump version 9.4.1
--- Started on 2015-05-13 14:02:15
+-- Started on 2015-05-13 14:38:39
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -14,7 +14,7 @@ SET check_function_bodies = false;
 SET client_min_messages = warning;
 
 --
--- TOC entry 2046 (class 1262 OID 16394)
+-- TOC entry 2060 (class 1262 OID 16394)
 -- Name: GeoAdDb; Type: DATABASE; Schema: -; Owner: postgres
 --
 
@@ -33,7 +33,7 @@ SET check_function_bodies = false;
 SET client_min_messages = warning;
 
 --
--- TOC entry 180 (class 3079 OID 11855)
+-- TOC entry 182 (class 3079 OID 11855)
 -- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
 --
 
@@ -41,8 +41,8 @@ CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
 
 --
--- TOC entry 2049 (class 0 OID 0)
--- Dependencies: 180
+-- TOC entry 2063 (class 0 OID 0)
+-- Dependencies: 182
 -- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
 --
 
@@ -84,12 +84,49 @@ CREATE SEQUENCE "Categories_Id_seq"
 ALTER TABLE "Categories_Id_seq" OWNER TO postgres;
 
 --
--- TOC entry 2050 (class 0 OID 0)
+-- TOC entry 2064 (class 0 OID 0)
 -- Dependencies: 174
 -- Name: Categories_Id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE "Categories_Id_seq" OWNED BY "Categories"."Id";
+
+
+--
+-- TOC entry 181 (class 1259 OID 24682)
+-- Name: LocationTypes; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE "LocationTypes" (
+    "Id" integer NOT NULL,
+    "Name" text
+);
+
+
+ALTER TABLE "LocationTypes" OWNER TO postgres;
+
+--
+-- TOC entry 180 (class 1259 OID 24680)
+-- Name: LocationTypes_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE "LocationTypes_Id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE "LocationTypes_Id_seq" OWNER TO postgres;
+
+--
+-- TOC entry 2065 (class 0 OID 0)
+-- Dependencies: 180
+-- Name: LocationTypes_Id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE "LocationTypes_Id_seq" OWNED BY "LocationTypes"."Id";
 
 
 --
@@ -105,7 +142,8 @@ CREATE TABLE "Locations" (
     "Name" text NOT NULL,
     "Lat" text NOT NULL,
     "Lng" text NOT NULL,
-    "Desc" text
+    "Desc" text,
+    "TypeId" integer
 );
 
 
@@ -127,7 +165,7 @@ CREATE SEQUENCE "Locations_Id_seq"
 ALTER TABLE "Locations_Id_seq" OWNER TO postgres;
 
 --
--- TOC entry 2051 (class 0 OID 0)
+-- TOC entry 2066 (class 0 OID 0)
 -- Dependencies: 172
 -- Name: Locations_Id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -167,7 +205,7 @@ CREATE SEQUENCE "Offerings_Id_seq"
 ALTER TABLE "Offerings_Id_seq" OWNER TO postgres;
 
 --
--- TOC entry 2052 (class 0 OID 0)
+-- TOC entry 2067 (class 0 OID 0)
 -- Dependencies: 178
 -- Name: Offerings_Id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -207,7 +245,7 @@ CREATE SEQUENCE "Photos_Id_seq"
 ALTER TABLE "Photos_Id_seq" OWNER TO postgres;
 
 --
--- TOC entry 2053 (class 0 OID 0)
+-- TOC entry 2068 (class 0 OID 0)
 -- Dependencies: 176
 -- Name: Photos_Id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -216,7 +254,7 @@ ALTER SEQUENCE "Photos_Id_seq" OWNED BY "Photos"."Id";
 
 
 --
--- TOC entry 1904 (class 2604 OID 24608)
+-- TOC entry 1911 (class 2604 OID 24608)
 -- Name: Id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -224,7 +262,15 @@ ALTER TABLE ONLY "Categories" ALTER COLUMN "Id" SET DEFAULT nextval('"Categories
 
 
 --
--- TOC entry 1903 (class 2604 OID 24581)
+-- TOC entry 1914 (class 2604 OID 24685)
+-- Name: Id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY "LocationTypes" ALTER COLUMN "Id" SET DEFAULT nextval('"LocationTypes_Id_seq"'::regclass);
+
+
+--
+-- TOC entry 1910 (class 2604 OID 24581)
 -- Name: Id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -232,7 +278,7 @@ ALTER TABLE ONLY "Locations" ALTER COLUMN "Id" SET DEFAULT nextval('"Locations_I
 
 
 --
--- TOC entry 1906 (class 2604 OID 24631)
+-- TOC entry 1913 (class 2604 OID 24631)
 -- Name: Id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -240,7 +286,7 @@ ALTER TABLE ONLY "Offerings" ALTER COLUMN "Id" SET DEFAULT nextval('"Offerings_I
 
 
 --
--- TOC entry 1905 (class 2604 OID 24619)
+-- TOC entry 1912 (class 2604 OID 24619)
 -- Name: Id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -248,7 +294,7 @@ ALTER TABLE ONLY "Photos" ALTER COLUMN "Id" SET DEFAULT nextval('"Photos_Id_seq"
 
 
 --
--- TOC entry 2037 (class 0 OID 24605)
+-- TOC entry 2049 (class 0 OID 24605)
 -- Dependencies: 175
 -- Data for Name: Categories; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -256,7 +302,7 @@ ALTER TABLE ONLY "Photos" ALTER COLUMN "Id" SET DEFAULT nextval('"Photos_Id_seq"
 
 
 --
--- TOC entry 2054 (class 0 OID 0)
+-- TOC entry 2069 (class 0 OID 0)
 -- Dependencies: 174
 -- Name: Categories_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -265,7 +311,26 @@ SELECT pg_catalog.setval('"Categories_Id_seq"', 1, false);
 
 
 --
--- TOC entry 2035 (class 0 OID 24578)
+-- TOC entry 2055 (class 0 OID 24682)
+-- Dependencies: 181
+-- Data for Name: LocationTypes; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+INSERT INTO "LocationTypes" ("Id", "Name") VALUES (1, 'CA');
+INSERT INTO "LocationTypes" ("Id", "Name") VALUES (2, 'POI');
+
+
+--
+-- TOC entry 2070 (class 0 OID 0)
+-- Dependencies: 180
+-- Name: LocationTypes_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('"LocationTypes_Id_seq"', 2, true);
+
+
+--
+-- TOC entry 2047 (class 0 OID 24578)
 -- Dependencies: 173
 -- Data for Name: Locations; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -273,7 +338,7 @@ SELECT pg_catalog.setval('"Categories_Id_seq"', 1, false);
 
 
 --
--- TOC entry 2055 (class 0 OID 0)
+-- TOC entry 2071 (class 0 OID 0)
 -- Dependencies: 172
 -- Name: Locations_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -282,7 +347,7 @@ SELECT pg_catalog.setval('"Locations_Id_seq"', 1, false);
 
 
 --
--- TOC entry 2041 (class 0 OID 24628)
+-- TOC entry 2053 (class 0 OID 24628)
 -- Dependencies: 179
 -- Data for Name: Offerings; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -290,7 +355,7 @@ SELECT pg_catalog.setval('"Locations_Id_seq"', 1, false);
 
 
 --
--- TOC entry 2056 (class 0 OID 0)
+-- TOC entry 2072 (class 0 OID 0)
 -- Dependencies: 178
 -- Name: Offerings_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -299,7 +364,7 @@ SELECT pg_catalog.setval('"Offerings_Id_seq"', 1, false);
 
 
 --
--- TOC entry 2039 (class 0 OID 24616)
+-- TOC entry 2051 (class 0 OID 24616)
 -- Dependencies: 177
 -- Data for Name: Photos; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -307,7 +372,7 @@ SELECT pg_catalog.setval('"Offerings_Id_seq"', 1, false);
 
 
 --
--- TOC entry 2057 (class 0 OID 0)
+-- TOC entry 2073 (class 0 OID 0)
 -- Dependencies: 176
 -- Name: Photos_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -316,7 +381,7 @@ SELECT pg_catalog.setval('"Photos_Id_seq"', 1, false);
 
 
 --
--- TOC entry 1914 (class 2606 OID 24637)
+-- TOC entry 1923 (class 2606 OID 24637)
 -- Name: PKCategories; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -325,7 +390,16 @@ ALTER TABLE ONLY "Categories"
 
 
 --
--- TOC entry 1908 (class 2606 OID 24643)
+-- TOC entry 1931 (class 2606 OID 24690)
+-- Name: PKLocationTypes; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY "LocationTypes"
+    ADD CONSTRAINT "PKLocationTypes" PRIMARY KEY ("Id");
+
+
+--
+-- TOC entry 1916 (class 2606 OID 24643)
 -- Name: PKLocations; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -334,7 +408,7 @@ ALTER TABLE ONLY "Locations"
 
 
 --
--- TOC entry 1919 (class 2606 OID 24641)
+-- TOC entry 1928 (class 2606 OID 24641)
 -- Name: PKOfferings; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -343,7 +417,7 @@ ALTER TABLE ONLY "Offerings"
 
 
 --
--- TOC entry 1916 (class 2606 OID 24639)
+-- TOC entry 1925 (class 2606 OID 24639)
 -- Name: PKPhotos; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -352,7 +426,7 @@ ALTER TABLE ONLY "Photos"
 
 
 --
--- TOC entry 1910 (class 2606 OID 24645)
+-- TOC entry 1918 (class 2606 OID 24645)
 -- Name: UniqName; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -361,7 +435,7 @@ ALTER TABLE ONLY "Locations"
 
 
 --
--- TOC entry 1911 (class 1259 OID 24651)
+-- TOC entry 1919 (class 1259 OID 24651)
 -- Name: fki_FKCategoryId; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -369,7 +443,7 @@ CREATE INDEX "fki_FKCategoryId" ON "Locations" USING btree ("PCatId");
 
 
 --
--- TOC entry 1920 (class 1259 OID 24668)
+-- TOC entry 1929 (class 1259 OID 24668)
 -- Name: fki_FKLocationId; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -377,7 +451,7 @@ CREATE INDEX "fki_FKLocationId" ON "Offerings" USING btree ("LocationId");
 
 
 --
--- TOC entry 1917 (class 1259 OID 24679)
+-- TOC entry 1926 (class 1259 OID 24679)
 -- Name: fki_FKPhotosLocationId; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -385,7 +459,7 @@ CREATE INDEX "fki_FKPhotosLocationId" ON "Photos" USING btree ("LocationId");
 
 
 --
--- TOC entry 1912 (class 1259 OID 24662)
+-- TOC entry 1920 (class 1259 OID 24662)
 -- Name: fki_FKSCatId; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -393,7 +467,15 @@ CREATE INDEX "fki_FKSCatId" ON "Locations" USING btree ("SCatId");
 
 
 --
--- TOC entry 1924 (class 2606 OID 24663)
+-- TOC entry 1921 (class 1259 OID 24696)
+-- Name: fki_FKTypeId; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX "fki_FKTypeId" ON "Locations" USING btree ("TypeId");
+
+
+--
+-- TOC entry 1936 (class 2606 OID 24663)
 -- Name: FKLocationId; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -402,7 +484,7 @@ ALTER TABLE ONLY "Offerings"
 
 
 --
--- TOC entry 1921 (class 2606 OID 24652)
+-- TOC entry 1932 (class 2606 OID 24652)
 -- Name: FKPCatId; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -411,7 +493,7 @@ ALTER TABLE ONLY "Locations"
 
 
 --
--- TOC entry 1923 (class 2606 OID 24674)
+-- TOC entry 1935 (class 2606 OID 24674)
 -- Name: FKPhotosLocationId; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -420,7 +502,7 @@ ALTER TABLE ONLY "Photos"
 
 
 --
--- TOC entry 1922 (class 2606 OID 24657)
+-- TOC entry 1933 (class 2606 OID 24657)
 -- Name: FKSCatId; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -429,7 +511,16 @@ ALTER TABLE ONLY "Locations"
 
 
 --
--- TOC entry 2048 (class 0 OID 0)
+-- TOC entry 1934 (class 2606 OID 24691)
+-- Name: FKTypeId; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY "Locations"
+    ADD CONSTRAINT "FKTypeId" FOREIGN KEY ("TypeId") REFERENCES "LocationTypes"("Id");
+
+
+--
+-- TOC entry 2062 (class 0 OID 0)
 -- Dependencies: 5
 -- Name: public; Type: ACL; Schema: -; Owner: postgres
 --
@@ -440,7 +531,7 @@ GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
--- Completed on 2015-05-13 14:02:15
+-- Completed on 2015-05-13 14:38:39
 
 --
 -- PostgreSQL database dump complete
