@@ -20,12 +20,10 @@ namespace GeoAdServer.Postgresql
         IEnumerable<string> ICategoriesRepository.GetAll()
         {
             string query = "SELECT \"Name\" FROM public.\"Categories\"";
-            return ExecQuery<string>(query, ParseString);
-        }
-
-        string ParseString(DataRow dr)
-        {
-            return dr[0].ToString();
+            return ExecQuery<string>(query, (dr) =>
+            {
+                return dr.Field<string>("Name");
+            });
         }
     }
 }

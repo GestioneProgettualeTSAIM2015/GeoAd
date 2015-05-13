@@ -22,7 +22,7 @@ namespace GeoAdServer.Postgresql
             Connection.Open();
         }
 
-        protected IEnumerable<T> ExecQuery<T>(string query, ResultParser<T> rp)
+        protected IEnumerable<T> ExecQuery<T>(string query, Func<DataRow, T> rp)
         {
             DataSet ds = new DataSet();
             DataTable dt;
@@ -40,7 +40,5 @@ namespace GeoAdServer.Postgresql
         {
             Connection.Close();
         }
-
-        protected delegate T ResultParser<T>(DataRow dr);
     }
 }
