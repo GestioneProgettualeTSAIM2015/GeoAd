@@ -7,6 +7,7 @@ REQUISITI
 - Realtà aumentata (punto telefono e vedo a schermo i dati)
 - Rilevo di essere vicino ad un negozio e chiedo se ci son offerte
 (logica dei quadrati attorno a me)
+- Login amministratori attività commerciali (creare, modifcare, offerte, foto..., Login con fb ecc ecc??)
 
 Model: 
 - Categoria Principale
@@ -17,23 +18,30 @@ Model:
 - Galleria
 
 TECNOLOGIE
-- Backend: WebApi ASP.NET, SQL Server
+- Backend: WebApi ASP.NET, Postgres
 - Client: Android nativo
 
 FUNZIONALITA' AGGIUNTIVE
 - Salvataggio preferiti, persistenti in locale
 - Possibilità di ignorare le push di un negozio
+- Lista offerte in corso (aggiornata all avvio eliminando offerte scadute, push per eliminazione offerta in tempo reale)
 
-- Server si memorizza il mio ultimo quadrato e quindi sa se deve mandarmi un eventuale nuova offerta.
+- Server si memorizza il mio ultimo quadrato e quindi sa se deve mandarmi un eventuale nuova offerta (push).
 - OAuth per fare il login dell'amministratore
 - Categoria secondaria opzionale
 - Upload foto da cell
 - Salvataggio dimensione immagini su db per preparare spazio in galleria
+- Widget (da valutare), per lancio activity offerta/caricamento foto
+- Aggiunta punti interesse da parte di un superutente da interfaccia web
+- Gestione attività commerciale da interfaccia web
+- Condivisione offerte su social/messaggi
+- Intent x google maps
+
+IMPOSTAZIONI
+- Possibilità di disabilitare il gps
+- 
 
 Ricerca
 Realtà aumenta
 Preferiti 
 Ignorati
-
-Login x paroni
-- Mia attività
