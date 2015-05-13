@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace GeoAdServer.Domain.Contracts
 {
-    public class IGeoAdRepository
+    public interface ICategoriesRepository
     {
+        IEnumerable<string> GetAll();
     }
 }

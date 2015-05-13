@@ -39,8 +39,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Contracts\IGeoAdRepository.cs" />
+    <Compile Include="Contracts\ICategoriesRepository.cs" />
+    <Compile Include="Contracts\ILocationsRepository.cs" />
     <Compile Include="Entities\Location.cs" />
+    <Compile Include="Entities\Offering.cs" />
+    <Compile Include="Entities\Photo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
