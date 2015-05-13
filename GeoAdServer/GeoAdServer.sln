@@ -5,6 +5,10 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeoAdServer.Domain", "GeoAdServer.Domain\GeoAdServer.Domain.csproj", "{C63BEA95-6E89-4BD2-A2B1-EE4A3F710E38}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeoAdServer.Postgresql", "GeoAdServer.Postgresql\GeoAdServer.Postgresql.csproj", "{23D0BE42-EA46-4F6F-9A45-BF743A8DF3C7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeoAdServer.Postgresql.Test", "GeoAdServer.Postgresql.Test\GeoAdServer.Postgresql.Test.csproj", "{C042792F-A255-4766-9C35-DFCD43A2409C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{C63BEA95-6E89-4BD2-A2B1-EE4A3F710E38}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C63BEA95-6E89-4BD2-A2B1-EE4A3F710E38}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C63BEA95-6E89-4BD2-A2B1-EE4A3F710E38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23D0BE42-EA46-4F6F-9A45-BF743A8DF3C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23D0BE42-EA46-4F6F-9A45-BF743A8DF3C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23D0BE42-EA46-4F6F-9A45-BF743A8DF3C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23D0BE42-EA46-4F6F-9A45-BF743A8DF3C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C042792F-A255-4766-9C35-DFCD43A2409C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C042792F-A255-4766-9C35-DFCD43A2409C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C042792F-A255-4766-9C35-DFCD43A2409C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C042792F-A255-4766-9C35-DFCD43A2409C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
