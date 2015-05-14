@@ -1,4 +1,5 @@
 ﻿using GeoAdServer.Domain.Entities;
+using GeoAdServer.Domain.Entities.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,16 +10,22 @@ namespace GeoAdServer.Domain.Contracts
 {
     public interface ILocationsRepository
     {
-        IEnumerable<Location> GetAll();
+        IEnumerable<LocationDTO> GetAll();
 
-        IEnumerable<Location> GetByUserId(int userId);
+        IEnumerable<LocationDTO> GetByUserId(int userId);
 
-        Location GetById(int locationId);
+        LocationDTO GetById(int locationId);
 
         void Insert(Location location);
 
-        void Update(Location location);
+        void Update(int id, Location location);
 
         bool DeleteById(int locationId);
+
+        bool InsertCategory(string name);
+
+        bool DeleteCategory(string name);
+
+        Dictionary<int, string> GetCategories();
     }
 }

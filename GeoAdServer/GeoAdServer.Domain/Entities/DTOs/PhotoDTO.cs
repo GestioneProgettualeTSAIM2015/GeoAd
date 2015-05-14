@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GeoAdServer.Domain.Entities
+namespace GeoAdServer.Domain.Entities.DTOs
 {
-    public class Photo
+    public class PhotoDTO
     {
+        public int Id { get; set; }
+
         public int LocationId { get; set; }
 
         public byte[] Data { get; set; }

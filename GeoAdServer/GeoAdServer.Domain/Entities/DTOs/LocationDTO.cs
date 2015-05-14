@@ -4,15 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GeoAdServer.Domain.Entities
+namespace GeoAdServer.Domain.Entities.DTOs
 {
-    public class Location
+    public class LocationDTO
     {
-        public int UserId { get; set; }
+        public int Id { get; set; }
 
-        public int PCatId { get; set; }
+        public string PCat { get; set; }
 
-        public int SCatId { get; set; }
+        public string SCat { get; set; }
 
         public string Name { get; set; }
 

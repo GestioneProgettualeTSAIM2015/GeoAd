@@ -1,4 +1,5 @@
 ﻿using GeoAdServer.Domain.Entities;
+using GeoAdServer.Domain.Entities.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,15 +10,15 @@ namespace GeoAdServer.Domain.Contracts
 {
     public interface IOfferingsRepository
     {
-        IEnumerable<Offering> GetAll();
+        IEnumerable<OfferingDTO> GetAll();
 
-        IEnumerable<Offering> GetByLocationId(int locationId);
+        IEnumerable<OfferingDTO> GetByLocationId(int locationId);
 
-        IEnumerable<Offering> GetByTypeId(int typeId);
+        IEnumerable<OfferingDTO> GetByTypeId(int typeId);
 
         void Insert(Offering offering);
 
-        void Update(Offering offering);
+        void Update(int id, Offering offering);
 
         bool DeleteById(int offeringId);
     }

@@ -24,16 +24,26 @@ namespace GeoAdServer.Postgresql
 
         protected IEnumerable<T> ExecQuery<T>(string query, Func<DataRow, T> rp)
         {
+            DataTable dt = Exec(query);
+
+            foreach (DataRow dr in dt.Rows)
+                yield return rp(dr);
+        }
+
+        protected object ExecCommand(string query)
+        {
+            NpgsqlCommand cmd = new NpgsqlCommand(query, Connection);
+            return cmd.ExecuteScalar();
+        }
+
+        DataTable Exec(string query)
+        {
             DataSet ds = new DataSet();
-            DataTable dt;
             NpgsqlDataAdapter da = new NpgsqlDataAdapter(query, Connection);
             ds.Reset();
             da.Fill(ds);
             int tables = ds.Tables.Count;
-            dt = ds.Tables[0];
-
-            foreach (DataRow dr in dt.Rows)
-                yield return rp(dr);
+            return ds.Tables[0];
         }
 
         public void Dispose()

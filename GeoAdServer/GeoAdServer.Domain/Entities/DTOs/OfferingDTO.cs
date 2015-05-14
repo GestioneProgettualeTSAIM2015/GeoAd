@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GeoAdServer.Domain.Entities
+namespace GeoAdServer.Domain.Entities.DTOs
 {
-    public class Offering
+    public class OfferingDTO
     {
+        public int Id { get; set; }
+
         public int LocationId { get; set; }
 
         public string Desc { get; set; }

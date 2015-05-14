@@ -39,10 +39,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Contracts\ICategoriesRepository.cs" />
     <Compile Include="Contracts\ILocationsRepository.cs" />
     <Compile Include="Contracts\IOfferingsRepository.cs" />
     <Compile Include="Contracts\IPhotosRepository.cs" />
+    <Compile Include="Entities\DTOs\LocationDTO.cs" />
+    <Compile Include="Entities\DTOs\OfferingDTO.cs" />
+    <Compile Include="Entities\DTOs\PhotoDTO.cs" />
     <Compile Include="Entities\Location.cs" />
     <Compile Include="Entities\Offering.cs" />
     <Compile Include="Entities\Photo.cs" />
