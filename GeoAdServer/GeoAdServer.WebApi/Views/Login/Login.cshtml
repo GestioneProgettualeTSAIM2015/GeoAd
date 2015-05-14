@@ -1,0 +1,62 @@
+﻿@{
+    ViewBag.Title = "Account";
+}
+
+<h2>Account</h2>
+<div class="row" id="loginDiv">
+    <div class="col-md-6">
+        <form action="#" method="POST" id="regisForm">
+            <fieldset>
+                <input type="text" id="user" placeholder="Username" required class="form-control" autofocus /><br />
+                <input type="password" id="pass" placeholder="Password" required class="form-control" /><br />
+                <input type="password" id="confpass" placeholder="Confirm Password" required class="form-control" /><br />
+                <input type="submit" value="Register" class="btn btn-default" id="regis" />
+            </fieldset>
+        </form>
+    </div>
+    <div class="col-md-6">
+        <form action="#" method="POST" id="loginForm">
+            <fieldset>
+                <input type="text" id="user" placeholder="Username" required class="form-control" /><br />
+                <input type="password" id="pass" placeholder="Password" required class="form-control" /><br />
+                <input type="hidden" id="tokenInput" />
+                <input type="submit" value="Login" class="btn btn-primary" />
+            </fieldset>
+        </form>
+    </div>
+</div>
+<hr />
+<div class="row" id="dataDiv">
+    <fieldset disabled>
+        <div class="col-md-3">
+            <input type="button" value="Get Values" id="btnValues" class="btn btn-default btn-lg" />
+            <br /><br />
+            <input type="button" value="Logout" id="btnLogout" class="btn btn-primary" />
+        </div>
+        <div class="col-md-9">
+            <div id="display"></div>
+        </div>
+    </fieldset>
+</div>
+
+<div class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Modal title</h4>
+            </div>
+            <div class="modal-body">
+                <p>One fine body&hellip;</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+@section scripts {
+<script src="~/Scripts/loginScript.js"></script>
+}
