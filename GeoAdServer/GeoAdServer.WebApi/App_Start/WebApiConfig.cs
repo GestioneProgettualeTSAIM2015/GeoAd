@@ -32,6 +32,8 @@ namespace GeoAdServer.WebApi
             ODataConventionModelBuilder builder = new ODataConventionModelBuilder();
             builder.EntitySet<LocationDTO>("Location");
             config.Routes.MapODataServiceRoute("odataRoute", "odata", builder.GetEdmModel());
+
+            config.EnableQuerySupport();
         }
     }
 }

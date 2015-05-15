@@ -12,7 +12,7 @@ namespace GeoAdServer.Domain.Entities
 
         public int PCatId { get; set; }
 
-        public int SCatId { get; set; }
+        public int? SCatId { get; set; }
 
         public string Name { get; set; }
 

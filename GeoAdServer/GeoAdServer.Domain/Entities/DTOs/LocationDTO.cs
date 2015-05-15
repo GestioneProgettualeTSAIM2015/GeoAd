@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GeoAdServer.Domain.Entities.DTOs
 {
-    public class LocationDTO
+    public class LocationDTO : ReflectiveEquals
     {
         public int Id { get; set; }
 
@@ -23,5 +23,21 @@ namespace GeoAdServer.Domain.Entities.DTOs
         public string Desc { get; set; }
 
         public string Type { get; set; }
+
+        /*public override bool Equals(object obj)
+        {
+            if (!(obj is LocationDTO)) return false;
+
+            LocationDTO ldto = obj as LocationDTO;
+
+            return Id == ldto.Id &&
+                   PCat == ldto.PCat &&
+                   SCat == ldto.SCat &&
+                   Name == ldto.Name &&
+                   Lat == ldto.Lat &&
+                   Lng == ldto.Lng &&
+                   Desc == ldto.Desc &&
+                   Type == ldto.Type;
+        }*/
     }
 }

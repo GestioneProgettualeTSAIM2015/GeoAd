@@ -2,6 +2,7 @@
 using GeoAdServer.Domain.Entities;
 using GeoAdServer.Domain.Entities.DTOs;
 using Npgsql;
+using NpgsqlTypes;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -40,7 +41,7 @@ namespace GeoAdServer.Postgresql
 
         PhotoDTO IPhotosRepository.GetById(int photoId)
         {
-            string query = @"SELECT ""Id"", ""Data"", ""Width"", ""Height""
+            string query = @"SELECT ""LocationId"", ""Data"", ""Width"", ""Height""
                              FROM public.""Photos""
                              WHERE ""Id"" = " + photoId;
 
@@ -50,34 +51,43 @@ namespace GeoAdServer.Postgresql
                 {
                     Id = photoId,
                     LocationId = dr.Field<int>("LocationId"),
-                    Data = dr.Field<byte[]>("Photo"),
+                    Data = dr.Field<byte[]>("Data"),
                     Width = dr.Field<int>("Width"),
                     Height = dr.Field<int>("Height")
                 };
             }).ElementAtOrDefault(0);
         }
 
-        void IPhotosRepository.Insert(Photo photo)
+        int IPhotosRepository.Insert(Photo photo)
         {
             var templateCommand = @"INSERT INTO
                                    public.""Photos"" (""Id"", ""LocationId"", ""Data"", ""Width"", ""Height"")
-                                   VALUES (DEFAULT, {0}, {1}, {2}, {3})";
+                                   VALUES (DEFAULT, {0}, :bytesData, {1}, {2})
+                                   RETURNING ""Id""";
+
+            NpgsqlParameter bytesData = new NpgsqlParameter(":bytesData", NpgsqlDbType.Bytea);
+            bytesData.Value = photo.Data;
 
             object row = ExecCommand(string.Format(templateCommand,
-                photo.LocationId, photo.Data, photo.Width, photo.Height));
+                photo.LocationId, photo.Width, photo.Height), bytesData);
+
+            return (int) row;
         }
 
         void IPhotosRepository.Update(int id, Photo photo)
         {
             var templateCommand = @"UPDATE public.""Photos""
                                     SET ""LocationId"" = {0},
-                                        ""Data"" = {1},
-                                        ""Width"" = {2},
-                                        ""Height"" = {3}
-                                    WHERE ""Id"" = {4}";
+                                        ""Data"" = :bytesData,
+                                        ""Width"" = {1},
+                                        ""Height"" = {2}
+                                    WHERE ""Id"" = {3}";
+
+            NpgsqlParameter bytesData = new NpgsqlParameter(":bytesData", NpgsqlDbType.Bytea);
+            bytesData.Value = photo.Data;
 
             object row = ExecCommand(string.Format(templateCommand,
-                photo.LocationId, photo.Data, photo.Width, photo.Height, id));
+                photo.LocationId, photo.Width, photo.Height, id), bytesData);
         }
 
         bool IPhotosRepository.Delete(int photoId)
@@ -86,7 +96,7 @@ namespace GeoAdServer.Postgresql
                                     WHERE ""Id"" = {0}";
 
             object row = ExecCommand(string.Format(templateCommand, photoId));
-            return ((int) row) == 1;
+            return true;
         }
     }
 }

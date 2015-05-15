@@ -16,7 +16,7 @@ namespace GeoAdServer.Domain.Contracts
 
         IEnumerable<OfferingDTO> GetByTypeId(int typeId);
 
-        void Insert(Offering offering);
+        int Insert(Offering offering);
 
         void Update(int id, Offering offering);
 

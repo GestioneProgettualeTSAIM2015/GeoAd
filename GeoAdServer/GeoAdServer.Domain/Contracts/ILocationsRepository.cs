@@ -16,7 +16,7 @@ namespace GeoAdServer.Domain.Contracts
 
         LocationDTO GetById(int locationId);
 
-        void Insert(Location location);
+        int Insert(Location location);
 
         void Update(int id, Location location);
 

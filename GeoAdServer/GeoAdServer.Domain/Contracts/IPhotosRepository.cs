@@ -14,7 +14,7 @@ namespace GeoAdServer.Domain.Contracts
 
         PhotoDTO GetById(int photoId);
 
-        void Insert(Photo photo);
+        int Insert(Photo photo);
 
         void Update(int id, Photo photo);
 

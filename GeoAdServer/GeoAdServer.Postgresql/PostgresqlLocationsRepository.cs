@@ -32,10 +32,12 @@ namespace GeoAdServer.Postgresql
 
             return ExecQuery<LocationDTO>(query, (dr) =>
             {
-                string pCat, sCat;
+                string pCat, sCat = null;
+
+                int? sCatId = dr.Field<int?>("SCatId");
 
                 Categories.TryGetValue(dr.Field<int>("PCatId"), out pCat);
-                Categories.TryGetValue(dr.Field<int>("SCatId"), out sCat);
+                if (sCatId.HasValue) Categories.TryGetValue(sCatId.Value, out sCat);
 
                 return new LocationDTO
                 {
@@ -59,10 +61,12 @@ namespace GeoAdServer.Postgresql
 
             return ExecQuery<LocationDTO>(query, (dr) =>
             {
-                string pCat, sCat;
+                string pCat, sCat = null;
+
+                int? sCatId = dr.Field<int?>("SCatId");
 
                 Categories.TryGetValue(dr.Field<int>("PCatId"), out pCat);
-                Categories.TryGetValue(dr.Field<int>("SCatId"), out sCat);
+                if (sCatId.HasValue) Categories.TryGetValue(sCatId.Value, out sCat);
 
                 return new LocationDTO
                 {
@@ -86,10 +90,12 @@ namespace GeoAdServer.Postgresql
 
             return ExecQuery<LocationDTO>(query, (dr) =>
             {
-                string pCat, sCat;
+                string pCat, sCat = null;
+
+                int? sCatId = dr.Field<int?>("SCatId");
 
                 Categories.TryGetValue(dr.Field<int>("PCatId"), out pCat);
-                Categories.TryGetValue(dr.Field<int>("SCatId"), out sCat);
+                if (sCatId.HasValue) Categories.TryGetValue(sCatId.Value, out sCat);
 
                 return new LocationDTO
                 {
@@ -105,14 +111,18 @@ namespace GeoAdServer.Postgresql
             }).ElementAtOrDefault(0);
         }
 
-        void ILocationsRepository.Insert(Location location)
+        int ILocationsRepository.Insert(Location location)
         {
             var templateCommand = @"INSERT INTO
                                    ""Locations""(""Id"", ""UserId"", ""PCatId"", ""SCatId"", ""Name"", ""Lat"", ""Lng"", ""Desc"", ""Type"")
-                                   VALUES (DEFAULT, {0}, {1}, {2}, '{3}', '{4}', '{5}', '{6}', '{7}')";
+                                   VALUES (DEFAULT, {0}, {1}, {2}, '{3}', '{4}', '{5}', '{6}', '{7}')
+                                   RETURNING ""Id""";
 
-            object row = ExecCommand(string.Format(templateCommand,
-                location.UserId, location.PCatId, location.SCatId, location.Name, location.Lat, location.Lng, location.Desc, location.Type));
+            object row = ExecCommand(string.Format(new NullFormat(), templateCommand,
+                location.UserId, location.PCatId, location.SCatId,
+                location.Name, location.Lat, location.Lng, location.Desc, location.Type));
+
+            return (int) row;
         }
 
         void ILocationsRepository.Update(int id, Location location)
@@ -128,7 +138,7 @@ namespace GeoAdServer.Postgresql
                                         ""Type"" = '{7}'
                                     WHERE ""Id"" = {8}";
 
-            object row = ExecCommand(string.Format(templateCommand,
+            object row = ExecCommand(string.Format(new NullFormat(), templateCommand,
                 location.UserId, location.PCatId, location.SCatId, location.Name, location.Lat, location.Lng, location.Desc, location.Type, id));
         }
 
