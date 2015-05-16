@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="AbstractPostgresqlRepository.cs" />
     <Compile Include="PostgresqlLocationsRepository.cs" />
+    <Compile Include="PostgresqlOfferingsRepository.cs" />
     <Compile Include="PostgresqlPhotosRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

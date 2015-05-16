@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GeoAdServer.Domain.Entities.DTOs
 {
-    public class OfferingDTO
+    public class OfferingDTO : ReflectiveEquals
     {
         public int Id { get; set; }
 
@@ -14,8 +14,8 @@ namespace GeoAdServer.Domain.Entities.DTOs
 
         public string Desc { get; set; }
 
-        public DateTime InsDate { get; set; }
+        public long InsDateMillis { get; set; }
 
-        public DateTime ExpDate { get; set; }
+        public long ExpDateMillis { get; set; }
     }
 }

@@ -49,6 +49,7 @@
     <Compile Include="Entities\Location.cs" />
     <Compile Include="Entities\Offering.cs" />
     <Compile Include="Entities\Photo.cs" />
+    <Compile Include="Entities\Types.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

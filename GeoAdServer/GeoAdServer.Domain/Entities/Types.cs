@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace GeoAdServer.Domain.Entities
 {
-    public class Offering
+    public class Types
     {
-        public int LocationId { get; set; }
-
-        public string Desc { get; set; }
-
-        public long ExpDateMillis { get; set; }
+        public static readonly string[] Values =
+        {
+            "ca",
+            "poi"
+        };
     }
 }
