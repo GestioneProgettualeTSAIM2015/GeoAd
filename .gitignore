@@ -198,3 +198,7 @@ build/
 
 ##Exceptions
 !Npgsql.dll
+
+
+##Others
+**/Tests-*.*
