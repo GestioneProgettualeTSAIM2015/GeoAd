@@ -16,7 +16,7 @@ namespace GeoAdServer.Domain.Contracts
 
         int Insert(Photo photo);
 
-        void Update(int id, Photo photo);
+        bool Update(int id, Photo photo);
 
         bool Delete(int photoId);
     }

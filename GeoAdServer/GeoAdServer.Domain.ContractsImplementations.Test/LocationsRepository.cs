@@ -54,7 +54,8 @@ namespace GeoAdServer.Domain.ContractsImplementations.Test
             int id = locationRepository.Insert(loc);
             LocationDTO locdto1 = locationRepository.GetById(id);
             loc.Desc = "New description";
-            locationRepository.Update(id, loc);
+            Assert.IsTrue(locationRepository.Update(id, loc));
+            Assert.IsFalse(locationRepository.Update(-1, loc));
             LocationDTO locdto2 = locationRepository.GetById(id);
             Assert.AreNotEqual(locdto1, locdto2);
             var locs = new List<LocationDTO>(locationRepository.GetByUserId("-a1"));

@@ -54,7 +54,8 @@ namespace GeoAdServer.Domain.ContractsImplementations.Test
             var photos = photosRepository.GetByLocationId(locationId);
             Assert.IsTrue(new List<PhotoDTO>(photos).Contains(photoDTO));
             photo.Height = 2;
-            photosRepository.Update(id, photo);
+            Assert.IsTrue(photosRepository.Update(id, photo));
+            Assert.IsFalse(photosRepository.Update(-1, photo));
             var newPhotoDTO = photosRepository.GetById(id);
             Assert.IsTrue(photoDTO.Data.Length == newPhotoDTO.Data.Length);
             for (int i = 0; i < photo.Data.Length; i++) Assert.IsTrue(photo.Data[i] == photoDTO.Data[i]);

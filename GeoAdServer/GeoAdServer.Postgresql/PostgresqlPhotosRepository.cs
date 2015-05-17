@@ -74,20 +74,23 @@ namespace GeoAdServer.Postgresql
             return (int) row;
         }
 
-        void IPhotosRepository.Update(int id, Photo photo)
+        bool IPhotosRepository.Update(int id, Photo photo)
         {
             var templateCommand = @"UPDATE public.""Photos""
                                     SET ""LocationId"" = {0},
                                         ""Data"" = :bytesData,
                                         ""Width"" = {1},
                                         ""Height"" = {2}
-                                    WHERE ""Id"" = {3}";
+                                    WHERE ""Id"" = {3}
+                                    RETURNING ""Id""";
 
             NpgsqlParameter bytesData = new NpgsqlParameter(":bytesData", NpgsqlDbType.Bytea);
             bytesData.Value = photo.Data;
 
             object row = ExecCommand(string.Format(templateCommand,
                 photo.LocationId, photo.Width, photo.Height, id), bytesData);
+
+            return row != null && (int)row == id;
         }
 
         bool IPhotosRepository.Delete(int photoId)

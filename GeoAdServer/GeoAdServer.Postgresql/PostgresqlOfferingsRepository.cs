@@ -72,16 +72,19 @@ namespace GeoAdServer.Postgresql
             return (int)row;
         }
 
-        void IOfferingsRepository.Update(int id, Offering offering)
+        bool IOfferingsRepository.Update(int id, Offering offering)
         {
             var templateCommand = @"UPDATE public.""Offerings""
                                     SET ""LocationId"" = {0},
                                         ""Desc"" = '{1}',
                                         ""ExpDateMillis"" = {2}
-                                    WHERE ""Id"" = {3}";
+                                    WHERE ""Id"" = {3}
+                                    RETURNING ""Id""";
 
             object row = ExecCommand(string.Format(templateCommand,
                 offering.LocationId, offering.Desc, offering.ExpDateMillis, id));
+
+            return row != null && (int)row == id;
         }
 
         bool IOfferingsRepository.DeleteById(int offeringId)

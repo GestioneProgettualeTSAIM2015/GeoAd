@@ -49,7 +49,8 @@ namespace GeoAdServer.Domain.ContractsImplementations.Test
             var offeringDTO = offeringsRepository.GetByLocationId(locationId).Where(off => off.Id == id).Single();
             var copy = offeringsRepository.GetAll().Where(off => off.Equals(offeringDTO)).Single();
             offering.Desc = "new desc";
-            offeringsRepository.Update(id, offering);
+            Assert.IsTrue(offeringsRepository.Update(id, offering));
+            Assert.IsFalse(offeringsRepository.Update(-1, offering));
             Assert.IsNull(offeringsRepository.GetAll().Where(off => off.Equals(offeringDTO)).SingleOrDefault());
             Assert.IsTrue(offeringsRepository.DeleteById(id));
             Assert.IsNull(offeringsRepository.GetByLocationId(locationId).Where(off => off.Id == id).SingleOrDefault());
