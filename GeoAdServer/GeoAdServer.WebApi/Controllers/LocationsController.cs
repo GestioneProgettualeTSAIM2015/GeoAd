@@ -16,38 +16,32 @@ namespace GeoAdServer.WebApi.Controllers
     [Authorize]
     public class LocationsController : ApiController
     {
-        [ActionName("All")]
-        public IQueryable<LocationDTO> GetAll()
+        public IQueryable<LocationDTO> Get()
         {
             return DataRepos.Locations.GetAll().AsQueryable();
         }
 
-        [ActionName("FromUser")]
-        public IQueryable<LocationDTO> GetFromUser(string id)
-        {
-            return DataRepos.Locations.GetByUserId(id).AsQueryable();
-        }
-
-        [ActionName("ById")]
-        public LocationDTO GetById(int id)
+        public LocationDTO Get(int id)
         {
             return DataRepos.Locations.GetById(id);
         }
 
-        [HttpPost]
-        public HttpResponseMessage Insert([FromBody]LocationApiModel locationApiModel)
+        public IQueryable<LocationDTO> Get(string userId)
+        {
+            return DataRepos.Locations.GetByUserId(userId).AsQueryable();
+        }
+
+        public HttpResponseMessage Post([FromBody]LocationApiModel locationApiModel)
         {
             var location = locationApiModel.CreateLocationFromModel(
                     RequestContext.Principal.Identity.Name.GetHashCode().ToString(),
                     DataRepos.Locations);
             int id = DataRepos.Locations.Insert(location);
-            return id != -1 ? Request.CreateResponse(HttpStatusCode.OK, 1) :
+            return id != -1 ? Request.CreateResponse(HttpStatusCode.OK, id) :
                               Request.CreateResponse(HttpStatusCode.InternalServerError);
         }
 
-        [HttpPut]
-        [ActionName("ById")]
-        public HttpResponseMessage Update(int id, [FromBody]LocationApiModel locationApiModel)
+        public HttpResponseMessage Put(int id, [FromBody]LocationApiModel locationApiModel)
         {
             var location = locationApiModel.CreateLocationFromModel(
                     RequestContext.Principal.Identity.Name.GetHashCode().ToString(),
@@ -56,9 +50,7 @@ namespace GeoAdServer.WebApi.Controllers
             return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
         }
 
-        [HttpDelete]
-        [ActionName("ById")]
-        public HttpResponseMessage DeleteById(int id)
+        public HttpResponseMessage Delete(int id)
         {
             foreach (OfferingDTO off in DataRepos.Offerings.GetByLocationId(id))
             {
@@ -69,13 +61,6 @@ namespace GeoAdServer.WebApi.Controllers
 
             var result = DataRepos.Locations.DeleteById(id);
             return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
-        }
-
-        [HttpGet]
-        [ActionName("Categories")]
-        public IQueryable<string> GetCategories()
-        {
-            return DataRepos.Locations.GetCategories().Select(pair => pair.Value).AsQueryable();
         }
     }
 

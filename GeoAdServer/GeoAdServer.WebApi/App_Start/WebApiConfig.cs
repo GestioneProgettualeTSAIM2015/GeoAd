@@ -24,9 +24,8 @@ namespace GeoAdServer.WebApi
             config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(
-                name: "WithAction",
-                routeTemplate: "api/{controller}/{action}/{id}",
-                defaults: new { id = RouteParameter.Optional }
+                name: "FromUserApi",
+                routeTemplate: "api/{controller}/fromuser/{userId}"
             );
 
             config.Routes.MapHttpRoute(
