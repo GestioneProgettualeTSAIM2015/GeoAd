@@ -10,7 +10,7 @@ namespace GeoAdServer.Postgresql
 {
     public abstract class AbstractPostgresqlRepository : IDisposable
     {
-        protected NpgsqlConnection Connection { get; private set; }
+        public NpgsqlConnection Connection { get; private set; }
 
         public AbstractPostgresqlRepository(string connectionString) : this(new NpgsqlConnection(connectionString))
         {
@@ -19,7 +19,8 @@ namespace GeoAdServer.Postgresql
         public AbstractPostgresqlRepository(NpgsqlConnection connection)
         {
             Connection = connection;
-            Connection.Open();
+            if (Connection.State != ConnectionState.Open)
+                Connection.Open();
         }
 
         protected IEnumerable<T> ExecQuery<T>(string query, Func<DataRow, T> rp)

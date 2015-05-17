@@ -8,7 +8,7 @@ namespace GeoAdServer.Domain.Entities
 {
     public class Location
     {
-        public int UserId { get; set; }
+        public string UserId { get; set; }
 
         public int PCatId { get; set; }
 

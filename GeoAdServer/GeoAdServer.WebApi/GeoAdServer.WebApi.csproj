@@ -225,6 +225,7 @@
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\LocationApiModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\ApplicationOAuthProvider.cs" />
     <Compile Include="Results\ChallengeResult.cs" />
@@ -299,6 +300,10 @@
     <None Include="Project_Readme.html" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\GeoAdServer.DataAccess\GeoAdServer.DataAccess.csproj">
+      <Project>{4d8b54d3-e5a3-402e-a5e8-86e4a9aaa7de}</Project>
+      <Name>GeoAdServer.DataAccess</Name>
+    </ProjectReference>
     <ProjectReference Include="..\GeoAdServer.Domain\GeoAdServer.Domain.csproj">
       <Project>{c63bea95-6e89-4bd2-a2b1-ee4a3f710e38}</Project>
       <Name>GeoAdServer.Domain</Name>

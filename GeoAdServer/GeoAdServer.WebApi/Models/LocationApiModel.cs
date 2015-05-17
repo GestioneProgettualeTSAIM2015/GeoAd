@@ -4,12 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GeoAdServer.Domain.Entities.DTOs
+namespace GeoAdServer.WebApi.Models
 {
-    public class LocationDTO : ReflectiveEquals
+    public class LocationApiModel
     {
-        public int Id { get; set; }
-
         public string PCat { get; set; }
 
         public string SCat { get; set; }
@@ -21,7 +19,5 @@ namespace GeoAdServer.Domain.Entities.DTOs
         public string Lng { get; set; }
 
         public string Desc { get; set; }
-
-        public string Type { get; set; }
     }
 }

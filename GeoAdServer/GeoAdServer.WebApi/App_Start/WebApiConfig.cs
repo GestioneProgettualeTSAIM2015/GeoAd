@@ -24,16 +24,22 @@ namespace GeoAdServer.WebApi
             config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(
-                name: "DefaultApi",
+                name: "WithAction",
+                routeTemplate: "api/{controller}/{action}/{id}",
+                defaults: new { id = RouteParameter.Optional }
+            );
+
+            config.Routes.MapHttpRoute(
+                name: "DefaultRoute",
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
 
-            ODataConventionModelBuilder builder = new ODataConventionModelBuilder();
+            /*ODataConventionModelBuilder builder = new ODataConventionModelBuilder();
             builder.EntitySet<LocationDTO>("Location");
-            config.Routes.MapODataServiceRoute("odataRoute", "odata", builder.GetEdmModel());
+            config.Routes.MapODataServiceRoute("odataRoute", "odata", builder.GetEdmModel());*/
 
-            config.EnableQuerySupport();
+            config.AddODataQueryFilter();
         }
     }
 }

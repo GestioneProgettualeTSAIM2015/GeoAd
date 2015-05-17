@@ -53,13 +53,13 @@ namespace GeoAdServer.Postgresql
             });
         }
 
-        IEnumerable<LocationDTO> ILocationsRepository.GetByUserId(int userId)
+        IEnumerable<LocationDTO> ILocationsRepository.GetByUserId(string userId)
         {
-            string query = @"SELECT *
+            string templateQuery = @"SELECT *
                              FROM public.""Locations""
-                             WHERE ""UserId"" = " + userId;
+                             WHERE ""UserId"" = '{0}'";
 
-            return ExecQuery<LocationDTO>(query, (dr) =>
+            return ExecQuery<LocationDTO>(string.Format(templateQuery, userId), (dr) =>
             {
                 string pCat, sCat = null;
 
@@ -115,20 +115,20 @@ namespace GeoAdServer.Postgresql
         {
             var templateCommand = @"INSERT INTO
                                    ""Locations""(""Id"", ""UserId"", ""PCatId"", ""SCatId"", ""Name"", ""Lat"", ""Lng"", ""Desc"", ""Type"")
-                                   VALUES (DEFAULT, {0}, {1}, {2}, '{3}', '{4}', '{5}', '{6}', '{7}')
+                                   VALUES (DEFAULT, '{0}', {1}, {2}, '{3}', '{4}', '{5}', '{6}', '{7}')
                                    RETURNING ""Id""";
 
             object row = ExecCommand(string.Format(new NullFormat(), templateCommand,
                 location.UserId, location.PCatId, location.SCatId,
                 location.Name, location.Lat, location.Lng, location.Desc, location.Type));
 
-            return (int) row;
+            return (int)row;
         }
 
         void ILocationsRepository.Update(int id, Location location)
         {
             var templateCommand = @"UPDATE ""Locations""
-                                    SET ""UserId"" = {0},
+                                    SET ""UserId"" = '{0}',
                                         ""PCatId"" = {1},
                                         ""SCatId"" = {2},
                                         ""Name"" = '{3}',
@@ -151,9 +151,9 @@ namespace GeoAdServer.Postgresql
             return true;
         }
 
-        bool ILocationsRepository.InsertCategory(string name)
+        int ILocationsRepository.InsertCategory(string name)
         {
-            if (Categories.ContainsValue(name)) return false;
+            if (Categories.ContainsValue(name)) return -1;
 
             var templateCommand = @"INSERT INTO
                                    ""Categories""(""Id"", ""Name"")
@@ -162,9 +162,9 @@ namespace GeoAdServer.Postgresql
 
             object row = ExecCommand(string.Format(templateCommand, name));
 
-            Categories.Add((int) row, name);
+            Categories.Add((int)row, name);
 
-            return true;
+            return (int)row;
         }
 
         bool ILocationsRepository.DeleteCategory(string name)

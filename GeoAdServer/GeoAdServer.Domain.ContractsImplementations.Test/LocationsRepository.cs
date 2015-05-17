@@ -32,7 +32,7 @@ namespace GeoAdServer.Domain.ContractsImplementations.Test
             //Category Test
             string newCategory = "aggghtldon";
             Assert.IsFalse(locationRepository.DeleteCategory(newCategory));
-            Assert.IsTrue(locationRepository.InsertCategory(newCategory));
+            Assert.IsTrue(locationRepository.InsertCategory(newCategory) != -1);
             Assert.IsTrue(locationRepository.GetCategories().ContainsValue(newCategory));
             Assert.IsTrue(locationRepository.DeleteCategory(newCategory));
             Assert.IsFalse(locationRepository.GetCategories().ContainsValue(newCategory));
@@ -43,7 +43,7 @@ namespace GeoAdServer.Domain.ContractsImplementations.Test
 
             var loc = new Location
             {
-                UserId = -1,
+                UserId = "-a1",
                 PCatId = pCatId,
                 Name = "TestLocation",
                 Lat = "11",
@@ -57,11 +57,11 @@ namespace GeoAdServer.Domain.ContractsImplementations.Test
             locationRepository.Update(id, loc);
             LocationDTO locdto2 = locationRepository.GetById(id);
             Assert.AreNotEqual(locdto1, locdto2);
-            var locs = new List<LocationDTO>(locationRepository.GetByUserId(-1));
+            var locs = new List<LocationDTO>(locationRepository.GetByUserId("-a1"));
             Assert.IsTrue(locs.Count == 1);
             Assert.AreEqual(locs[0], locdto2);
             Assert.IsTrue(locationRepository.DeleteById(id));
-            var newLocs = new List<LocationDTO>(locationRepository.GetByUserId(-1));
+            var newLocs = new List<LocationDTO>(locationRepository.GetByUserId("-a1"));
             Assert.IsTrue(newLocs.Count == 0);
             Assert.IsNull(locationRepository.GetById(id));
         }

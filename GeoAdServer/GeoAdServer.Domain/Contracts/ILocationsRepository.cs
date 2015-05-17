@@ -12,7 +12,7 @@ namespace GeoAdServer.Domain.Contracts
     {
         IEnumerable<LocationDTO> GetAll();
 
-        IEnumerable<LocationDTO> GetByUserId(int userId);
+        IEnumerable<LocationDTO> GetByUserId(string userId);
 
         LocationDTO GetById(int locationId);
 
@@ -22,7 +22,7 @@ namespace GeoAdServer.Domain.Contracts
 
         bool DeleteById(int locationId);
 
-        bool InsertCategory(string name);
+        int InsertCategory(string name);
 
         bool DeleteCategory(string name);
 
