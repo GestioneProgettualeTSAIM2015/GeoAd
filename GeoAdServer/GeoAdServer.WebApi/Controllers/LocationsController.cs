@@ -52,14 +52,21 @@ namespace GeoAdServer.WebApi.Controllers
             var location = locationApiModel.CreateLocationFromModel(
                     RequestContext.Principal.Identity.Name.GetHashCode().ToString(),
                     DataRepos.Locations);
-            DataRepos.Locations.Update(id, location);
-            return Request.CreateResponse(HttpStatusCode.NoContent);
+            var result = DataRepos.Locations.Update(id, location);
+            return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
         }
 
         [HttpDelete]
         [ActionName("ById")]
         public HttpResponseMessage DeleteById(int id)
         {
+            foreach (OfferingDTO off in DataRepos.Offerings.GetByLocationId(id))
+            {
+                DataRepos.Offerings.DeleteById(off.Id);
+            }
+
+            foreach (PhotoDTO pho in DataRepos.Photos.GetByLocationId(id)) DataRepos.Offerings.DeleteById(pho.Id);
+
             var result = DataRepos.Locations.DeleteById(id);
             return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
         }
@@ -81,8 +88,9 @@ namespace GeoAdServer.WebApi.Controllers
             if (!categories.ContainsValue(model.PCat)) repository.InsertCategory(model.PCat);
             if (model.SCat != null && !categories.ContainsValue(model.SCat)) repository.InsertCategory(model.SCat);
 
-            var pCatId = categories.FirstOrDefault(pair => pair.Value == model.PCat).Key;
-            var sCatId = categories.FirstOrDefault(pair => pair.Value == model.SCat).Key;
+            int pCatId = categories.FirstOrDefault(pair => pair.Value == model.PCat).Key;
+            int? sCatId = categories.FirstOrDefault(pair => pair.Value == model.SCat).Key;
+            if (sCatId == 0) sCatId = null;
 
             //check auth
             var type = true ? "ca" : "poi";
