@@ -93,7 +93,7 @@ namespace GeoAdServer.WebApi.Controllers
             if (sCatId == 0) sCatId = null;
 
             //check auth
-            var type = true ? "ca" : "poi";
+            var typeId = true ? 0 : 1;
 
             return new Location
             {
@@ -104,7 +104,7 @@ namespace GeoAdServer.WebApi.Controllers
                 Lat = model.Lat,
                 Lng = model.Lng,
                 Desc = model.Desc,
-                Type = type
+                Type = Types.Values[typeId]
             };
         }
     }
