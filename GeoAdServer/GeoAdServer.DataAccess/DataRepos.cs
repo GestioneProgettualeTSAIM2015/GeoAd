@@ -23,6 +23,8 @@ namespace GeoAdServer.DataAccess
             var connection = (Locations as PostgresqlLocationsRepository).Connection;
             Photos = new PostgresqlPhotosRepository(connection);
             Offerings = new PostgresqlOfferingsRepository(connection);
+            if (connection.State != System.Data.ConnectionState.Open)
+                throw new ApplicationException(connection.State.ToString());
         }
     }
 }
