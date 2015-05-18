@@ -25,7 +25,7 @@ namespace GeoAdServer.WebApi.Controllers
         public HttpResponseMessage Post(Offering offering)
         {
             int id = DataRepos.Offerings.Insert(offering);
-            return id != -1 ? Request.CreateResponse(HttpStatusCode.OK, 1) :
+            return id != -1 ? Request.CreateResponse(HttpStatusCode.OK, id) :
                               Request.CreateResponse(HttpStatusCode.InternalServerError);
         }
 
