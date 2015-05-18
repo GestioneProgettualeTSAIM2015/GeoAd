@@ -1,5 +1,6 @@
-package it.itskennedy.tsaim;
+package it.itskennedy.tsaim.geoad;
 
+import it.itskennedy.tsaim.geoad.R;
 import android.app.Activity;
 import android.os.Bundle;
 
