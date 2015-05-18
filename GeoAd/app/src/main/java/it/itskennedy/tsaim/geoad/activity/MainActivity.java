@@ -1,9 +1,11 @@
-package it.itskennedy.tsaim.geoad;
+package it.itskennedy.tsaim.geoad.activity;
 
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import it.itskennedy.tsaim.geoad.R;
 
 
 public class MainActivity extends ActionBarActivity {

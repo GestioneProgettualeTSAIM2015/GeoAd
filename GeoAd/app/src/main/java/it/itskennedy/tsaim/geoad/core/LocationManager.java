@@ -1,4 +1,4 @@
-package it.itskennedy.tsaim.geoad.services;
+package it.itskennedy.tsaim.geoad.core;
 
 import android.content.Context;
 import android.location.Location;
@@ -13,6 +13,8 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
+import java.util.ArrayList;
+
 public class LocationManager implements LocationListener, ConnectionCallbacks, OnConnectionFailedListener
 {
 	public interface LocationListener
@@ -20,10 +22,9 @@ public class LocationManager implements LocationListener, ConnectionCallbacks, O
 		void onLocationUpdated(Location aLocation);
 	}
 
-	private static final long BACKGROUND_POLLING = 30 * 1000;
-	private static final long ACTIVE_POLLING = 15 * 1000;
+	private static final long METER_DISPLACEMENT = 300;
 
-	LocationListener mListener;
+	ArrayList<LocationListener> mListeners;
 	private LocationRequest mLocationRequest;
 	private Context mContext;
 
@@ -50,7 +51,7 @@ public class LocationManager implements LocationListener, ConnectionCallbacks, O
 			mLocationRequest = LocationRequest.create();
 			mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 			
-			mLocationRequest.setInterval(BACKGROUND_POLLING);
+			mLocationRequest.setSmallestDisplacement(METER_DISPLACEMENT);
 
 			mGoogleApiClient = new GoogleApiClient.Builder(aContext).addApi(LocationServices.API).addConnectionCallbacks(this)
 					.addOnConnectionFailedListener(this).build();
@@ -62,9 +63,12 @@ public class LocationManager implements LocationListener, ConnectionCallbacks, O
 	@Override
 	public void onLocationChanged(Location location)
 	{
-		if (mListener != null)
-		{	
-			mListener.onLocationUpdated(location);
+		if (mListeners != null)
+		{
+			for(int i = 0; i < mListeners.size(); ++i)
+			{
+				mListeners.get(i).onLocationUpdated(location);
+			}
 		}
 	}
 
@@ -75,25 +79,6 @@ public class LocationManager implements LocationListener, ConnectionCallbacks, O
 		{
 			LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
 		}
-	}
-	
-	public void updatePolling(boolean aIsInBackground)
-	{
-		if(mGoogleApiClient.isConnected())
-		{
-			LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-			
-			if(aIsInBackground)
-			{
-				mLocationRequest.setInterval(BACKGROUND_POLLING);
-			}
-			else
-			{
-				mLocationRequest.setInterval(ACTIVE_POLLING);
-			}
-			
-			LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-		}	
 	}
 
 	@Override
@@ -121,8 +106,18 @@ public class LocationManager implements LocationListener, ConnectionCallbacks, O
 		return ConnectionResult.SUCCESS == GooglePlayServicesUtil.isGooglePlayServicesAvailable(mContext);
 	}
 
-	public void setListener(LocationListener aListener)
+	public void addListener(LocationListener aListener)
 	{
-		mListener = aListener;
+		if(mListeners == null)
+		{
+			mListeners = new ArrayList<LocationListener>();
+		}
+
+		mListeners.add(aListener);
+	}
+
+	public void removeListener(LocationListener aListner)
+	{
+		mListeners.remove(aListner);
 	}
 }
