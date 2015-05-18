@@ -4,7 +4,7 @@
 
 -- Dumped from database version 9.4.1
 -- Dumped by pg_dump version 9.4.1
--- Started on 2015-05-14 14:59:18
+-- Started on 2015-05-18 10:16:05
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -99,14 +99,14 @@ ALTER SEQUENCE "Categories_Id_seq" OWNED BY "Categories"."Id";
 
 CREATE TABLE "Locations" (
     "Id" integer NOT NULL,
-    "UserId" integer NOT NULL,
     "PCatId" integer NOT NULL,
     "SCatId" integer,
     "Name" text NOT NULL,
     "Lat" text NOT NULL,
     "Lng" text NOT NULL,
     "Desc" text,
-    "Type" text
+    "Type" text,
+    "UserId" text
 );
 
 
@@ -145,8 +145,8 @@ CREATE TABLE "Offerings" (
     "Id" integer NOT NULL,
     "LocationId" integer,
     "Desc" text,
-    "ExpDate" date,
-    "InsDate" date
+    "InsDateMillis" bigint,
+    "ExpDateMillis" bigint
 );
 
 
@@ -254,8 +254,12 @@ ALTER TABLE ONLY "Photos" ALTER COLUMN "Id" SET DEFAULT nextval('"Photos_Id_seq"
 -- Data for Name: Categories; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO "Categories" ("Id", "Name") VALUES (1, 'CA');
-INSERT INTO "Categories" ("Id", "Name") VALUES (2, 'POI');
+INSERT INTO "Categories" ("Id", "Name") VALUES (59, 'Cibo');
+INSERT INTO "Categories" ("Id", "Name") VALUES (61, 'Arte');
+INSERT INTO "Categories" ("Id", "Name") VALUES (62, 'FanArt');
+INSERT INTO "Categories" ("Id", "Name") VALUES (20, 'History');
+INSERT INTO "Categories" ("Id", "Name") VALUES (21, 'Food');
+INSERT INTO "Categories" ("Id", "Name") VALUES (22, 'Culture');
 
 
 --
@@ -264,7 +268,7 @@ INSERT INTO "Categories" ("Id", "Name") VALUES (2, 'POI');
 -- Name: Categories_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('"Categories_Id_seq"', 18, true);
+SELECT pg_catalog.setval('"Categories_Id_seq"', 62, true);
 
 
 --
@@ -273,6 +277,10 @@ SELECT pg_catalog.setval('"Categories_Id_seq"', 18, true);
 -- Data for Name: Locations; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
+INSERT INTO "Locations" ("Id", "PCatId", "SCatId", "Name", "Lat", "Lng", "Desc", "Type", "UserId") VALUES (1, 22, 20, 'Cult1', '11', '22', 'AAbbcc', 'POI', '2067273727');
+INSERT INTO "Locations" ("Id", "PCatId", "SCatId", "Name", "Lat", "Lng", "Desc", "Type", "UserId") VALUES (2, 21, NULL, 'Food1', '12', '23', 'EEff1', 'CA', '2067273727');
+INSERT INTO "Locations" ("Id", "PCatId", "SCatId", "Name", "Lat", "Lng", "Desc", "Type", "UserId") VALUES (4, 22, NULL, 'Walle', '91', '34', 'Blabla', 'POI', '9067273727');
+INSERT INTO "Locations" ("Id", "PCatId", "SCatId", "Name", "Lat", "Lng", "Desc", "Type", "UserId") VALUES (3, 22, 61, 'ApiCA1', '11', '23', 'Api1', 'ca', '2067273727');
 
 
 --
@@ -281,7 +289,7 @@ SELECT pg_catalog.setval('"Categories_Id_seq"', 18, true);
 -- Name: Locations_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('"Locations_Id_seq"', 1, false);
+SELECT pg_catalog.setval('"Locations_Id_seq"', 31, true);
 
 
 --
@@ -298,7 +306,7 @@ SELECT pg_catalog.setval('"Locations_Id_seq"', 1, false);
 -- Name: Offerings_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('"Offerings_Id_seq"', 1, false);
+SELECT pg_catalog.setval('"Offerings_Id_seq"', 16, true);
 
 
 --
@@ -307,6 +315,13 @@ SELECT pg_catalog.setval('"Offerings_Id_seq"', 1, false);
 -- Data for Name: Photos; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
+INSERT INTO "Photos" ("Id", "LocationId", "Width", "Height", "Data") VALUES (19, 1, 3, 2, '\x010204');
+INSERT INTO "Photos" ("Id", "LocationId", "Width", "Height", "Data") VALUES (20, 1, 3, 2, '\x010204');
+INSERT INTO "Photos" ("Id", "LocationId", "Width", "Height", "Data") VALUES (21, 1, 3, 2, '\x010204');
+INSERT INTO "Photos" ("Id", "LocationId", "Width", "Height", "Data") VALUES (22, 1, 3, 2, '\x010204');
+INSERT INTO "Photos" ("Id", "LocationId", "Width", "Height", "Data") VALUES (23, 1, 3, 2, '\x010204');
+INSERT INTO "Photos" ("Id", "LocationId", "Width", "Height", "Data") VALUES (24, 1, 3, 2, '\x010204');
+INSERT INTO "Photos" ("Id", "LocationId", "Width", "Height", "Data") VALUES (25, 1, 3, 2, '\x010204');
 
 
 --
@@ -315,7 +330,7 @@ SELECT pg_catalog.setval('"Offerings_Id_seq"', 1, false);
 -- Name: Photos_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('"Photos_Id_seq"', 1, false);
+SELECT pg_catalog.setval('"Photos_Id_seq"', 25, true);
 
 
 --
@@ -452,7 +467,7 @@ GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
--- Completed on 2015-05-14 14:59:19
+-- Completed on 2015-05-18 10:16:06
 
 --
 -- PostgreSQL database dump complete
