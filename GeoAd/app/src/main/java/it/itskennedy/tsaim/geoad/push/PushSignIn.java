@@ -2,6 +2,7 @@ package it.itskennedy.tsaim.geoad.push;
 
 import java.io.IOException;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -145,7 +146,7 @@ public class PushSignIn
 		ConnectionManager.get(mContext).send("storekey", vParams, new ConnectionManager.JsonResponse()
 		{
 			@Override
-			public void onResponse(boolean aResult, JSONObject aResponse)
+			public void onResponse(boolean aResult, JSONArray aResponse)
 			{
 				if(aResult)
 				{

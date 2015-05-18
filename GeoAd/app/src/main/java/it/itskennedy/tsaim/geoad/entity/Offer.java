@@ -12,40 +12,31 @@ import java.util.Date;
 import it.itskennedy.tsaim.geoad.core.Engine;
 
 /**
- * Created by ITS on 15/05/2015.
+ * Created by Marco Zeni on 15/05/2015.
  */
 public class Offer
 {
-    public static final String BUNDLE_KEY = "bundle_key";
+    public static final String BUNDLE_KEY = "offer_bundle";
 
     public static final String ID = "id";
     public static final String LOC_ID = "loc_id";
     public static final String DESC = "desc";
     public static final String INS_DATE = "ins_date";
     public static final String EXP_DATE = "exp_date";
-    public static final String LOC_NAME = "loc_name";
-    public static final String LOC_LAT = "loc_lat";
-    public static final String LOC_LNG = "loc_lng";
 
     private int mId;
     private int mLocationId;
     private String mDesc;
     private long mInsDate;
     private long mExpDate;
-    private String mLocationName;
-    private double mLocationLat;
-    private double mLocationLng;
 
-    public Offer(int aId, int aLocId, String aDesc, long aInsDate, long aExpDate, String aLocName, double aLocLat, double aLocLng)
+    public Offer(int aId, int aLocId, String aDesc, long aInsDate, long aExpDate)
     {
         mId = aId;
         mDesc = aDesc;
         mLocationId = aLocId;
         mInsDate = aInsDate;
         mExpDate = aExpDate;
-        mLocationName = aLocName;
-        mLocationLat = aLocLat;
-        mLocationLng = aLocLng;
     }
 
     public int getId()
@@ -53,9 +44,9 @@ public class Offer
         return mId;
     }
 
-    public String getLocationName()
+    public int getLocationId()
     {
-        return mLocationName;
+        return mLocationId;
     }
 
     public String getDesc()
@@ -72,9 +63,6 @@ public class Offer
         vBundle.putString(DESC, mDesc);
         vBundle.putLong(INS_DATE, mInsDate);
         vBundle.putLong(EXP_DATE, mExpDate);
-        vBundle.putString(LOC_NAME, mLocationName);
-        vBundle.putDouble(LOC_LAT, mLocationLat);
-        vBundle.putDouble(LOC_LNG, mLocationLng);
 
         return vBundle;
     }
@@ -96,11 +84,8 @@ public class Offer
         String vDesc = aOfferBundle.getString(DESC);
         long vInsDate = aOfferBundle.getLong(INS_DATE);
         long vExpDate = aOfferBundle.getLong(EXP_DATE);
-        String vLocationName = aOfferBundle.getString(LOC_NAME);
-        double vLocationLat = aOfferBundle.getDouble(LOC_LAT);
-        double vLocationLng = aOfferBundle.getDouble(LOC_LNG);
 
-        return new Offer(vId, vLocationId, vDesc, vInsDate, vExpDate, vLocationName, vLocationLat, vLocationLng);
+        return new Offer(vId, vLocationId, vDesc, vInsDate, vExpDate);
     }
 
     public static Offer fromJSON(String aJSON)
@@ -114,15 +99,12 @@ public class Offer
             String vDesc = vObj.getString(DESC);
             long vInsDate = vObj.getLong(INS_DATE);
             long vExpDate = vObj.getLong(EXP_DATE);
-            String vLocationName = vObj.getString(LOC_NAME);
-            double vLocationLat = vObj.getDouble(LOC_LAT);
-            double vLocationLng = vObj.getDouble(LOC_LNG);
 
-            return new Offer(vId, vLocationId, vDesc, vInsDate, vExpDate, vLocationName, vLocationLat, vLocationLng);
+            return new Offer(vId, vLocationId, vDesc, vInsDate, vExpDate);
         }
         catch (JSONException e)
         {
-            Log.d(Engine.APP_NAME, "Json Parse Error!");
+            Log.d(Engine.APP_NAME, "Json Parse Error");
         }
 
         return null;

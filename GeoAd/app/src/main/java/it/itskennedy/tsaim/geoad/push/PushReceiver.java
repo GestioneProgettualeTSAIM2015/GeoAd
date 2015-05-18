@@ -5,11 +5,12 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
 import it.itskennedy.tsaim.geoad.core.Engine;
-import it.itskennedy.tsaim.geoad.services.PushService;
+import it.itskennedy.tsaim.geoad.services.GeoAdService;
 
 public class PushReceiver extends WakefulBroadcastReceiver 
 {
@@ -18,8 +19,16 @@ public class PushReceiver extends WakefulBroadcastReceiver
     {
         Log.d(Engine.APP_NAME, "Push received");
 
-        ComponentName comp = new ComponentName(context.getPackageName(), PushService.class.getName());
-        startWakefulService(context, (intent.setComponent(comp)));
-        setResultCode(Activity.RESULT_OK); 
+        Bundle vExtras = intent.getExtras();
+
+        if(!vExtras.isEmpty())
+        {
+            String vJsonOffer = vExtras.getString("json_obj");
+
+            Intent vDispatchOffer = new Intent();
+            vDispatchOffer.setAction(GeoAdService.OFFER_ACTION);
+            vDispatchOffer.putExtra(GeoAdService.OFFER_DATA, vJsonOffer);
+            context.sendBroadcast(vDispatchOffer);
+        }
     }
 }

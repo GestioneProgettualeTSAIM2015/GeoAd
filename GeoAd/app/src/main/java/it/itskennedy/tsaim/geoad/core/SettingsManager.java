@@ -6,7 +6,7 @@ import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
 
 /**
- * Created by ITS on 13/05/2015.
+ * Created by Marco Zeni on 13/05/2015.
  */
 public class SettingsManager
 {

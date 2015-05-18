@@ -15,7 +15,7 @@ import it.itskennedy.tsaim.geoad.push.PushSignIn;
 import it.itskennedy.tsaim.geoad.services.GeoAdService;
 
 /**
- * Created by ITS on 13/05/2015.
+ * Created by Marco Zeni on 13/05/2015.
  */
 public class Engine extends Application
 {

@@ -1,30 +1,34 @@
 package it.itskennedy.tsaim.geoad.services;
 
 import it.itskennedy.tsaim.geoad.core.ConnectionManager;
-import it.itskennedy.tsaim.geoad.core.Engine;
 import it.itskennedy.tsaim.geoad.core.LocationManager.LocationListener;
 import it.itskennedy.tsaim.geoad.core.LocationManager;
+import it.itskennedy.tsaim.geoad.core.NotificationManager;
+import it.itskennedy.tsaim.geoad.entity.LocationModel;
+import it.itskennedy.tsaim.geoad.entity.Offer;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Process;
-import android.os.Vibrator;
-import android.util.Log;
-import android.widget.Toast;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.loopj.android.http.RequestParams;
 
-import org.json.JSONObject;
+import org.json.JSONArray;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GeoAdService extends Service implements LocationListener
 {
-	public static final String LOCATION_ACTION = "location_action";
+	public static final String OFFER_ACTION = "offer_action";
+	public static final String OFFER_DATA = "offer_data";
 
 	public static final String NAME = "GeoAd Service";
 
@@ -37,6 +41,27 @@ public class GeoAdService extends Service implements LocationListener
 	private long mLngSq;
 
 	private Location mPosition;
+	private List<LocationModel> mNearLocations;
+
+	private BroadcastReceiver mOfferReceiver = new BroadcastReceiver()
+	{
+		@Override
+		public void onReceive(Context context, Intent intent)
+		{
+			Bundle vExtra = intent.getExtras();
+
+			if(!vExtra.isEmpty())
+			{
+				String vJson = intent.getExtras().getString(OFFER_DATA);
+				Offer vOffer = Offer.fromJSON(vJson);
+
+				NotificationManager.showOffer(GeoAdService.this, vOffer, findLocation(vOffer.getLocationId()));
+
+				//TODO cadorin
+				//getContentResolver().insert(URI, vOffer.getContentValues());
+			}
+		}
+	};
 
 	@Override
 	public void onCreate() 
@@ -45,6 +70,10 @@ public class GeoAdService extends Service implements LocationListener
 	  	thread.start();
 	  
 	  	LocationManager.get(this).addListener(this);
+
+		mNearLocations = new ArrayList<LocationModel>();
+
+		registerReceiver(mOfferReceiver, new IntentFilter(OFFER_ACTION));
 	}
 	
 	@Override
@@ -62,6 +91,7 @@ public class GeoAdService extends Service implements LocationListener
 	@Override
 	public void onDestroy()
 	{
+		unregisterReceiver(mOfferReceiver);
 		LocationManager.get(this).removeListener(this);
 		super.onDestroy();
 	}
@@ -78,6 +108,19 @@ public class GeoAdService extends Service implements LocationListener
 			updateLngSplit(aLocation);
 			mPosition = aLocation;
 		}
+	}
+
+	private LocationModel findLocation(int aLocationId)
+	{
+		for(int i = 0; i < mNearLocations.size(); ++i)
+		{
+			if(mNearLocations.get(i).getId() == aLocationId)
+			{
+				return mNearLocations.get(i);
+			}
+		}
+
+		return null;
 	}
 
 	private void  updateLngSplit(Location aLocation)
@@ -111,12 +154,11 @@ public class GeoAdService extends Service implements LocationListener
 		ConnectionManager.get(this).send("updatePosition", vParams, new ConnectionManager.JsonResponse()
 		{
 			@Override
-			public void onResponse(boolean aResult, JSONObject aResponse)
+			public void onResponse(boolean aResult, JSONArray aResponse)
 			{
 				if(aResult && aResponse != null)
 				{
-					//TODO
-					//aggiorna content provider cadorin!
+					mNearLocations = LocationModel.getListFromJson(aResponse);
 				}
 			}
 		});

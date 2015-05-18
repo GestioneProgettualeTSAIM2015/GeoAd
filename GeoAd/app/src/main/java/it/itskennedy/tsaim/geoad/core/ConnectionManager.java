@@ -8,12 +8,13 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 import org.apache.http.Header;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 
 /**
- * Created by ITS on 13/05/2015.
+ * Created by Marco Zeni on 13/05/2015.
  */
 public class ConnectionManager
 {
@@ -29,7 +30,7 @@ public class ConnectionManager
 
     public interface JsonResponse
     {
-        void onResponse(boolean aResult, JSONObject aResponse);
+        void onResponse(boolean aResult, JSONArray aResponse);
     }
 
     public static ConnectionManager get(Context aContext)
@@ -59,12 +60,12 @@ public class ConnectionManager
         {
             mIsPending = true;
 
-            Log.d(Engine.APP_NAME, "URL: " + aUrl);
+            Log.d(Engine.APP_NAME, "URL: " + Engine.SERVER_URL + aUrl);
 
             mClient.post(Engine.SERVER_URL + aUrl, aParams, new JsonHttpResponseHandler()
             {
                 @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONObject response)
+                public void onSuccess(int statusCode, Header[] headers, JSONArray response)
                 {
                     if(aListener != null)
                     {
@@ -77,12 +78,7 @@ public class ConnectionManager
                 @Override
                 public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse)
                 {
-                    if(aListener != null)
-                    {
-                        aListener.onResponse(true, errorResponse);
-                    }
 
-                    executeQueue();
                 }
             });
         }
