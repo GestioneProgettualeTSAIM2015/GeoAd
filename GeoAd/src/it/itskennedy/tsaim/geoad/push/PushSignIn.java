@@ -24,10 +24,17 @@ public class PushSignIn
     private String mPushId;
     private Context mContext;
 	private GoogleCloudMessaging mGoogleCloudMessaging;
+	private PushKeyReceiver mReceiver;
     
-    public PushSignIn(Context aContext)
+	public interface PushKeyReceiver
+	{
+		void onKey(String aKey);
+	}
+	
+    public PushSignIn(Context aContext, PushKeyReceiver aReceiver)
     {
     	mContext = aContext;
+    	mReceiver = aReceiver;
     	
     	if (checkPlayServices())
     	{ 
@@ -39,6 +46,10 @@ public class PushSignIn
             }
             else
             {
+            	if(mReceiver != null)
+            	{
+            		mReceiver.onKey(mPushId);
+            	}
             	Log.d(Engine.APP_NAME, "Push Key Already Stored");
             }    
         }
@@ -149,6 +160,10 @@ public class PushSignIn
 				if(aResult)
 				{
 					savePushKey();
+					if(mReceiver != null)
+	            	{
+	            		mReceiver.onKey(mPushId);
+	            	}
 				}
 			}
 		});

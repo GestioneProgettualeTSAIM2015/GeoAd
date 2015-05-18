@@ -6,7 +6,6 @@ import it.itskennedy.tsaim.geoad.core.LocationManager;
 import it.itskennedy.tsaim.geoad.core.NotificationManager;
 import it.itskennedy.tsaim.geoad.entity.LocationModel;
 import it.itskennedy.tsaim.geoad.entity.Offer;
-
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;

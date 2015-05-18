@@ -12,18 +12,20 @@ import java.io.InputStreamReader;
 
 import it.itskennedy.tsaim.geoad.R;
 import it.itskennedy.tsaim.geoad.push.PushSignIn;
+import it.itskennedy.tsaim.geoad.push.PushSignIn.PushKeyReceiver;
 import it.itskennedy.tsaim.geoad.services.GeoAdService;
 
 /**
  * Created by Marco Zeni on 13/05/2015.
  */
-public class Engine extends Application
+public class Engine extends Application implements PushKeyReceiver
 {
     public static String SERVER_URL = "";
     public static String APP_NAME = "GeoAd";
     public static String PROJECT_NUMBER = "";
 
     private static Engine mInstance;
+	private String mKey;
 
     @Override
     public void onCreate()
@@ -34,6 +36,8 @@ public class Engine extends Application
         startService(vService);
 
         setVariables();
+        
+        new PushSignIn(this, this);
 
         mInstance = this;
     }
@@ -41,11 +45,6 @@ public class Engine extends Application
     public static Engine get()
     {
     	return mInstance;
-    }
-    
-    public void init()
-    {
-        new PushSignIn(this);
     }
 
     public void setVariables()
@@ -71,13 +70,35 @@ public class Engine extends Application
             e.printStackTrace();
         } finally
         {
-            if (reader != null) {
-                try {
+            if (reader != null)
+            {
+                try
+                {
                     reader.close();
-                } catch (IOException e) {
+                } 
+                catch (IOException e)
+                {
                     //log the exception
                 }
             }
         }
     }
+
+	public String getKey() 
+	{
+		if(mKey != null)
+		{
+			return mKey;
+		}
+		
+		new PushSignIn(this, this);
+		
+		return null;
+	}
+
+	@Override
+	public void onKey(String aKey)
+	{
+		mKey = aKey;
+	}
 }

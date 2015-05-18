@@ -17,8 +17,6 @@ import java.util.ArrayList;
 
 public class LocationManager implements LocationListener, ConnectionCallbacks, OnConnectionFailedListener
 {
-	public static final String BUNDLE_KEY = "location_bundle";
-
 	public interface LocationListener
 	{
 		void onLocationUpdated(Location aLocation);

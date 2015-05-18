@@ -17,6 +17,8 @@ import it.itskennedy.tsaim.geoad.core.Engine;
  */
 public class LocationModel
 {
+	public static final String BUNDLE_KEY = "location_bundle";
+	
     public static final String ID = "Id";
     public static final String PCAT = "PCat";
     public static final String SCAT = "SCat";
@@ -102,5 +104,19 @@ public class LocationModel
         vBundle.putString(TYPE, mType);
 
         return vBundle;
+    }
+    
+    public static LocationModel fromBundle(Bundle aLocationBundle)
+    {
+        int vId = aLocationBundle.getInt(ID);
+        String vName = aLocationBundle.getString(NAME);
+        String vDesc = aLocationBundle.getString(DESC);
+        String vPCat = aLocationBundle.getString(PCAT);
+        String vSCat = aLocationBundle.getString(SCAT);
+        double vLat = aLocationBundle.getDouble(LAT);
+        double vLng = aLocationBundle.getDouble(LNG);
+        String vType = aLocationBundle.getString(TYPE);
+
+        return new LocationModel(vId, vPCat, vSCat, vName, vLat, vLng, vDesc, vType);
     }
 }

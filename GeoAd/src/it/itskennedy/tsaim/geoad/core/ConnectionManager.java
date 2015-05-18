@@ -54,36 +54,43 @@ public class ConnectionManager
 
     public void send(String aUrl, RequestParams aParams, final JsonResponse aListener)
     {
-        if(!mIsPending)
-        {
-            mIsPending = true;
+    	String vKey = Engine.get().getKey();
+    	
+    	if(vKey != null)
+    	{
+    		if(!mIsPending)
+            {	
+                mIsPending = true;
+                
+                aParams.add("key", vKey);
 
-            Log.d(Engine.APP_NAME, "URL: " + Engine.SERVER_URL + aUrl);
+                Log.d(Engine.APP_NAME, "URL: " + Engine.SERVER_URL + aUrl);
 
-            mClient.post(Engine.SERVER_URL + aUrl, aParams, new JsonHttpResponseHandler()
-            {
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONArray response)
+                mClient.post(Engine.SERVER_URL + aUrl, aParams, new JsonHttpResponseHandler()
                 {
-                    if(aListener != null)
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, JSONArray response)
                     {
-                        aListener.onResponse(true, response);
+                        if(aListener != null)
+                        {
+                            aListener.onResponse(true, response);
+                        }
+
+                        executeQueue();
                     }
 
-                    executeQueue();
-                }
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse)
+                    {
 
-                @Override
-                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse)
-                {
-
-                }
-            });
-        }
-        else
-        {
-            enqueue(aUrl, aParams, aListener);
-        }
+                    }
+                });
+            }
+            else
+            {
+                enqueue(aUrl, aParams, aListener);
+            }
+    	}
     }
 
     private void executeQueue()

@@ -21,7 +21,7 @@ public class NotificationManager
     {
         Intent resultIntent = new Intent(aContext, NewOfferActivity.class);
         resultIntent.putExtra(Offer.BUNDLE_KEY, aOffer.getBundle());
-        resultIntent.putExtra(LocationManager.BUNDLE_KEY, aLocation.getBundle());
+        resultIntent.putExtra(LocationModel.BUNDLE_KEY, aLocation.getBundle());
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(aContext);
         stackBuilder.addParentStack(NewOfferActivity.class);
         stackBuilder.addNextIntent(resultIntent);
