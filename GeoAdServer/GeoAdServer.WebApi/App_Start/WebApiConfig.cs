@@ -29,6 +29,11 @@ namespace GeoAdServer.WebApi
             );
 
             config.Routes.MapHttpRoute(
+                name: "FromLocationApi",
+                routeTemplate: "api/{controller}/fromlocation/{locationId}"
+            );
+
+            config.Routes.MapHttpRoute(
                 name: "DefaultRoute",
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }

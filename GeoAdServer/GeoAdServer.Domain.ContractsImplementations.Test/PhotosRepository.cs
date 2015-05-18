@@ -49,17 +49,11 @@ namespace GeoAdServer.Domain.ContractsImplementations.Test
             };
             int id = photosRepository.Insert(photo);
             var photoDTO = photosRepository.GetById(id);
-            Assert.IsTrue(photo.Data.Length == photoDTO.Data.Length);
-            for (int i = 0; i < photo.Data.Length; i++) Assert.IsTrue(photo.Data[i] == photoDTO.Data[i]);
+            var photoDTOData = photosRepository.GetPhotoData(id);
+            Assert.IsTrue(photo.Data.Length == photoDTOData.Length);
+            for (int i = 0; i < photo.Data.Length; i++) Assert.IsTrue(photo.Data[i] == photoDTOData[i]);
             var photos = photosRepository.GetByLocationId(locationId);
             Assert.IsTrue(new List<PhotoDTO>(photos).Contains(photoDTO));
-            photo.Height = 2;
-            Assert.IsTrue(photosRepository.Update(id, photo));
-            Assert.IsFalse(photosRepository.Update(-1, photo));
-            var newPhotoDTO = photosRepository.GetById(id);
-            Assert.IsTrue(photoDTO.Data.Length == newPhotoDTO.Data.Length);
-            for (int i = 0; i < photo.Data.Length; i++) Assert.IsTrue(photo.Data[i] == photoDTO.Data[i]);
-            Assert.AreNotEqual(photoDTO.Height, newPhotoDTO.Height);
             Assert.IsTrue(photosRepository.Delete(id + 1));
         }
     }

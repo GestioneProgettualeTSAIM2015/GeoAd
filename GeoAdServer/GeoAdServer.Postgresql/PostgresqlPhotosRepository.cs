@@ -32,7 +32,6 @@ namespace GeoAdServer.Postgresql
                 {
                     Id = dr.Field<int>("Id"),
                     LocationId = locationId,
-                    Data = dr.Field<byte[]>("Data"),
                     Width = dr.Field<int>("Width"),
                     Height = dr.Field<int>("Height")
                 };
@@ -41,7 +40,7 @@ namespace GeoAdServer.Postgresql
 
         PhotoDTO IPhotosRepository.GetById(int photoId)
         {
-            string query = @"SELECT ""LocationId"", ""Data"", ""Width"", ""Height""
+            string query = @"SELECT ""LocationId"", ""Width"", ""Height""
                              FROM public.""Photos""
                              WHERE ""Id"" = " + photoId;
 
@@ -51,10 +50,21 @@ namespace GeoAdServer.Postgresql
                 {
                     Id = photoId,
                     LocationId = dr.Field<int>("LocationId"),
-                    Data = dr.Field<byte[]>("Data"),
                     Width = dr.Field<int>("Width"),
                     Height = dr.Field<int>("Height")
                 };
+            }).ElementAtOrDefault(0);
+        }
+
+        byte[] IPhotosRepository.GetPhotoData(int photoId)
+        {
+            string query = @"SELECT ""Data""
+                             FROM public.""Photos""
+                             WHERE ""Id"" = " + photoId;
+
+            return ExecQuery<byte[]>(query, (dr) =>
+            {
+                return dr.Field<byte[]>("Data");
             }).ElementAtOrDefault(0);
         }
 
@@ -72,25 +82,6 @@ namespace GeoAdServer.Postgresql
                 photo.LocationId, photo.Width, photo.Height), bytesData);
 
             return (int) row;
-        }
-
-        bool IPhotosRepository.Update(int id, Photo photo)
-        {
-            var templateCommand = @"UPDATE public.""Photos""
-                                    SET ""LocationId"" = {0},
-                                        ""Data"" = :bytesData,
-                                        ""Width"" = {1},
-                                        ""Height"" = {2}
-                                    WHERE ""Id"" = {3}
-                                    RETURNING ""Id""";
-
-            NpgsqlParameter bytesData = new NpgsqlParameter(":bytesData", NpgsqlDbType.Bytea);
-            bytesData.Value = photo.Data;
-
-            object row = ExecCommand(string.Format(templateCommand,
-                photo.LocationId, photo.Width, photo.Height, id), bytesData);
-
-            return row != null && (int)row == id;
         }
 
         bool IPhotosRepository.Delete(int photoId)
