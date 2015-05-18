@@ -10,10 +10,10 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using GeoAdServer.WebApi.Support;
 
 namespace GeoAdServer.WebApi.Controllers
 {
-    [Authorize]
     public class LocationsController : ApiController
     {
         public IQueryable<LocationDTO> Get()
@@ -31,27 +31,36 @@ namespace GeoAdServer.WebApi.Controllers
             return DataRepos.Locations.GetByUserId(userId).AsQueryable();
         }
 
+        [Authorize]
         public HttpResponseMessage Post([FromBody]LocationApiModel locationApiModel)
         {
-            var location = locationApiModel.CreateLocationFromModel(
-                    RequestContext.Principal.Identity.Name.GetHashCode().ToString(),
-                    DataRepos.Locations);
+            if (locationApiModel == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
+
+            var location = locationApiModel.CreateLocationFromModel(RequestContext.GetUserId(), DataRepos.Locations);
             int id = DataRepos.Locations.Insert(location);
             return id != -1 ? Request.CreateResponse(HttpStatusCode.OK, id) :
                               Request.CreateResponse(HttpStatusCode.InternalServerError);
         }
 
+        [Authorize]
         public HttpResponseMessage Put(int id, [FromBody]LocationApiModel locationApiModel)
         {
-            var location = locationApiModel.CreateLocationFromModel(
-                    RequestContext.Principal.Identity.Name.GetHashCode().ToString(),
-                    DataRepos.Locations);
+            if (locationApiModel == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
+
+            if (!id.IsLocationOwner(RequestContext.GetUserId()))
+                return Request.CreateResponse(HttpStatusCode.Unauthorized);
+
+            var location = locationApiModel.CreateLocationFromModel(RequestContext.GetUserId(), DataRepos.Locations);
             var result = DataRepos.Locations.Update(id, location);
             return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
         }
 
+        [Authorize]
         public HttpResponseMessage Delete(int id)
         {
+            if (!id.IsLocationOwner(RequestContext.GetUserId()))
+                return Request.CreateResponse(HttpStatusCode.Unauthorized);
+
             foreach (OfferingDTO off in DataRepos.Offerings.GetByLocationId(id))
             {
                 DataRepos.Offerings.DeleteById(off.Id);
@@ -61,36 +70,6 @@ namespace GeoAdServer.WebApi.Controllers
 
             var result = DataRepos.Locations.DeleteById(id);
             return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
-        }
-    }
-
-    public static class LocationWrapper
-    {
-        public static Location CreateLocationFromModel(this LocationApiModel model, string userId, ILocationsRepository repository)
-        {
-            var categories = repository.GetCategories();
-
-            if (!categories.ContainsValue(model.PCat)) repository.InsertCategory(model.PCat);
-            if (model.SCat != null && !categories.ContainsValue(model.SCat)) repository.InsertCategory(model.SCat);
-
-            int pCatId = categories.FirstOrDefault(pair => pair.Value == model.PCat).Key;
-            int? sCatId = categories.FirstOrDefault(pair => pair.Value == model.SCat).Key;
-            if (sCatId == 0) sCatId = null;
-
-            //check auth
-            var typeId = true ? 0 : 1;
-
-            return new Location
-            {
-                UserId = userId,
-                PCatId = pCatId,
-                SCatId = sCatId,
-                Name = model.Name,
-                Lat = model.Lat,
-                Lng = model.Lng,
-                Desc = model.Desc,
-                Type = Types.Values[typeId]
-            };
         }
     }
 }

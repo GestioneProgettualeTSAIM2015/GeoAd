@@ -10,6 +10,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Web;
 using System.Web.Http;
+using GeoAdServer.WebApi.Support;
 
 namespace GeoAdServer.WebApi.Controllers
 {
@@ -38,8 +39,14 @@ namespace GeoAdServer.WebApi.Controllers
             } else return Request.CreateResponse(HttpStatusCode.NotFound);
         }
 
+        [Authorize]
         public HttpResponseMessage Post([FromBody]Photo photo)
         {
+            if (photo == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
+
+            if (!photo.LocationId.IsLocationOwner(RequestContext.GetUserId()))
+                return Request.CreateResponse(HttpStatusCode.Unauthorized);
+
             if (HttpContext.Current.Request.Files.AllKeys.Any())
             {
                 var dataFile = HttpContext.Current.Request.Files["Data"];
@@ -62,8 +69,12 @@ namespace GeoAdServer.WebApi.Controllers
             else return Request.CreateResponse(HttpStatusCode.BadRequest);
         }
 
+        [Authorize]
         public HttpResponseMessage Delete(int id)
         {
+            if (!id.IsLocationOwner(RequestContext.GetUserId()))
+                return Request.CreateResponse(HttpStatusCode.Unauthorized);
+
             var result = DataRepos.Photos.Delete(id);
             return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
         }

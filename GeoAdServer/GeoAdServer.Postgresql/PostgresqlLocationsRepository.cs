@@ -111,6 +111,18 @@ namespace GeoAdServer.Postgresql
             }).ElementAtOrDefault(0);
         }
 
+        string ILocationsRepository.GetOwnerId(int locationId)
+        {
+            string query = @"SELECT ""UserId""
+                             FROM public.""Locations""
+                             WHERE ""Id"" = " + locationId;
+
+            return ExecQuery<string>(query, (dr) =>
+            {
+                return dr.Field<string>("UserId");
+            }).SingleOrDefault();
+        }
+
         int ILocationsRepository.Insert(Location location)
         {
             var templateCommand = @"INSERT INTO

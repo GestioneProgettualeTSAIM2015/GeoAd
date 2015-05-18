@@ -14,6 +14,8 @@ namespace GeoAdServer.Domain.Contracts
 
         IEnumerable<LocationDTO> GetByUserId(string userId);
 
+        string GetOwnerId(int locationId);
+
         LocationDTO GetById(int locationId);
 
         int Insert(Location location);
