@@ -16,6 +16,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <provider
+            android:name=".localdb.DataFavContentProvider"
+            android:authorities="it.itskennedy.tsaim.geoad.localdb.datafavcontentprovider"
+            android:exported="false">
+        </provider>
+        <provider
+            android:name=".localdb.DataOffersContentProvider"
+            android:authorities="it.itskennedy.tsaim.geoad.localdb.dataofferscontentprovider"
+            android:exported="false">
+        </provider>
+
+
     </application>
 
 </manifest>
