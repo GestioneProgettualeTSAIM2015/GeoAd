@@ -2,8 +2,6 @@ package it.itskennedy.tsaim.geoad.push;
 
 import java.io.IOException;
 
-import org.json.JSONArray;
-
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -134,7 +132,6 @@ public class PushSignIn
 			protected void onPostExecute(Void result)
 			{
 				sendPushKeyToServer();
-				super.onPostExecute(result);
 			}   
 	    }.execute(null, null, null);
 	}
@@ -152,18 +149,19 @@ public class PushSignIn
 		RequestParams vParams = new RequestParams();
 		vParams.add("key", mPushId);
 
-		ConnectionManager.get(mContext).send("storekey", vParams, new ConnectionManager.JsonResponse()
+		if(mReceiver != null)
+    	{
+    		mReceiver.onKey(mPushId);
+    	}
+		
+		ConnectionManager.obtain().post("storekey", vParams, new ConnectionManager.JsonResponse()
 		{
 			@Override
-			public void onResponse(boolean aResult, JSONArray aResponse)
+			public void onResponse(boolean aResult, Object aResponse)
 			{
 				if(aResult)
 				{
 					savePushKey();
-					if(mReceiver != null)
-	            	{
-	            		mReceiver.onKey(mPushId);
-	            	}
 				}
 			}
 		});

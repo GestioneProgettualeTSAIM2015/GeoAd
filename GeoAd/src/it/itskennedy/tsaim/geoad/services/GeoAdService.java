@@ -28,12 +28,15 @@ public class GeoAdService extends Service implements LocationListener
 {
 	public static final String OFFER_ACTION = "offer_action";
 	public static final String OFFER_DATA = "offer_data";
-
+	public static final String NEAR_ACTION = "near_action";
+	public static final String NEAR_DATA = "near_data";
+	
 	public static final String NAME = "GeoAd Service";
 
 	private static final int EARTH_RADIUS = 6371;
-	private static final double LAT_SPLIT = 0.003;
+	private static final double LAT_SPLIT = 0.006;
 	private static final float SPEED_THRESHOLD = 5; //m/s
+	private static final int DISTANCE_THRESHOLD = 250;
 	private double LNG_SPLIT;
 
 	private Location mPosition;
@@ -97,7 +100,16 @@ public class GeoAdService extends Service implements LocationListener
 	{
 		if(mPosition != null)
 		{
-			updateServer(aLocation);
+			float[] vResult = new float[1];
+			
+			Location.distanceBetween(aLocation.getLatitude(), aLocation.getLongitude(),
+					mPosition.getLatitude(), mPosition.getLongitude(), vResult);
+			
+			if(vResult[0] > DISTANCE_THRESHOLD)
+			{
+				mPosition = aLocation;
+				updateServer(aLocation);	
+			}
 		}
 		else
 		{
@@ -147,14 +159,19 @@ public class GeoAdService extends Service implements LocationListener
 		vParams.add("south_lat", (aLocation.getLatitude() - vLat) + "");
 		vParams.add("east_lng", (aLocation.getLongitude() - vLng) + "");
 
-		ConnectionManager.get(this).send("updatePosition", vParams, new ConnectionManager.JsonResponse()
+		ConnectionManager.obtain().post("updatePosition", vParams, new ConnectionManager.JsonResponse()
 		{
 			@Override
-			public void onResponse(boolean aResult, JSONArray aResponse)
+			public void onResponse(boolean aResult, Object aResponse)
 			{
-				if(aResult && aResponse != null)
+				if(aResult && aResponse != null && aResponse instanceof JSONArray)
 				{
-					mNearLocations = LocationModel.getListFromJson(aResponse);
+					mNearLocations = LocationModel.getListFromJsonArray((JSONArray)aResponse);
+					
+					Intent vDispatchNear = new Intent();
+		            vDispatchNear.setAction(GeoAdService.NEAR_ACTION);
+		            vDispatchNear.putExtra(GeoAdService.NEAR_DATA, aResponse.toString());
+		            sendBroadcast(vDispatchNear);
 				}
 			}
 		});

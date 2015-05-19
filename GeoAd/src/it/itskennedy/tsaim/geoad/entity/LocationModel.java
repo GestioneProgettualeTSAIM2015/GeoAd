@@ -59,7 +59,7 @@ public class LocationModel
         return mName;
     }
 
-    public static List<LocationModel> getListFromJson(JSONArray aServerData)
+    public static List<LocationModel> getListFromJsonArray(JSONArray aServerData)
     {
         List<LocationModel> vResult = new ArrayList<LocationModel>();
 
