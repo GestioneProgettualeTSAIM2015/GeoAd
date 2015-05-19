@@ -1,5 +1,6 @@
 package it.itskennedy.tsaim.geoad.entity;
 
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -57,6 +58,15 @@ public class LocationModel
     public String getName()
     {
         return mName;
+    }
+    
+    public Location getLocation()
+    {
+    	Location vToReturn = new Location("");
+    	vToReturn.setLatitude(mLat);
+    	vToReturn.setLongitude(mLng);
+    	
+    	return vToReturn;
     }
 
     public static List<LocationModel> getListFromJsonArray(JSONArray aServerData)

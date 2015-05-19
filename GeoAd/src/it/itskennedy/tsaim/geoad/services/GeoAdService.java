@@ -30,6 +30,7 @@ public class GeoAdService extends Service implements LocationListener
 	public static final String OFFER_DATA = "offer_data";
 	public static final String NEAR_ACTION = "near_action";
 	public static final String NEAR_DATA = "near_data";
+	public static final String ASK_NEAR = "ask_near";
 	
 	public static final String NAME = "GeoAd Service";
 
@@ -41,26 +42,7 @@ public class GeoAdService extends Service implements LocationListener
 
 	private Location mPosition;
 	private List<LocationModel> mNearLocations;
-
-	private BroadcastReceiver mOfferReceiver = new BroadcastReceiver()
-	{
-		@Override
-		public void onReceive(Context context, Intent intent)
-		{
-			Bundle vExtra = intent.getExtras();
-
-			if(!vExtra.isEmpty())
-			{
-				String vJson = intent.getExtras().getString(OFFER_DATA);
-				Offer vOffer = Offer.fromJSON(vJson);
-
-				NotificationManager.showOffer(GeoAdService.this, vOffer, findLocation(vOffer.getLocationId()));
-
-				//TODO cadorin
-				//getContentResolver().insert(URI, vOffer.getContentValues());
-			}
-		}
-	};
+	private String mNearString;
 
 	@Override
 	public void onCreate() 
@@ -72,12 +54,39 @@ public class GeoAdService extends Service implements LocationListener
 
 		mNearLocations = new ArrayList<LocationModel>();
 
-		registerReceiver(mOfferReceiver, new IntentFilter(OFFER_ACTION));
 	}
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) 
 	{
+		if(intent != null)
+		{
+			String vAction = intent.getAction();
+			
+			if(vAction != null)
+			{
+				if(vAction.equals(OFFER_ACTION))
+				{
+					Bundle vExtra = intent.getExtras();
+
+					if(!vExtra.isEmpty())
+					{
+						String vJson = intent.getExtras().getString(OFFER_DATA);
+						Offer vOffer = Offer.fromJSON(vJson);
+
+						NotificationManager.showOffer(GeoAdService.this, vOffer, findLocation(vOffer.getLocationId()));
+
+						//TODO cadorin
+						//getContentResolver().insert(URI, vOffer.getContentValues());
+					}
+				}
+				else if(vAction.equals(ASK_NEAR))
+				{
+					broadcastNearLocation();
+				}
+			}
+		}
+		
 	    return START_STICKY;
 	}
 	
@@ -90,7 +99,6 @@ public class GeoAdService extends Service implements LocationListener
 	@Override
 	public void onDestroy()
 	{
-		unregisterReceiver(mOfferReceiver);
 		LocationManager.get(this).removeListener(this);
 		super.onDestroy();
 	}
@@ -167,13 +175,19 @@ public class GeoAdService extends Service implements LocationListener
 				if(aResult && aResponse != null && aResponse instanceof JSONArray)
 				{
 					mNearLocations = LocationModel.getListFromJsonArray((JSONArray)aResponse);
+					mNearString = aResponse.toString();
 					
-					Intent vDispatchNear = new Intent();
-		            vDispatchNear.setAction(GeoAdService.NEAR_ACTION);
-		            vDispatchNear.putExtra(GeoAdService.NEAR_DATA, aResponse.toString());
-		            sendBroadcast(vDispatchNear);
+					broadcastNearLocation();
 				}
 			}
 		});
+	}
+	
+	private void broadcastNearLocation() 
+	{
+		Intent vDispatchNear = new Intent();
+		vDispatchNear.setAction(GeoAdService.NEAR_ACTION);
+		vDispatchNear.putExtra(GeoAdService.NEAR_DATA, mNearString);
+		sendBroadcast(vDispatchNear);
 	}
 }

@@ -22,10 +22,10 @@ public class PushReceiver extends WakefulBroadcastReceiver
         {
             String vJsonOffer = vExtras.getString("json_obj");
 
-            Intent vDispatchOffer = new Intent();
+            Intent vDispatchOffer = new Intent(context, GeoAdService.class);
             vDispatchOffer.setAction(GeoAdService.OFFER_ACTION);
             vDispatchOffer.putExtra(GeoAdService.OFFER_DATA, vJsonOffer);
-            context.sendBroadcast(vDispatchOffer);
+            context.startService(vDispatchOffer);
         }
     }
 }
