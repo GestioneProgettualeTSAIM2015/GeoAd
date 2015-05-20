@@ -11,9 +11,6 @@ import android.util.Log;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.loopj.android.http.RequestParams;
-
-import it.itskennedy.tsaim.geoad.core.ConnectionManager;
 import it.itskennedy.tsaim.geoad.core.Engine;
 import it.itskennedy.tsaim.geoad.core.SettingsManager;
 
@@ -131,7 +128,11 @@ public class PushSignIn
 			@Override
 			protected void onPostExecute(Void result)
 			{
-				sendPushKeyToServer();
+				if(mReceiver != null)
+		    	{
+		    		mReceiver.onKey(mPushId);
+		    	}
+				savePushKey();
 			}   
 	    }.execute(null, null, null);
 	}
@@ -142,28 +143,5 @@ public class PushSignIn
 
 		vSettings.savePushId(mPushId);
 		vSettings.saveAppVersion(getAppVersion(mContext));
-	}
-	
-	private void sendPushKeyToServer()
-	{
-		RequestParams vParams = new RequestParams();
-		vParams.add("key", mPushId);
-
-		if(mReceiver != null)
-    	{
-    		mReceiver.onKey(mPushId);
-    	}
-		
-		ConnectionManager.obtain().post("storekey", vParams, new ConnectionManager.JsonResponse()
-		{
-			@Override
-			public void onResponse(boolean aResult, Object aResponse)
-			{
-				if(aResult)
-				{
-					savePushKey();
-				}
-			}
-		});
 	}
 }
