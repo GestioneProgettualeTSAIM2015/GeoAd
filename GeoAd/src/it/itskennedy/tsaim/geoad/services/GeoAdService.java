@@ -1,16 +1,19 @@
 package it.itskennedy.tsaim.geoad.services;
 
 import it.itskennedy.tsaim.geoad.core.ConnectionManager;
-import it.itskennedy.tsaim.geoad.core.LocationManager.LocationListener;
 import it.itskennedy.tsaim.geoad.core.LocationManager;
+import it.itskennedy.tsaim.geoad.core.LocationManager.LocationListener;
 import it.itskennedy.tsaim.geoad.core.NotificationManager;
 import it.itskennedy.tsaim.geoad.entity.LocationModel;
 import it.itskennedy.tsaim.geoad.entity.Offer;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.json.JSONArray;
+
 import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.HandlerThread;
@@ -18,11 +21,6 @@ import android.os.IBinder;
 import android.os.Process;
 
 import com.loopj.android.http.RequestParams;
-
-import org.json.JSONArray;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class GeoAdService extends Service implements LocationListener
 {
