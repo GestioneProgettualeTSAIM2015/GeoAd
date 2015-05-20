@@ -196,6 +196,8 @@ Thumbs.db
 .DS_Store
 **/build
 
+##Other
+config.json
 
 ##TestFiles
 Tests-*.*
@@ -203,3 +205,5 @@ Tests-*.*
 
 ##Exceptions
 !Npgsql.dll
+GeoAd/.settings/org.eclipse.jdt.core.prefs
+GeoAd/project.properties
