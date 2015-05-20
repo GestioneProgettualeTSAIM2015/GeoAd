@@ -201,3 +201,5 @@ config.json
 
 ##Exceptions
 !Npgsql.dll
+GeoAd/.settings/org.eclipse.jdt.core.prefs
+GeoAd/project.properties
