@@ -6,7 +6,6 @@ import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
-import org.apache.http.MethodNotSupportedException;
 import org.apache.http.entity.StringEntity;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -62,6 +61,11 @@ public class ConnectionManager
     	send(HttpMethod.GET, aUrl, vParams, jsonResponse);
     }
     
+    public void get(String aUrl, JSONObject vParams, JsonResponse jsonResponse)
+    {
+    	send(HttpMethod.GET, aUrl, vParams, jsonResponse);
+    }
+    
     public void post(String aUrl, RequestParams vParams, JsonResponse jsonResponse)
     {
     	send(HttpMethod.POST, aUrl, vParams, jsonResponse);
@@ -73,6 +77,11 @@ public class ConnectionManager
     }
     
     public void put(String aUrl, RequestParams vParams, JsonResponse jsonResponse)
+    {
+    	send(HttpMethod.PUT, aUrl, vParams, jsonResponse);
+    }
+    
+    public void put(String aUrl, JSONObject vParams, JsonResponse jsonResponse)
     {
     	send(HttpMethod.PUT, aUrl, vParams, jsonResponse);
     }
@@ -180,15 +189,15 @@ public class ConnectionManager
 						mClient.post(Engine.get(), Engine.SERVER_URL + aUrl, entity, "application/json", vResponseHandler);
 						break;
 					}
-					
-					default:
-					try 
+					case GET:
 					{
-						throw new MethodNotSupportedException("");
-					} 
-					catch (MethodNotSupportedException e)
+						mClient.post(Engine.get(), Engine.SERVER_URL + aUrl, entity, "application/json", vResponseHandler);
+						break;
+					}
+					case PUT:
 					{
-						Log.e(Engine.APP_NAME, "NOT IMPLEMENTED");
+						mClient.put(Engine.get(), Engine.SERVER_URL + aUrl, entity, "application/json", vResponseHandler);
+						break;
 					}
                 }
             }
