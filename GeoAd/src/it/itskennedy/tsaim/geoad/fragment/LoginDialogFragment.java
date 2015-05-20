@@ -40,7 +40,7 @@ public class LoginDialogFragment extends DialogFragment
 
                 @Override
                 public void onClick(DialogInterface dialog, int id) {
-                	dismiss();
+                	mListener.onCancelButtonPressed();
                 }
             })
             .setNeutralButton("Registrati", new DialogInterface.OnClickListener() {

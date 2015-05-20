@@ -1,5 +1,7 @@
 package it.itskennedy.tsaim.geoad;
 
+import java.util.ArrayList;
+
 import it.itskennedy.tsaim.geoad.R;
 import it.itskennedy.tsaim.geoad.activities.RegisterActivity;
 import it.itskennedy.tsaim.geoad.fragment.ActivitiesFragment;
@@ -38,7 +40,8 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 
     private CharSequence mDrawerTitle;
     private CharSequence mTitle;
-    private String[] mPlanetTitles;
+    private ArrayList<String> mPlanetTitles;
+    ArrayAdapter<String> mAdapter;
 	private boolean isLogged;
 
 
@@ -49,14 +52,19 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		setContentView(R.layout.activity_main);
 		
         mTitle = mDrawerTitle = getTitle();
-        mPlanetTitles = getResources().getStringArray(R.array.navigation_drawer_strings);
+        mPlanetTitles = new ArrayList<>();
+        for (String title : getResources().getStringArray(R.array.navigation_drawer_strings))
+        {
+        	mPlanetTitles.add(title);
+        }
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
         // set a custom shadow that overlays the main content when the drawer opens
 //        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         // set up the drawer's list view with items and click listener
-        mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, mPlanetTitles));
+        mAdapter = new ArrayAdapter<String>(this, R.layout.drawer_list_item, mPlanetTitles);
+        mDrawerList.setAdapter(mAdapter);
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
         // enable ActionBar app icon to behave as action to toggle nav drawer
@@ -143,7 +151,18 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 
         // update selected item and title, then close the drawer
         mDrawerList.setItemChecked(position, true);
-        setTitle(mPlanetTitles[position]);
+        if(isLogged && (position == 3))
+        {
+        	String att = "Le mie attività";
+        	mPlanetTitles.set(position, att);
+        	setTitle(att);
+        	mAdapter.notifyDataSetChanged();
+        }
+        else
+        {
+        	setTitle(mPlanetTitles.get(position));
+        }
+        
         mDrawerLayout.closeDrawer(mDrawerList);
     }
     
@@ -196,6 +215,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 				else
 				{
 					LoginDialogFragment loginDialog = new LoginDialogFragment();
+					loginDialog.setCancelable(false);
 					loginDialog.show(getFragmentManager(), "LoginDialog");
 					return;
 				}
@@ -209,7 +229,17 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 	@Override
 	public void onLoginButtonPressed(String email, String password)
 	{
-		Toast.makeText(this, "mail: " + email + " password: " + password, Toast.LENGTH_SHORT).show();
+		if(email.equals("email") && password.equals("password"))
+		{
+			isLogged = true;
+			selectItem(Utils.TYPE_ACTIVITIES);
+			Toast.makeText(this, "Loggato", Toast.LENGTH_SHORT).show();
+		}
+		else
+		{
+			selectItem(Utils.TYPE_ACTIVITIES);
+			Toast.makeText(this, "Errore", Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	@Override
@@ -217,5 +247,11 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 	{
     	Intent vIntent  = new Intent(MainActivity.this, RegisterActivity.class);
     	startActivity(vIntent);
+	}
+
+	@Override
+	public void onCancelButtonPressed()
+	{
+		selectItem(Utils.TYPE_SEARCH);
 	}
 }

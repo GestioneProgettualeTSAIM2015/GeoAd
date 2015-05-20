@@ -4,4 +4,5 @@ public interface ILoginDialogFragment
 {
 	void onLoginButtonPressed(String email, String password);
 	void onRegisterButtonPressed();
+	void onCancelButtonPressed();
 }
