@@ -201,4 +201,5 @@ build/
 
 
 ##Others
-**/Tests-*.*
+Tests-*.*
+*.secret.config
