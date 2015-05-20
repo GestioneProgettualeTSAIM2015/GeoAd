@@ -22,12 +22,7 @@ public class NotificationManager
     {
         Intent resultIntent = new Intent(aContext, NewOfferActivity.class);
         resultIntent.putExtra(Offer.BUNDLE_KEY, aOffer.getBundle());
-        
-        if(aLocation != null)
-        {
-        	Log.d(Engine.APP_NAME, "location found!");
-        	resultIntent.putExtra(LocationModel.BUNDLE_KEY, aLocation.getBundle());
-        }
+        resultIntent.putExtra(LocationModel.BUNDLE_KEY, aLocation.getBundle());
        
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(aContext);
         stackBuilder.addParentStack(NewOfferActivity.class);
