@@ -6,10 +6,8 @@ import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
-import org.apache.http.Header;
 import org.apache.http.MethodNotSupportedException;
 import org.apache.http.entity.StringEntity;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -87,12 +85,7 @@ public class ConnectionManager
     private void send(HttpMethod aType, String aUrl, RequestParams aParams, final JsonResponse aListener)
     {
     	String vKey = Engine.get().getKey();
-    	String vToken = Engine.get().getToken();
-    	
-    	if(vToken != null)
-    	{
-    		mClient.addHeader("Authorization", "Bearer " + Engine.get().getToken());	
-    	}
+    	setAuthHeader();
     	
     	if(vKey != null)
     	{
@@ -109,55 +102,7 @@ public class ConnectionManager
 
                 Log.d(Engine.APP_NAME, "URL: " + Engine.SERVER_URL + aUrl);
 
-                JsonHttpResponseHandler vResponseHandler = new JsonHttpResponseHandler()
-                {
-                    @Override
-					public void onSuccess(int statusCode, Header[] headers,	JSONObject response)
-                    {
-                    	if(aListener != null)
-                        {
-                            aListener.onResponse(true, response);
-                        }
-
-                        executeQueue();
-					}
-
-					@Override
-                    public void onSuccess(int statusCode, Header[] headers, JSONArray response)
-                    {
-                        if(aListener != null)
-                        {
-                            aListener.onResponse(true, response);
-                        }
-
-                        executeQueue();
-                    }
-
-                    @Override
-                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse)
-                    {
-                    	if(aListener != null)
-                    	{
-                    		aListener.onResponse(false, null);
-                    	}
-                    	
-                    	executeQueue();
-                    }
-                    
-                    public void onFailure(int statusCode, Header[] headers,	String responseString, Throwable throwable)
-					{
-						if(aListener != null && statusCode == 200)
-						{
-							aListener.onResponse(true, null);
-						}
-						else if(aListener != null)
-						{
-							aListener.onResponse(false, null);
-						}
-						
-						executeQueue();
-					}
-                };
+                JsonHttpResponseHandler vResponseHandler = new MyJsonHttpResponseHandler(aListener, this);
                 
                 switch(aType)
                 {
@@ -193,12 +138,7 @@ public class ConnectionManager
     private void send(HttpMethod aType, String aUrl, JSONObject aParams, final JsonResponse aListener)
     {
     	String vKey = Engine.get().getKey();
-    	String vToken = Engine.get().getToken();
-    	
-    	if(vToken != null)
-    	{
-    		mClient.addHeader("Authorization", "Bearer " + Engine.get().getToken());	
-    	}
+    	setAuthHeader();
     	
     	if(vKey != null)
     	{
@@ -231,67 +171,7 @@ public class ConnectionManager
 				{
 				}
 
-                JsonHttpResponseHandler vResponseHandler = new JsonHttpResponseHandler()
-                {
-                    @Override
-					public void onSuccess(int statusCode, Header[] headers, String responseString)
-                    {
-                    	if(aListener != null)
-                        {
-                            aListener.onResponse(true, responseString);
-                        }
-
-                        executeQueue();
-                    }
-
-					@Override
-					public void onSuccess(int statusCode, Header[] headers,	JSONObject response)
-                    {
-                    	if(aListener != null)
-                        {
-                            aListener.onResponse(true, response);
-                        }
-
-                        executeQueue();
-					}
-
-					@Override
-                    public void onSuccess(int statusCode, Header[] headers, JSONArray response)
-                    {
-                        if(aListener != null)
-                        {
-                            aListener.onResponse(true, response);
-                        }
-
-                        executeQueue();
-                    }
-
-                    @Override
-                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse)
-                    {
-                    	if(aListener != null)
-                    	{
-                    		aListener.onResponse(false, null);
-                    	}
-                    	
-                    	executeQueue();
-                    }
-
-					@Override
-					public void onFailure(int statusCode, Header[] headers,	String responseString, Throwable throwable)
-					{
-						if(aListener != null && statusCode == 200)
-						{
-							aListener.onResponse(true, null);
-						}
-						else if(aListener != null)
-						{
-							aListener.onResponse(false, null);
-						}
-						
-						executeQueue();
-					}
-                };
+                MyJsonHttpResponseHandler vResponseHandler = new MyJsonHttpResponseHandler(aListener, this);
                 
                 switch(aType)
                 {
@@ -319,7 +199,17 @@ public class ConnectionManager
     	}
     }
 
-    private void executeQueue()
+	private void setAuthHeader() 
+	{
+		String vToken = Engine.get().getToken();
+    	
+    	if(vToken != null)
+    	{
+    		mClient.addHeader("Authorization", "Bearer " + Engine.get().getToken());	
+    	}
+	}
+
+    void executeQueue()
     {
         mIsPending = false;
 
