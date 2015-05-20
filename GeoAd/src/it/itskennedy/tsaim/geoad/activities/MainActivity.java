@@ -1,9 +1,15 @@
-package it.itskennedy.tsaim.geoad;
+package it.itskennedy.tsaim.geoad.activities;
 
 import java.util.ArrayList;
 
 import it.itskennedy.tsaim.geoad.R;
-import it.itskennedy.tsaim.geoad.activities.RegisterActivity;
+import it.itskennedy.tsaim.geoad.Utils;
+import it.itskennedy.tsaim.geoad.R.array;
+import it.itskennedy.tsaim.geoad.R.drawable;
+import it.itskennedy.tsaim.geoad.R.id;
+import it.itskennedy.tsaim.geoad.R.layout;
+import it.itskennedy.tsaim.geoad.R.menu;
+import it.itskennedy.tsaim.geoad.R.string;
 import it.itskennedy.tsaim.geoad.fragment.ActivitiesFragment;
 import it.itskennedy.tsaim.geoad.fragment.AugmentedRealityFragment;
 import it.itskennedy.tsaim.geoad.fragment.LoginDialogFragment;
