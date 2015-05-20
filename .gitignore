@@ -197,5 +197,9 @@ Thumbs.db
 **/build
 
 
+##TestFiles
+Tests-*.*
+
+
 ##Exceptions
 !Npgsql.dll
