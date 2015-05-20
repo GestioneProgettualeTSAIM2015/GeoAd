@@ -8,7 +8,9 @@ import it.itskennedy.tsaim.geoad.entity.LocationModel;
 import it.itskennedy.tsaim.geoad.entity.Offer;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import org.json.JSONArray;
 
@@ -35,12 +37,13 @@ public class GeoAdService extends Service implements LocationListener
 	private static final int EARTH_RADIUS = 6371;
 	private static final double LAT_SPLIT = 0.006;
 	private static final float SPEED_THRESHOLD = 5; //m/s
-	private static final int DISTANCE_THRESHOLD = 250;
+	private static final int DISTANCE_THRESHOLD = 0; //ONLY FOR TEST
 	private double LNG_SPLIT;
 
 	private Location mPosition;
 	private List<LocationModel> mNearLocations;
 	private String mNearString;
+	private Queue<Offer> mPendingOffer;
 
 	@Override
 	public void onCreate() 
@@ -50,6 +53,7 @@ public class GeoAdService extends Service implements LocationListener
 	  
 	  	LocationManager.get(this).addListener(this);
 
+	  	mPendingOffer = new LinkedList<Offer>();
 		mNearLocations = new ArrayList<LocationModel>();
 
 	}
@@ -72,12 +76,7 @@ public class GeoAdService extends Service implements LocationListener
 						String vJson = intent.getExtras().getString(OFFER_DATA);
 						Offer vOffer = Offer.fromJSON(vJson);
 
-						LocationModel vLoc = findLocation(vOffer.getLocationId());
-						
-						NotificationManager.showOffer(GeoAdService.this, vOffer, vLoc);
-
-						//TODO cadorin
-						//getContentResolver().insert(URI, vOffer.getContentValues());
+						manageOffer(vOffer, true);
 					}
 				}
 				else if(vAction.equals(ASK_NEAR))
@@ -88,6 +87,41 @@ public class GeoAdService extends Service implements LocationListener
 		}
 		
 	    return START_STICKY;
+	}
+
+	private void manageOffer(Offer vOffer, boolean aCanEnqueue)
+	{
+		LocationModel vSearch = findLocation(vOffer.getLocationId());
+		
+		if(vSearch != null)
+		{
+			NotificationManager.showOffer(GeoAdService.this, vOffer, vSearch);
+			//TODO cadorin
+			//getContentResolver().insert(URI, vOffer.getContentValues());
+		}
+		else
+		{
+			if(aCanEnqueue)
+			{
+				enqueueOffer(vOffer);
+			}
+		}
+	}
+	
+	private void enqueueOffer(Offer aOffer)
+	{
+		mPendingOffer.add(aOffer);
+	}
+	
+	private void manageOfferIfExist()
+	{
+		if(mPendingOffer.size() > 0)
+		{
+			while(!mPendingOffer.isEmpty())
+			{
+				manageOffer(mPendingOffer.remove(), false);
+			}	
+		}
 	}
 	
 	@Override
@@ -113,7 +147,7 @@ public class GeoAdService extends Service implements LocationListener
 			Location.distanceBetween(aLocation.getLatitude(), aLocation.getLongitude(),
 					mPosition.getLatitude(), mPosition.getLongitude(), vResult);
 			
-			if(vResult[0] < DISTANCE_THRESHOLD)
+			if(vResult[0] > DISTANCE_THRESHOLD)
 			{
 				mPosition = aLocation;
 				updateServer(aLocation);	
@@ -162,12 +196,12 @@ public class GeoAdService extends Service implements LocationListener
 			vLng = LNG_SPLIT * 2;
 		}
 
-		vParams.add("NorthLat", (aLocation.getLatitude() + vLat) + "");
-		vParams.add("WestLng", (aLocation.getLongitude() - vLng) + "");
-		vParams.add("SouthLat", (aLocation.getLatitude() - vLat) + "");
-		vParams.add("EastLng", (aLocation.getLongitude() + vLng) + "");
+		vParams.add("north_lat", (aLocation.getLatitude() + vLat) + "");
+		vParams.add("west_lng", (aLocation.getLongitude() + vLng) + "");
+		vParams.add("south_lat", (aLocation.getLatitude() - vLat) + "");
+		vParams.add("east_lng", (aLocation.getLongitude() - vLng) + "");
 
-		ConnectionManager.obtain().post("locations/UpdatePosition", vParams, new ConnectionManager.JsonResponse()
+		ConnectionManager.obtain().post("Locations", vParams, new ConnectionManager.JsonResponse()
 		{
 			@Override
 			public void onResponse(boolean aResult, Object aResponse)
@@ -178,6 +212,8 @@ public class GeoAdService extends Service implements LocationListener
 					mNearString = aResponse.toString();
 					
 					broadcastNearLocation();
+					
+					manageOfferIfExist();	
 				}
 			}
 		});
