@@ -19,6 +19,12 @@
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <uses-permission android:name="android.permission.CAMERA"/>
 
+    <permission
+        android:name="com.example.gcm.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="com.example.gcm.permission.C2D_MESSAGE" />
+    
     <application
         android:name=".core.Engine"
         android:allowBackup="true"
@@ -27,6 +33,16 @@
         android:theme="@style/AppTheme" >
         <service android:name=".services.GeoAdService" />
 
+        <receiver
+            android:name=".push.PushReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+
+                <category android:name="it.itskennedy.tsaim.geoad" />
+            </intent-filter>
+        </receiver>
+        
         <receiver android:name=".receiver.BootBroadcastReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
@@ -41,7 +57,7 @@
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name=".activity.MainActivity"
+            android:name=".activity.AugmentedRealityActivity"
             android:screenOrientation="landscape"
             android:label="@string/app_name" >
             <intent-filter>

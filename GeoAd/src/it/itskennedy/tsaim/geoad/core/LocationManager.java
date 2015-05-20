@@ -22,7 +22,7 @@ public class LocationManager implements LocationListener, ConnectionCallbacks, O
 		void onLocationUpdated(Location aLocation);
 	}
 
-	private static final long METER_DISPLACEMENT = 50;
+	private static final long METER_DISPLACEMENT = 40;
 
 	ArrayList<LocationListener> mListeners;
 	private LocationRequest mLocationRequest;

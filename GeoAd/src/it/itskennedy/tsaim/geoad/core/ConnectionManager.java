@@ -90,7 +90,7 @@ public class ConnectionManager
                 	aParams = new RequestParams();
                 }
                 
-                aParams.add("key", vKey);
+                aParams.add("Key", vKey);
 
                 Log.d(Engine.APP_NAME, "URL: " + Engine.SERVER_URL + aUrl);
 
