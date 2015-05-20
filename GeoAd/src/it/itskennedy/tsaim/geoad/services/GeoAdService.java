@@ -72,7 +72,9 @@ public class GeoAdService extends Service implements LocationListener
 						String vJson = intent.getExtras().getString(OFFER_DATA);
 						Offer vOffer = Offer.fromJSON(vJson);
 
-						NotificationManager.showOffer(GeoAdService.this, vOffer, findLocation(vOffer.getLocationId()));
+						LocationModel vLoc = findLocation(vOffer.getLocationId());
+						
+						NotificationManager.showOffer(GeoAdService.this, vOffer, vLoc);
 
 						//TODO cadorin
 						//getContentResolver().insert(URI, vOffer.getContentValues());
@@ -111,7 +113,7 @@ public class GeoAdService extends Service implements LocationListener
 			Location.distanceBetween(aLocation.getLatitude(), aLocation.getLongitude(),
 					mPosition.getLatitude(), mPosition.getLongitude(), vResult);
 			
-			if(vResult[0] > DISTANCE_THRESHOLD)
+			if(vResult[0] < DISTANCE_THRESHOLD)
 			{
 				mPosition = aLocation;
 				updateServer(aLocation);	
@@ -160,12 +162,12 @@ public class GeoAdService extends Service implements LocationListener
 			vLng = LNG_SPLIT * 2;
 		}
 
-		vParams.add("north_lat", (aLocation.getLatitude() + vLat) + "");
-		vParams.add("west_lng", (aLocation.getLongitude() + vLng) + "");
-		vParams.add("south_lat", (aLocation.getLatitude() - vLat) + "");
-		vParams.add("east_lng", (aLocation.getLongitude() - vLng) + "");
+		vParams.add("NorthLat", (aLocation.getLatitude() + vLat) + "");
+		vParams.add("WestLng", (aLocation.getLongitude() - vLng) + "");
+		vParams.add("SouthLat", (aLocation.getLatitude() - vLat) + "");
+		vParams.add("EastLng", (aLocation.getLongitude() + vLng) + "");
 
-		ConnectionManager.obtain().post("updatePosition", vParams, new ConnectionManager.JsonResponse()
+		ConnectionManager.obtain().post("locations/UpdatePosition", vParams, new ConnectionManager.JsonResponse()
 		{
 			@Override
 			public void onResponse(boolean aResult, Object aResponse)
