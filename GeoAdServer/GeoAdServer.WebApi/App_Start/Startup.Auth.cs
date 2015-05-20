@@ -54,9 +54,9 @@ namespace GeoAdServer.WebApi
             //    consumerKey: "",
             //    consumerSecret: "");
 
-            //app.UseFacebookAuthentication(
-            //    appId: "",
-            //    appSecret: "");
+            app.UseFacebookAuthentication(
+                appId: System.Configuration.ConfigurationManager.AppSettings["fb_appid"],
+                appSecret: System.Configuration.ConfigurationManager.AppSettings["fb_secretkey"]);
 
             //app.UseGoogleAuthentication(new GoogleOAuth2AuthenticationOptions()
             //{

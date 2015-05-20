@@ -96,7 +96,7 @@
 
     $("#btnValues").on("click", function () {
         $.ajax({
-            url: '/api/values',
+            url: '/api/locations',
             type: 'GET',
             headers: {
                 'Authorization': 'Bearer ' + accountToken

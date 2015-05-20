@@ -5,6 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using GeoAdServer.Domain.Contracts;
 using GeoAdServer.Postgresql;
+using System.Configuration;
+using System.IO;
+using System.Reflection;
 
 namespace GeoAdServer.DataAccess
 {
@@ -18,7 +21,7 @@ namespace GeoAdServer.DataAccess
 
         static DataRepos()
         {
-            string connectionString = "Server=localhost;Port=5012;UserId=postgres;Password=admin;Database=GeoAdDb";
+            var connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["PostgresqlCS"].ConnectionString;
             Locations = new PostgresqlLocationsRepository(connectionString);
             var connection = (Locations as PostgresqlLocationsRepository).Connection;
             Photos = new PostgresqlPhotosRepository(connection);
