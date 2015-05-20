@@ -1,6 +1,7 @@
 package it.itskennedy.tsaim.geoad.fragment;
 
 import it.itskennedy.tsaim.geoad.R;
+import it.itskennedy.tsaim.geoad.interfaces.IFilterDialogFragment;
 import it.itskennedy.tsaim.geoad.interfaces.ILoginDialogFragment;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -11,41 +12,29 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.widget.EditText;
 
-public class LoginDialogFragment extends DialogFragment
+public class FilterDialogFragment extends DialogFragment
 {
-	private ILoginDialogFragment mListener;
+	private IFilterDialogFragment mListener;
 	
 	@Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
          AlertDialog.Builder createProjectAlert = new AlertDialog.Builder(getActivity());
          LayoutInflater inflater = getActivity().getLayoutInflater();
          
-         createProjectAlert.setView(inflater.inflate(R.layout.fragment_dialog_login, null))
-            .setPositiveButton("Login", new DialogInterface.OnClickListener() {
+         createProjectAlert.setView(inflater.inflate(R.layout.fragment_dialog_filter, null))
+            .setPositiveButton("Salva", new DialogInterface.OnClickListener() {
 
                 @Override
                 public void onClick(DialogInterface dialog, int id) {
-                	EditText textMail = (EditText)getDialog().findViewById(R.id.editTextMail);
-                	EditText textPassword = (EditText)getDialog().findViewById(R.id.editTextPassword);
-                	
-                	mListener.onLoginButtonPressed(textMail.getText().toString(), textPassword.getText().toString());
+                	mListener.onFilterSave(new Bundle());
                 }
             })
             .setNegativeButton("Annulla", new DialogInterface.OnClickListener() {
 
                 @Override
                 public void onClick(DialogInterface dialog, int id) {
-                	mListener.onCancelButtonPressed();
                 }
-            })
-            .setNeutralButton("Registrati", new DialogInterface.OnClickListener() {
-
-                @Override
-                public void onClick(DialogInterface dialog, int id) {
-                	mListener.onRegisterButtonPressed();
-                }
-            })
-            .setCancelable(false);
+            });
          
          return createProjectAlert.create();
     }
@@ -53,9 +42,9 @@ public class LoginDialogFragment extends DialogFragment
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        if (activity instanceof ILoginDialogFragment)
+        if (activity instanceof IFilterDialogFragment)
         {
-        	mListener = (ILoginDialogFragment) activity;
+        	mListener = (IFilterDialogFragment) activity;
         }
     }
 }

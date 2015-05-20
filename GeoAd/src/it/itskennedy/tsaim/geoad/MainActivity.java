@@ -8,7 +8,8 @@ import it.itskennedy.tsaim.geoad.fragment.ActivitiesFragment;
 import it.itskennedy.tsaim.geoad.fragment.AugmentedRealityFragment;
 import it.itskennedy.tsaim.geoad.fragment.LoginDialogFragment;
 import it.itskennedy.tsaim.geoad.fragment.PreferenceFragment;
-import it.itskennedy.tsaim.geoad.fragment.SearchFragment;
+import it.itskennedy.tsaim.geoad.fragment.SearchListFragment;
+import it.itskennedy.tsaim.geoad.fragment.SearchMapFragment;
 import it.itskennedy.tsaim.geoad.interfaces.IFragment;
 import it.itskennedy.tsaim.geoad.interfaces.ILoginDialogFragment;
 import android.app.Activity;
@@ -33,6 +34,7 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity implements IFragment, ILoginDialogFragment
 {
+	private Menu mMenu;
 	
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
@@ -43,6 +45,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
     private ArrayList<String> mPlanetTitles;
     ArrayAdapter<String> mAdapter;
 	private boolean isLogged;
+	private int searchFragmentType;
 
 
 	@Override
@@ -101,37 +104,31 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
+        mMenu = menu;
         return super.onCreateOptionsMenu(menu);
-    }
-
-    /* Called whenever we call invalidateOptionsMenu() */
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        // If the nav drawer is open, hide action items related to the content view
-        boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
-        menu.findItem(R.id.action_websearch).setVisible(!drawerOpen);
-        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-         // The action bar home/up action should open or close the drawer.
-         // ActionBarDrawerToggle will take care of this.
         if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
-        // Handle action buttons
+        
         switch(item.getItemId()) {
-        case R.id.action_websearch:
-            // create intent to perform web search for this planet
-            Intent intent = new Intent(Intent.ACTION_WEB_SEARCH);
-            intent.putExtra(SearchManager.QUERY, getActionBar().getTitle());
-            // catch event that there's no activity to handle intent
-            if (intent.resolveActivity(getPackageManager()) != null) {
-                startActivity(intent);
-            } else {
-                Toast.makeText(this, "app non disponibile", Toast.LENGTH_LONG).show();
-            }
+        	case R.id.action_change_view:
+        		switch (searchFragmentType)
+        		{
+        			case Utils.TYPE_SEARCH_LIST:
+    				    loadFragment(Utils.TYPE_SEARCH_MAP, null);
+        				item.setIcon(R.drawable.ic_menu_list);
+        				break;
+        			case Utils.TYPE_SEARCH_MAP:
+    				    loadFragment(Utils.TYPE_SEARCH_LIST, null);
+        				item.setIcon(R.drawable.ic_menu_map);
+        				break;
+        		}
+            return true;
+        	case R.id.action_filter: 
             return true;
         default:
             return super.onOptionsItemSelected(item);
@@ -198,8 +195,9 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		
 		switch (fragmentType)
 		{
-			case Utils.TYPE_SEARCH:
-				vFragment = SearchFragment.getInstance(bundle);
+			case Utils.TYPE_SEARCH_LIST:
+				searchFragmentType = Utils.TYPE_SEARCH_LIST;
+				vFragment = SearchListFragment.getInstance(bundle, this);
 				break;
 			case Utils.TYPE_AUGMENTED_REALITY:
 				vFragment = AugmentedRealityFragment.getInstance(bundle);
@@ -220,6 +218,15 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 					return;
 				}
 				break;
+			case Utils.TYPE_SEARCH_MAP:
+				searchFragmentType = Utils.TYPE_SEARCH_MAP;
+				vFragment = SearchMapFragment.getInstance(bundle, this);
+				break;
+			case Utils.TYPE_FILTER:
+				LoginDialogFragment loginDialog = new LoginDialogFragment();
+				loginDialog.setCancelable(false);
+				loginDialog.show(getFragmentManager(), "LoginDialog");
+				return;
 		}
 		
         FragmentManager fragmentManager = getFragmentManager();
@@ -252,6 +259,16 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 	@Override
 	public void onCancelButtonPressed()
 	{
-		selectItem(Utils.TYPE_SEARCH);
+		selectItem(searchFragmentType);
+	}
+
+	@Override
+	public void toggleActionMenu(int... options)
+	{
+		if (mMenu == null) return;
+		
+		boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
+		for (int optionId : options)
+			mMenu.findItem(optionId).setVisible(!drawerOpen);
 	}
 }
