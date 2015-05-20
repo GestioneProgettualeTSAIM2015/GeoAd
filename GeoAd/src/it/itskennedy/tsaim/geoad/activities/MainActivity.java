@@ -2,6 +2,12 @@ package it.itskennedy.tsaim.geoad.activities;
 
 import java.util.ArrayList;
 
+import org.apache.http.entity.StringEntity;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.loopj.android.http.RequestParams;
+
 import it.itskennedy.tsaim.geoad.R;
 import it.itskennedy.tsaim.geoad.Utils;
 import it.itskennedy.tsaim.geoad.R.array;
@@ -10,6 +16,10 @@ import it.itskennedy.tsaim.geoad.R.id;
 import it.itskennedy.tsaim.geoad.R.layout;
 import it.itskennedy.tsaim.geoad.R.menu;
 import it.itskennedy.tsaim.geoad.R.string;
+import it.itskennedy.tsaim.geoad.core.ConnectionManager;
+import it.itskennedy.tsaim.geoad.core.Engine;
+import it.itskennedy.tsaim.geoad.core.SettingsManager;
+import it.itskennedy.tsaim.geoad.core.ConnectionManager.JsonResponse;
 import it.itskennedy.tsaim.geoad.fragment.ActivitiesFragment;
 import it.itskennedy.tsaim.geoad.fragment.AugmentedRealityFragment;
 import it.itskennedy.tsaim.geoad.fragment.LoginDialogFragment;
@@ -29,6 +39,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -60,10 +71,18 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
+		isLogged = SettingsManager.get(this).isUserLogged();
+		
         mTitle = mDrawerTitle = getTitle();
         mPlanetTitles = new ArrayList<>();
         for (String title : getResources().getStringArray(R.array.navigation_drawer_strings))
         {
+        	if(title.equals("Login") && isLogged)
+        	{
+        		title = "Le mie attività";
+        	}
+        	
+        	
         	mPlanetTitles.add(title);
         }
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -241,18 +260,45 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 
 	@Override
 	public void onLoginButtonPressed(String email, String password)
-	{
-		if(email.equals("email") && password.equals("password"))
-		{
-			isLogged = true;
-			selectItem(Utils.TYPE_ACTIVITIES);
-			Toast.makeText(this, "Loggato", Toast.LENGTH_SHORT).show();
-		}
-		else
-		{
-			selectItem(Utils.TYPE_ACTIVITIES);
-			Toast.makeText(this, "Errore", Toast.LENGTH_SHORT).show();
-		}
+	{	
+		RequestParams vParams = new RequestParams();
+		
+		vParams.put("UserName", email);
+		vParams.put("password", password);
+		vParams.put("grant_type", "password");
+		
+		ConnectionManager.obtain().post("Token", vParams, new JsonResponse()
+		{	
+			@Override
+			public void onResponse(boolean aResult, Object aResponse)
+			{
+				if(aResult && aResponse != null)
+				{
+					String aToken = "";
+					try
+					{
+						aToken = ((JSONObject)aResponse).getString("access_token");
+						SettingsManager.get(MainActivity.this).saveToken(aToken);
+						Engine.get().setToken(aToken);
+						
+						isLogged = true;
+						SettingsManager.get(MainActivity.this).saveUserLogged(isLogged);
+						selectItem(Utils.TYPE_ACTIVITIES);
+						Toast.makeText(MainActivity.this, "Loggato", Toast.LENGTH_SHORT).show();
+					
+					} 
+					catch (JSONException e)
+					{
+						Log.e(Engine.APP_NAME, "JSON Decode Errore");
+					}
+				}
+				else
+				{
+					selectItem(Utils.TYPE_ACTIVITIES);
+					Toast.makeText(MainActivity.this, "Errore", Toast.LENGTH_SHORT).show();
+				}
+			}
+		});	
 	}
 
 	@Override

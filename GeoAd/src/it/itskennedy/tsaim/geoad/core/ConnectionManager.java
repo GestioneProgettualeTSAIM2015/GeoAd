@@ -7,9 +7,13 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 import org.apache.http.Header;
+import org.apache.http.MethodNotSupportedException;
+import org.apache.http.entity.StringEntity;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 /**
@@ -23,7 +27,7 @@ public class ConnectionManager
 
 	private ArrayList<HttpMethod> mTypes;
     private ArrayList<String> mUrls;
-    private ArrayList<RequestParams> mRequests;
+    private ArrayList<Object> mRequests;
     private ArrayList<JsonResponse> mListeners;
 
     private boolean mIsPending = false;
@@ -51,7 +55,7 @@ public class ConnectionManager
 
         mTypes = new ArrayList<HttpMethod>();
         mUrls = new ArrayList<String>();
-        mRequests = new ArrayList<RequestParams>();
+        mRequests = new ArrayList<Object>();
         mListeners = new ArrayList<JsonResponse>();
     }
     
@@ -61,6 +65,11 @@ public class ConnectionManager
     }
     
     public void post(String aUrl, RequestParams vParams, JsonResponse jsonResponse)
+    {
+    	send(HttpMethod.POST, aUrl, vParams, jsonResponse);
+    }
+    
+    public void post(String aUrl, JSONObject vParams, JsonResponse jsonResponse)
     {
     	send(HttpMethod.POST, aUrl, vParams, jsonResponse);
     }
@@ -78,6 +87,12 @@ public class ConnectionManager
     private void send(HttpMethod aType, String aUrl, RequestParams aParams, final JsonResponse aListener)
     {
     	String vKey = Engine.get().getKey();
+    	String vToken = Engine.get().getToken();
+    	
+    	if(vToken != null)
+    	{
+    		mClient.addHeader("Authorization", "Bearer " + Engine.get().getToken());	
+    	}
     	
     	if(vKey != null)
     	{
@@ -90,7 +105,7 @@ public class ConnectionManager
                 	aParams = new RequestParams();
                 }
                 
-                aParams.add("key", vKey);
+                aParams.add("Key", vKey);
 
                 Log.d(Engine.APP_NAME, "URL: " + Engine.SERVER_URL + aUrl);
 
@@ -128,6 +143,20 @@ public class ConnectionManager
                     	
                     	executeQueue();
                     }
+                    
+                    public void onFailure(int statusCode, Header[] headers,	String responseString, Throwable throwable)
+					{
+						if(aListener != null && statusCode == 200)
+						{
+							aListener.onResponse(true, null);
+						}
+						else if(aListener != null)
+						{
+							aListener.onResponse(false, null);
+						}
+						
+						executeQueue();
+					}
                 };
                 
                 switch(aType)
@@ -160,6 +189,135 @@ public class ConnectionManager
             }
     	}
     }
+    
+    private void send(HttpMethod aType, String aUrl, JSONObject aParams, final JsonResponse aListener)
+    {
+    	String vKey = Engine.get().getKey();
+    	String vToken = Engine.get().getToken();
+    	
+    	if(vToken != null)
+    	{
+    		mClient.addHeader("Authorization", "Bearer " + Engine.get().getToken());	
+    	}
+    	
+    	if(vKey != null)
+    	{
+    		if(!mIsPending)
+            {	
+                mIsPending = true;
+                
+                if(aParams == null)
+                {
+                	aParams = new JSONObject();
+                }
+                
+                try 
+                {
+					aParams.put("Key", vKey);
+				} 
+                catch (JSONException e)
+                {
+				}
+
+                Log.d(Engine.APP_NAME, "URL: " + Engine.SERVER_URL + aUrl);
+                
+                StringEntity entity = null;
+				try 
+				{
+					entity = new StringEntity(aParams.toString());
+					entity.setContentType("application/json");
+				} 
+				catch (UnsupportedEncodingException e)
+				{
+				}
+
+                JsonHttpResponseHandler vResponseHandler = new JsonHttpResponseHandler()
+                {
+                    @Override
+					public void onSuccess(int statusCode, Header[] headers, String responseString)
+                    {
+                    	if(aListener != null)
+                        {
+                            aListener.onResponse(true, responseString);
+                        }
+
+                        executeQueue();
+                    }
+
+					@Override
+					public void onSuccess(int statusCode, Header[] headers,	JSONObject response)
+                    {
+                    	if(aListener != null)
+                        {
+                            aListener.onResponse(true, response);
+                        }
+
+                        executeQueue();
+					}
+
+					@Override
+                    public void onSuccess(int statusCode, Header[] headers, JSONArray response)
+                    {
+                        if(aListener != null)
+                        {
+                            aListener.onResponse(true, response);
+                        }
+
+                        executeQueue();
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse)
+                    {
+                    	if(aListener != null)
+                    	{
+                    		aListener.onResponse(false, null);
+                    	}
+                    	
+                    	executeQueue();
+                    }
+
+					@Override
+					public void onFailure(int statusCode, Header[] headers,	String responseString, Throwable throwable)
+					{
+						if(aListener != null && statusCode == 200)
+						{
+							aListener.onResponse(true, null);
+						}
+						else if(aListener != null)
+						{
+							aListener.onResponse(false, null);
+						}
+						
+						executeQueue();
+					}
+                };
+                
+                switch(aType)
+                {
+					case POST:
+					{
+						mClient.post(Engine.get(), Engine.SERVER_URL + aUrl, entity, "application/json", vResponseHandler);
+						break;
+					}
+					
+					default:
+					try 
+					{
+						throw new MethodNotSupportedException("");
+					} 
+					catch (MethodNotSupportedException e)
+					{
+						Log.e(Engine.APP_NAME, "NOT IMPLEMENTED");
+					}
+                }
+            }
+            else
+            {
+                enqueue(aType, aUrl, aParams, aListener);
+            }
+    	}
+    }
 
     private void executeQueue()
     {
@@ -167,11 +325,23 @@ public class ConnectionManager
 
         if(mRequests.size() > 0)
         {
-            send(mTypes.remove(0), mUrls.remove(0), mRequests.remove(0), mListeners.remove(0));
+        	HttpMethod vM = mTypes.remove(0);
+        	String vU = mUrls.remove(0);
+        	Object vP = mRequests.remove(0);
+        	JsonResponse vR = mListeners.remove(0);
+        	
+        	if(vP instanceof RequestParams)
+        	{
+        		send(vM, vU, (RequestParams) vP, vR);
+        	}
+        	else
+        	{
+        		send(vM, vU, (JSONObject) vP, vR);	
+        	}   
         }
     }
 
-    private void enqueue(HttpMethod aType, String aUrl, RequestParams aParams, JsonResponse aListener)
+    private void enqueue(HttpMethod aType, String aUrl, Object aParams, JsonResponse aListener)
     {
     	mTypes.add(aType);
         mUrls.add(aUrl);

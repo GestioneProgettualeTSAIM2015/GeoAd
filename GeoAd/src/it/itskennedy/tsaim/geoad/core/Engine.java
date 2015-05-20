@@ -26,6 +26,7 @@ public class Engine extends Application implements PushKeyReceiver
 
     private static Engine mInstance;
 	private String mKey;
+	private String mToken;
 
     @Override
     public void onCreate()
@@ -36,6 +37,8 @@ public class Engine extends Application implements PushKeyReceiver
         startService(vService);
 
         setVariables();
+        
+        mToken = SettingsManager.get(this).getToken();
         
         new PushSignIn(this, this);
 
@@ -78,7 +81,6 @@ public class Engine extends Application implements PushKeyReceiver
                 } 
                 catch (IOException e)
                 {
-                    //log the exception
                 }
             }
         }
@@ -95,10 +97,20 @@ public class Engine extends Application implements PushKeyReceiver
 		
 		return null;
 	}
+	
+	public String getToken()
+	{
+		return mToken;
+	}
 
 	@Override
 	public void onKey(String aKey)
 	{
 		mKey = aKey;
+	}
+
+	public void setToken(String aToken) 
+	{
+		mToken = aToken;
 	}
 }

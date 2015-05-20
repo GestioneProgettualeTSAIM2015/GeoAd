@@ -12,6 +12,8 @@ public class SettingsManager
 {
     private static final String PREF_PUSH_ID = "pref_push_id";
     private static final String PREF_APP_VERSION = "pref_app_version";
+    private static final String PREF_TOKEN = "pref_token";
+	private static final String PREF_LOGIN = "pref_login";
 
     private SharedPreferences mPref;
     private Editor mEditor;
@@ -48,4 +50,26 @@ public class SettingsManager
         mEditor.putInt(PREF_APP_VERSION, aVersion);
         mEditor.commit();
     }
+
+	public void saveToken(String aToken)
+	{
+		mEditor.putString(PREF_TOKEN, aToken);
+		mEditor.commit();
+	}
+
+	public String getToken()
+	{
+		return mPref.getString(PREF_TOKEN, null);
+	}
+
+	public boolean isUserLogged() 
+	{
+		return mPref.getBoolean(PREF_LOGIN, false);
+	}
+	
+	public void saveUserLogged(boolean aState)
+	{
+		mEditor.putBoolean(PREF_LOGIN, aState);
+		mEditor.commit();
+	}
 }
