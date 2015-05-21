@@ -63,6 +63,6 @@ public class SettingsManager
 
 	public boolean isUserLogged() 
 	{
-		return !mPref.getString(PREF_TOKEN, null).equals(null);
+		return mPref.getString(PREF_TOKEN, null) != null;
 	}
 }

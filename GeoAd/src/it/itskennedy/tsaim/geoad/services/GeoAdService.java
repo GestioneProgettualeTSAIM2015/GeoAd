@@ -201,7 +201,7 @@ public class GeoAdService extends Service implements LocationListener
 		vParams.add("south_lat", (aLocation.getLatitude() - vLat) + "");
 		vParams.add("east_lng", (aLocation.getLongitude() - vLng) + "");
 
-		ConnectionManager.obtain().post("api/Locations", vParams, new ConnectionManager.JsonResponse()
+		ConnectionManager.obtain().get("api/Locations", vParams, new ConnectionManager.JsonResponse()
 		{
 			@Override
 			public void onResponse(boolean aResult, Object aResponse)

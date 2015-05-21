@@ -75,22 +75,15 @@ public class RegisterActivity extends Activity
 
 	private void registerAccount()
 	{
-		JSONObject vObjReg = new JSONObject();
+		RequestParams v = new RequestParams();
 		
-		try 
-		{
-			vObjReg.put("ConfirmPassword", mConfirmPassword.getText().toString());
-			vObjReg.put("Email", mEmail.getText().toString());
-			vObjReg.put("Password", mPassword.getText().toString());
-		} 
-		catch (JSONException e)
-		{
-			Log.e(Engine.APP_NAME, "Json Compose Error!");
-		}
+		v.put("ConfirmPassword", mConfirmPassword.getText().toString());
+		v.put("Email", mEmail.getText().toString());
+		v.put("Password", mPassword.getText().toString());
 		
 		final ConnectionManager vCM = ConnectionManager.obtain();
 		
-		vCM.post("api/Account/Register", vObjReg, new JsonResponse()
+		vCM.post("api/Account/Register", v, new JsonResponse()
 		{	
 			@Override
 			public void onResponse(boolean aResult, Object aResponse)

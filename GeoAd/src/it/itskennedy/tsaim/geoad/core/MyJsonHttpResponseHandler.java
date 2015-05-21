@@ -23,7 +23,6 @@ public class MyJsonHttpResponseHandler extends JsonHttpResponseHandler
 	public void onSuccess(int statusCode, Header[] headers,	JSONObject response)
     {
     	if(mListener != null)
-    		
         {
             mListener.onResponse(true, response);
         }
