@@ -203,3 +203,4 @@ build/
 ##Others
 Tests-*.*
 *.secret.config
+*config.json

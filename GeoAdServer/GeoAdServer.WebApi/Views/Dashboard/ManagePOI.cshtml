@@ -1,0 +1,58 @@
+﻿@model IEnumerable<GeoAdServer.Domain.Entities.DTOs.LocationDTO>
+@Scripts.Render("~/bundles/jquery")
+
+<h2>Gestione Punti di interesse</h2>
+
+
+@if (Model.Count() > 0)
+{
+    <table class="table-bordered table-striped">
+        <tr>
+            <th class="text-center">
+                ID
+            </th>
+            <th class="text-center">
+                Nome
+            </th>
+            <th class="text-center">
+                Categoria Primaria
+            </th>
+            <th class="text-center">
+                Categoria Secondaria
+            </th>
+            <th class="text-center">
+                Descrizione
+            </th>
+            <th class="text-center">
+                Elimina
+            </th>
+        </tr>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td class="col-md-1">
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td class="col-md-2">
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td class="col-md-2">
+                    @Html.DisplayFor(modelItem => item.PCat)
+                </td>
+                <td class="col-md-2">
+                    @Html.DisplayFor(modelItem => item.SCat)
+                </td>
+                <td class="col-md-3">
+                    @Html.DisplayFor(modelItem => item.Desc)
+                </td>
+                <td class="col-md-1 text-center">
+                    <img class="del_image" src="data:image/png;base64,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" />
+                </td>
+            </tr>
+        }
+    </table>
+}
+else
+{
+    <h5>Non sono presenti punti d'interesse!</h5> 
+}

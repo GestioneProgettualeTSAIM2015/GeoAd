@@ -1,0 +1,30 @@
+﻿
+@{
+    ViewBag.Title = "Home";
+}
+
+<h2>Bentornato @ViewBag.userName</h2>
+
+<div>   
+    &nbsp;
+    <h5>Gestione Luoghi</h5>
+    <ul>
+        @if (ViewBag.isSuperuser)
+        {
+            <li>@Html.ActionLink("Inserisci nuovo punto d'interesse", "NewPOI", "Dashboard")</li>
+            <li>@Html.ActionLink("Gestione punti d'interesse", "ManagePOI", "Dashboard")</li>
+        }
+        else
+        {
+            <li>@Html.ActionLink("Inserisci nuova attività commerciale", "NewCA", "Dashboard")</li>
+            <li>@Html.ActionLink("Gestisci le tue attività", "ManageCA", "Dashboard")</li>
+        }
+    </ul>
+
+    &nbsp;
+    <h5>Gestione Account</h5>
+    <ul>
+        <li>@Html.ActionLink("Cambio Password", "ChangePassword", "Dashboard")</li>
+    </ul>
+</div>
+
