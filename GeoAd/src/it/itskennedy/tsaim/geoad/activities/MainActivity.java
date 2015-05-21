@@ -1,25 +1,11 @@
 package it.itskennedy.tsaim.geoad.activities;
 
-import java.util.ArrayList;
-
-import org.apache.http.entity.StringEntity;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.loopj.android.http.RequestParams;
-
 import it.itskennedy.tsaim.geoad.R;
 import it.itskennedy.tsaim.geoad.Utils;
-import it.itskennedy.tsaim.geoad.R.array;
-import it.itskennedy.tsaim.geoad.R.drawable;
-import it.itskennedy.tsaim.geoad.R.id;
-import it.itskennedy.tsaim.geoad.R.layout;
-import it.itskennedy.tsaim.geoad.R.menu;
-import it.itskennedy.tsaim.geoad.R.string;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager;
+import it.itskennedy.tsaim.geoad.core.ConnectionManager.JsonResponse;
 import it.itskennedy.tsaim.geoad.core.Engine;
 import it.itskennedy.tsaim.geoad.core.SettingsManager;
-import it.itskennedy.tsaim.geoad.core.ConnectionManager.JsonResponse;
 import it.itskennedy.tsaim.geoad.fragment.ActivitiesFragment;
 import it.itskennedy.tsaim.geoad.fragment.AugmentedRealityFragment;
 import it.itskennedy.tsaim.geoad.fragment.LoginDialogFragment;
@@ -28,16 +14,19 @@ import it.itskennedy.tsaim.geoad.fragment.SearchListFragment;
 import it.itskennedy.tsaim.geoad.fragment.SearchMapFragment;
 import it.itskennedy.tsaim.geoad.interfaces.IFragment;
 import it.itskennedy.tsaim.geoad.interfaces.ILoginDialogFragment;
+
+import java.util.ArrayList;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.app.SearchManager;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.Menu;
@@ -48,6 +37,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.loopj.android.http.RequestParams;
 
 public class MainActivity extends Activity implements IFragment, ILoginDialogFragment
 {
@@ -281,8 +272,6 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 						SettingsManager.get(MainActivity.this).saveToken(aToken);
 						Engine.get().setToken(aToken);
 						
-						isLogged = true;
-						SettingsManager.get(MainActivity.this).saveUserLogged(isLogged);
 						selectItem(Utils.TYPE_ACTIVITIES);
 						Toast.makeText(MainActivity.this, "Loggato", Toast.LENGTH_SHORT).show();
 					

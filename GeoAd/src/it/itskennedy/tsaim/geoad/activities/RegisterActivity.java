@@ -6,7 +6,6 @@ import org.json.JSONObject;
 import com.loopj.android.http.RequestParams;
 
 import it.itskennedy.tsaim.geoad.R;
-import it.itskennedy.tsaim.geoad.Utils;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager;
 import it.itskennedy.tsaim.geoad.core.Engine;
 import it.itskennedy.tsaim.geoad.core.SettingsManager;
@@ -18,7 +17,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class RegisterActivity extends Activity
@@ -118,8 +116,6 @@ public class RegisterActivity extends Activity
 								SettingsManager.get(RegisterActivity.this).saveToken(aToken);
 								Engine.get().setToken(aToken);
 								
-								SettingsManager.get(RegisterActivity.this).saveUserLogged(true);
-							
 								Intent vMainAct = new Intent(RegisterActivity.this, MainActivity.class);
 								startActivity(vMainAct);
 								finish();
