@@ -1,30 +1,26 @@
-﻿
-@{
-    ViewBag.Title = "Home";
-}
-
-<h2>Bentornato @ViewBag.userName</h2>
+﻿<h2>Bentornato @ViewBag.Name</h2>
 
 <div>   
-    &nbsp;
-    <h5>Gestione Luoghi</h5>
-    <ul>
-        @if (ViewBag.isSuperuser)
+        @if (ViewBag.IsAdmin)
         {
-            <li>@Html.ActionLink("Inserisci nuovo punto d'interesse", "NewPOI", "Dashboard")</li>
-            <li>@Html.ActionLink("Gestione punti d'interesse", "ManagePOI", "Dashboard")</li>
+            <h5>Gestione Punti d'Interesse</h5>
+            <ul>
+                <li>@Html.ActionLink("Inserisci nuovo punto d'interesse", "NewLocation", "Dashboard")</li>
+                <li>@Html.ActionLink("Gestione punti d'interesse", "ManageLocations", "Dashboard")</li>
+            </ul>
         }
         else
         {
-            <li>@Html.ActionLink("Inserisci nuova attività commerciale", "NewCA", "Dashboard")</li>
-            <li>@Html.ActionLink("Gestisci le tue attività", "ManageCA", "Dashboard")</li>
+            <h5>Gestione Attività Commerciali</h5>
+            <ul>
+                <li>@Html.ActionLink("Inserisci nuova attività commerciale", "NewLocation", "Dashboard")</li>
+                <li>@Html.ActionLink("Gestisci le tue attività", "ManageLocations", "Dashboard")</li>
+            </ul>
+            <br />
+            <h5>Gestione Account</h5>
+            <ul>
+                <li>@Html.ActionLink("Cambio Password", "ChangePassword", "Dashboard")</li>
+            </ul>
         }
-    </ul>
-
-    &nbsp;
-    <h5>Gestione Account</h5>
-    <ul>
-        <li>@Html.ActionLink("Cambio Password", "ChangePassword", "Dashboard")</li>
-    </ul>
 </div>
 

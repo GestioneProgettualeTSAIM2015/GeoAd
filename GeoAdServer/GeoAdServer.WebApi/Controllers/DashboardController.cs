@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Mvc;
+using GeoAdServer.WebApi.Support;
 
 namespace GeoAdServer.WebApi.Controllers
 {
@@ -13,27 +14,25 @@ namespace GeoAdServer.WebApi.Controllers
     {
         public ActionResult Home()
         {
-            string vName = User.Identity.Name + "test";
-            Boolean vIsSuperuser = User.IsInRole("Superuser");
+            var IsAdmin = User.Identity.Name.CompareTo("admin@geoad.com") != 0;
+            ViewBag.IsAdmin = IsAdmin;
 
-            ViewBag.userName = vName;
-            ViewBag.isSuperuser = !vIsSuperuser;
-
+            if (IsAdmin)
+            {
+                ViewBag.Name = "Super User";
+            }
+            else
+            {
+                ViewBag.Name = User.Identity.Name;
+            }
+            
             return View();
         }
 
-        public ActionResult NewPOI()
+        public ActionResult NewLocation()
         {
-            if (!User.IsInRole("Superuser"))
-            {
-                return View();
-            }
-
-            return View("~/Views/Dashboard/Error.cshtml");
-        }
-
-        public ActionResult NewCA()
-        {
+            var IsAdmin = User.Identity.Name.CompareTo("admin@geoad.com") == 0;
+            ViewBag.IsAdmin = IsAdmin;
             return View();
         }
 
@@ -42,22 +41,26 @@ namespace GeoAdServer.WebApi.Controllers
             return View();
         }
 
-        public ActionResult ManagePOI()
+        public ActionResult ManageLocations()
         {
-            if (!User.IsInRole("Superuser"))
-            {
-                IEnumerable<LocationDTO> vData = DataRepos.Locations.GetByUserId("2067273727");
+            var IsAdmin = User.Identity.Name.CompareTo("admin@geoad.com") == 0;
+            ViewBag.IsAdmin = IsAdmin;
 
-                return View(vData);
-            }
+            var UserId = User.Identity.GetUserId();
 
-            return View("~/Views/Dashboard/Error.cshtml");
+            IEnumerable<LocationDTO> vData = DataRepos.Locations./*GetByUserId(UserId)*/GetAll();
+
+            return View(vData);
         }
 
-        public ActionResult ManageCA()
+        public ActionResult EditLocation(int Id)
         {
-            return View();
-        }
+            var IsAdmin = User.Identity.Name.CompareTo("admin@geoad.com") == 0;
+            ViewBag.IsAdmin = IsAdmin;
 
+            LocationDTO vData = DataRepos.Locations.GetById(Id);
+
+            return View(vData);
+        }
     }
 }

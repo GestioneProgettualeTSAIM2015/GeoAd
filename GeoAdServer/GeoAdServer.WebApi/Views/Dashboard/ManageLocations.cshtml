@@ -1,0 +1,113 @@
+﻿@model IEnumerable<GeoAdServer.Domain.Entities.DTOs.LocationDTO>
+@Scripts.Render("~/bundles/jquery")
+
+@if (ViewBag.IsAdmin)
+{
+    <h2>Gestione Punti di interesse</h2>
+}
+else
+{ 
+    <h2>Gestione Attività Commerciali</h2>
+}
+
+@if (Model.Count() > 0)
+{
+    <table class="table-bordered table-striped">
+        <tr>
+            <th class="text-center">
+                ID
+            </th>
+            <th class="text-center">
+                Nome
+            </th>
+            <th class="text-center">
+                Categoria Primaria
+            </th>
+            <th class="text-center">
+                Categoria Secondaria
+            </th>
+            <th class="text-center">
+                Descrizione
+            </th>
+            <th>
+                &nbsp;
+            </th>
+            <th>
+                &nbsp;
+            </th> 
+        </tr>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td class="col-md-1">
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td class="col-md-2">
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td class="col-md-2">
+                    @Html.DisplayFor(modelItem => item.PCat)
+                </td>
+                <td class="col-md-2">
+                    @Html.DisplayFor(modelItem => item.SCat)
+                </td>
+                <td class="col-md-3">
+                    @Html.DisplayFor(modelItem => item.Desc)
+                </td>
+                <td class="col-md-1 text-center">
+                    <button class="btn btn-default btn-sm edit">
+                        <span class="glyphicon glyphicon-edit">@Html.ActionLink("Modifica", "Dashboard", "EditLocation", new { Id = item.Id })</span> 
+                    </button>                
+                </td>
+                <td class="col-md-1 text-center">
+                    <button type="button" class="btn btn-default btn-sm delete" id="@item.Id" data-name="@item.Name">
+                        <span class="glyphicon glyphicon-remove"></span> Elimina
+                    </button>
+                </td>
+            </tr>
+        }
+    </table>
+}
+else
+{
+    if (ViewBag.IsAdmin)
+    {
+        <h5>Non sono presenti punti d'interesse</h5>
+    }
+    else
+    {
+        <h5>Non hai registrato attività commerciali</h5>
+    }
+}
+
+<script type="text/javascript">
+
+    $(".delete").click(function () {
+        var name = $(this).data("name");
+
+        var r = confirm("Cancellare il punto d'interesse " + name + "?");
+        if (r == true)
+        {
+            $.ajax({
+                url: '../api/Locations/fromuser/@ViewBag.UserId?id=' + $(this).attr("id"),
+                type: 'DELETE',
+                beforeSend: function(xhr, settings) { xhr.setRequestHeader('Authorization','Bearer ' + getToken()); },
+                success: function (result)
+                {
+                    alert("Eliminazione Completata");
+                    window.location.reload();
+                },
+                error: function (error)
+                {
+                    alert(error.responseText);
+                }
+            });
+        }
+    });
+
+    function getToken()
+    {
+        return window.localStorage.getItem("token");
+    }
+
+</script>

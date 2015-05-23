@@ -298,12 +298,10 @@
     <Content Include="Scripts\jquery-1.10.2.min.map" />
     <Content Include="Views\Login\Login.cshtml" />
     <Content Include="Views\Dashboard\Home.cshtml" />
-    <Content Include="Views\Dashboard\NewPOI.cshtml" />
-    <Content Include="Views\Dashboard\NewCA.cshtml" />
-    <Content Include="Views\Dashboard\Error.cshtml" />
+    <Content Include="Views\Dashboard\NewLocation.cshtml" />
     <Content Include="Views\Dashboard\ChangePassword.cshtml" />
-    <Content Include="Views\Dashboard\ManagePOI.cshtml" />
-    <Content Include="Views\Dashboard\ManageCA.cshtml" />
+    <Content Include="Views\Dashboard\ManageLocations.cshtml" />
+    <Content Include="Views\Dashboard\EditLocation.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
