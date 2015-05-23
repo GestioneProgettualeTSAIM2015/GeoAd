@@ -7,6 +7,8 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Mvc;
 using GeoAdServer.WebApi.Support;
+using GeoAdServer.Domain.Entities;
+using GeoAdServer.WebApi.Models;
 
 namespace GeoAdServer.WebApi.Controllers
 {
@@ -14,7 +16,7 @@ namespace GeoAdServer.WebApi.Controllers
     {
         public ActionResult Home()
         {
-            var IsAdmin = User.Identity.Name.CompareTo("admin@geoad.com") != 0;
+            var IsAdmin = User.Identity.Name.CompareTo("admin@geoad.com") == 0;
             ViewBag.IsAdmin = IsAdmin;
 
             if (IsAdmin)
@@ -30,11 +32,29 @@ namespace GeoAdServer.WebApi.Controllers
             return View();
         }
 
+        [HttpGet]
         public ActionResult NewLocation()
         {
             var IsAdmin = User.Identity.Name.CompareTo("admin@geoad.com") == 0;
             ViewBag.IsAdmin = IsAdmin;
-            return View();
+
+            var NewLocation = new LocationApiModel();
+
+            return View(NewLocation);
+        }
+
+        [HttpPost]
+        public ActionResult NewLocation([Bind]LocationApiModel location)
+        {
+            if (ModelState.IsValid)
+            {
+                var UserId = User.Identity.GetUserId();
+                var ToAdd = location.CreateLocationFromModel(UserId, DataRepos.Locations);
+
+                DataRepos.Locations.Insert(ToAdd);
+            }
+
+            return RedirectToAction("Home");
         }
 
         public ActionResult ChangePassword()
@@ -48,8 +68,22 @@ namespace GeoAdServer.WebApi.Controllers
             ViewBag.IsAdmin = IsAdmin;
 
             var UserId = User.Identity.GetUserId();
+            ViewBag.UserId = UserId;
 
             IEnumerable<LocationDTO> vData = DataRepos.Locations./*GetByUserId(UserId)*/GetAll();
+
+            return View(vData);
+        }
+
+        public ActionResult ManageOffers(int LocationId, string LocationName)
+        {
+            IEnumerable<OfferingDTO> vData = DataRepos.Offerings.GetByLocationId(LocationId);
+
+            var UserId = User.Identity.GetUserId();
+            ViewBag.UserId = UserId;
+
+            ViewBag.LocId = LocationId;
+            ViewBag.LocName = LocationName;
 
             return View(vData);
         }

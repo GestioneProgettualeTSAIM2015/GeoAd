@@ -1,0 +1,135 @@
+﻿@model IEnumerable<GeoAdServer.Domain.Entities.DTOs.OfferingDTO>
+@Scripts.Render("~/bundles/jquery")
+
+<h2>Gestione Offerte @ViewBag.LocName</h2>
+
+
+@if (Model.Count() > 0)
+{
+    <table class="table-bordered table-striped">
+        <tr>
+            <th class="text-center">
+                ID Offerta
+            </th>
+            <th class="text-center">
+                Descrizione
+            </th>
+            <th class="text-center">
+                Inserimento
+            </th>
+            <th class="text-center">
+                Scadenza
+            </th>
+            <th>
+                &nbsp;
+            </th>
+        </tr>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td class="col-md-1">
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td class="col-md-2">
+                    @Html.DisplayFor(modelItem => item.Desc)
+                </td>
+                <td class="col-md-2">
+                    @Html.DisplayFor(modelItem => item.InsDateMillis)
+                </td>
+                <td class="col-md-2">
+                    @Html.DisplayFor(modelItem => item.ExpDateMillis)
+                </td>
+                <td class="col-md-1 text-center">
+                    @Html.ActionLink("Modifica", "EditOffer", "Dashboard", new { Id = item.Id }, new { @class = "btn btn-default btn-sm" })
+                </td>
+                <td class="col-md-1 text-center">
+                    <button type="button" class="btn btn-default btn-sm delete" data-id="@item.Id">
+                        Elimina
+                    </button>
+                </td>
+            </tr>
+        }
+    </table>
+}
+else
+{
+    <h5>Non sono presenti offerte per questa attività commerciale</h5>
+}
+
+<hr />
+<div>
+    <div id="formNewOffer">
+
+        <div class="form-group">
+            <p class="control-label col-md-2">Descrizione</p>
+            <div class="col-md-10">
+                <textarea id="offDesc" style="width:100%; resize:none;" rows="6"></textarea>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <p class="control-label col-md-2">Data Scadenza</p>
+            <div class="col-md-10">
+                <input type="date" id="offExpDate" />
+            </div>
+        </div>
+        
+        <button onclick="addOffer();">Aggiungi Offerta</button>
+    </div>
+</div>
+<br />
+<hr />
+@Html.ActionLink("Le mie attività", "ManageLocations", "Dashboard")
+
+<script type="text/javascript">
+
+    $(".delete").click(function () {
+        var id = $(this).data("id");
+
+        var r = confirm("Cancellare l'offerta " + id + "?");
+        if (r == true) {
+            $.ajax({
+                url: '../api/Offerings/fromuser/@ViewBag.UserId?id=' + $(this).attr("id"),
+                type: 'DELETE',
+                beforeSend: function (xhr, settings) { xhr.setRequestHeader('Authorization', 'Bearer ' + getToken()); },
+                success: function (result) {
+                    alert("Eliminazione Completata");
+                    window.location.reload();
+                },
+                error: function (error) {
+                    alert(error.responseText);
+                }
+            });
+        }
+    });
+
+    function getToken() {
+        return window.localStorage.getItem("token");
+    }
+
+    function addOffer()
+    {
+        var date = new Date($("#offExpDate").val());
+        var milliseconds = date.getTime();
+
+        var offerObj = {
+            "LocationId": @ViewBag.LocId,
+            "Desc": $("#offDesc").val(),
+            "ExpDateMillis": milliseconds
+    };
+
+        $.ajax({
+            url: '../api/Offerings/fromuser/@ViewBag.UserId',
+            type: 'POST',
+            data: offerObj,
+            beforeSend: function (xhr, settings) { xhr.setRequestHeader('Authorization', 'Bearer ' + getToken()); },
+            success: function (result) {
+                window.location.reload();
+            },
+            error: function (error) {
+                alert(error.responseText);
+            }
+        });
+    }
+
+</script>

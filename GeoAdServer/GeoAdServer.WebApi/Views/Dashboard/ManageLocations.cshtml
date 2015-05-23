@@ -34,7 +34,11 @@ else
             </th>
             <th>
                 &nbsp;
-            </th> 
+            </th>
+            @if (!ViewBag.IsAdmin)
+            {
+                <th>&nbsp;</th>
+            }
         </tr>
         @foreach (var item in Model)
         {
@@ -51,19 +55,24 @@ else
                 <td class="col-md-2">
                     @Html.DisplayFor(modelItem => item.SCat)
                 </td>
-                <td class="col-md-3">
+                <td class="col-md-2">
                     @Html.DisplayFor(modelItem => item.Desc)
                 </td>
                 <td class="col-md-1 text-center">
-                    <button class="btn btn-default btn-sm edit">
-                        <span class="glyphicon glyphicon-edit">@Html.ActionLink("Modifica", "Dashboard", "EditLocation", new { Id = item.Id })</span> 
-                    </button>                
+                    @Html.ActionLink("Modifica", "EditLocation", "Dashboard", new { Id = item.Id }, new { @class = "btn btn-default btn-sm" })                  
                 </td>
                 <td class="col-md-1 text-center">
                     <button type="button" class="btn btn-default btn-sm delete" id="@item.Id" data-name="@item.Name">
-                        <span class="glyphicon glyphicon-remove"></span> Elimina
+                        Elimina
                     </button>
                 </td>
+                @if (!ViewBag.IsAdmin)
+                {
+                    <td class="col-md-1 text-center">
+                        @Html.ActionLink("Offerte", "ManageOffers", "Dashboard", new { LocationId = item.Id, LocationName = item.Name }, new { @class = "btn btn-default btn-sm" }) 
+                    </td>
+                    
+                }
             </tr>
         }
     </table>
@@ -79,6 +88,10 @@ else
         <h5>Non hai registrato attività commerciali</h5>
     }
 }
+<br />
+
+<hr />
+@Html.ActionLink("Home", "Home", "Dashboard")
 
 <script type="text/javascript">
 
