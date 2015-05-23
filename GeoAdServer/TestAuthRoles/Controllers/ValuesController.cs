@@ -7,16 +7,16 @@ using System.Web.Http;
 
 namespace TestAuthRoles.Controllers
 {
+    [Authorize]
     public class ValuesController : ApiController
     {
-        [Authorize]
         [ActionName("Generic")]
         public IEnumerable<string> GetGeneric()
         {
             return new string[] { "value1", "value2", "value3" };
         }
 
-        [Authorize(Roles="admin")]
+        [Authorize(Users = "admin@geoad.com")]
         [ActionName("Special")]
         public IEnumerable<string> GetSpecial()
         {
