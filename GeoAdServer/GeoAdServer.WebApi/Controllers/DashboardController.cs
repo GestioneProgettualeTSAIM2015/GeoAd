@@ -18,6 +18,7 @@ namespace GeoAdServer.WebApi.Controllers
             ViewBag.IsAdmin = IsAdmin;
 
             if (IsAdmin)
+
             {
                 ViewBag.Name = "Super User";
             }
