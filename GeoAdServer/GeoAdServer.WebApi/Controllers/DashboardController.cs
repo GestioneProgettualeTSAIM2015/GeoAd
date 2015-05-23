@@ -18,7 +18,7 @@ namespace GeoAdServer.WebApi.Controllers
 
             ViewBag.userName = vName;
             ViewBag.isSuperuser = !vIsSuperuser;
-
+            
             return View();
         }
 
@@ -28,7 +28,7 @@ namespace GeoAdServer.WebApi.Controllers
             {
                 return View();
             }
-
+            
             return View("~/Views/Dashboard/Error.cshtml");
         }
 
