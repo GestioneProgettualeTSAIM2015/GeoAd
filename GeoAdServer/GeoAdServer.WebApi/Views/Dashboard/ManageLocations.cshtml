@@ -69,7 +69,7 @@ else
                 @if (!ViewBag.IsAdmin)
                 {
                     <td class="col-md-1 text-center">
-                        @Html.ActionLink("Offerte", "ManageOffers", "Dashboard", new { LocationId = item.Id, LocationName = item.Name }, new { @class = "btn btn-default btn-sm" }) 
+                        @Html.ActionLink("Offerte", "ManageOffers", "Dashboard", new { Id = item.Id, LocationName = item.Name }, new { @class = "btn btn-default btn-sm" }) 
                     </td>
                     
                 }
@@ -97,17 +97,17 @@ else
 
     $(".delete").click(function () {
         var name = $(this).data("name");
+        var id = $(this).attr("id");
 
         var r = confirm("Cancellare il punto d'interesse " + name + "?");
         if (r == true)
         {
             $.ajax({
-                url: '../api/Locations/fromuser/@ViewBag.UserId?id=' + $(this).attr("id"),
+                url: '../api/Locations/' + id,
                 type: 'DELETE',
                 beforeSend: function(xhr, settings) { xhr.setRequestHeader('Authorization','Bearer ' + getToken()); },
                 success: function (result)
                 {
-                    alert("Eliminazione Completata");
                     window.location.reload();
                 },
                 error: function (error)

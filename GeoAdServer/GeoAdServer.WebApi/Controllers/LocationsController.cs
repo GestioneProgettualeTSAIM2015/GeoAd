@@ -31,35 +31,35 @@ namespace GeoAdServer.WebApi.Controllers
             return DataRepos.Locations.GetByUserId(userId).AsQueryable();
         }
 
-        [Authorize]
+        //[Authorize]
         public HttpResponseMessage Post([FromBody]LocationApiModel locationApiModel)
         {
             if (locationApiModel == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
 
-            var location = locationApiModel.CreateLocationFromModel(RequestContext.GetUserId(), DataRepos.Locations);
+            var location = locationApiModel.CreateLocationFromModel(/*RequestContext.GetUserId()*/"1", DataRepos.Locations);
             int id = DataRepos.Locations.Insert(location);
             return id != -1 ? Request.CreateResponse(HttpStatusCode.OK, id) :
                               Request.CreateResponse(HttpStatusCode.InternalServerError);
         }
 
-        [Authorize]
+        //[Authorize]
         public HttpResponseMessage Put(int id, [FromBody]LocationApiModel locationApiModel)
         {
             if (locationApiModel == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
 
-            if (!id.IsLocationOwner(RequestContext.GetUserId()))
-                return Request.CreateResponse(HttpStatusCode.Unauthorized);
+            //if (!id.IsLocationOwner(RequestContext.GetUserId()))
+            //    return Request.CreateResponse(HttpStatusCode.Unauthorized);
 
-            var location = locationApiModel.CreateLocationFromModel(RequestContext.GetUserId(), DataRepos.Locations);
+            var location = locationApiModel.CreateLocationFromModel(/*RequestContext.GetUserId()*/"1", DataRepos.Locations);
             var result = DataRepos.Locations.Update(id, location);
             return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
         }
 
-        [Authorize]
+        //[Authorize]
         public HttpResponseMessage Delete(int id)
         {
-            if (!id.IsLocationOwner(RequestContext.GetUserId()))
-                return Request.CreateResponse(HttpStatusCode.Unauthorized);
+            //if (!id.IsLocationOwner(RequestContext.GetUserId()))
+            //    return Request.CreateResponse(HttpStatusCode.Unauthorized);
 
             foreach (OfferingDTO off in DataRepos.Offerings.GetByLocationId(id))
             {

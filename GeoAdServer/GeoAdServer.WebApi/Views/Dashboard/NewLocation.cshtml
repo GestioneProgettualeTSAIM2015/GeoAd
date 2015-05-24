@@ -1,6 +1,4 @@
-﻿@model GeoAdServer.WebApi.Models.LocationApiModel
-
-@if (ViewBag.IsAdmin)
+﻿@if (ViewBag.IsAdmin)
 {
     <h2>Nuovo Punto d'Interesse</h2>
 }
@@ -9,66 +7,56 @@ else
     <h2>Nuova Attività Commerciale</h2>
 }
 
-@using (Html.BeginForm()) 
-{
-    @Html.AntiForgeryToken()
+<div class="form-horizontal" style="width:50%; float:left;">
+    <hr />
     
-    <div class="form-horizontal" style="width:50%; float:left;">
-        <hr />
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <input type="hidden" name="lat" id="lat" />
+    <input type="hidden" name="lng" id="lng"/>
 
-        @Html.Hidden("lat", Model.Lat)
-        @Html.Hidden("lng", Model.Lng)
-
-        <div class="form-group">
-            <p class="control-label col-md-2">Nome</p>
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            <p class="control-label col-md-2">Categoria Principale</p>
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.PCat, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.PCat, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            <p class="control-label col-md-2">Categoria Secondaria</p>
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.SCat, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.SCat, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            <p class="control-label col-md-2">Descrizione</p>
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.Desc, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Desc, "", new { @class = "text-danger" })
-            </div>
-        </div>
-        <hr />
-
-    </div>
-    <div id="map_container" style="height: 400px; width: 50%;">
-        
-    </div>
-    <br />
     <div class="form-group">
-        <div class="col-md-offset-2 col-md-10">
-            <input type="submit" value="Create" class="btn btn-default" />
+        <p class="control-label col-md-2">Nome</p>
+        <div class="col-md-10">
+             <input type="text" name="Name" class="form-control">
         </div>
     </div>
-}
+
+    <div class="form-group">
+        <p class="control-label col-md-2">Categoria Principale</p>
+        <div class="col-md-10">
+            <input type="text" name="PCat" class="form-control">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <p class="control-label col-md-2">Categoria Secondaria</p>
+        <div class="col-md-10">
+            <input type="text" name="SCat" class="form-control">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <p class="control-label col-md-2">Descrizione</p>
+        <div class="col-md-10">
+            <input type="text" name="Desc" class="form-control">
+        </div>
+    </div>
+    <hr />
+
+</div>
+<div id="map_container" style="height: 400px; width: 50%;">
+        
+</div>
+<div class="form-group">
+    <div class="col-md-offset-2 col-md-10">
+        <button class="btn btn-default" onclick="newLocation();">Crea</button>
+    </div>
+</div>
+
+<br />
 
 <div>
-
     <hr />
-    @Html.ActionLink("Home", "Home")
+    @Html.ActionLink("Le mie attività", "ManageLocations")
 </div>
 
 @section Scripts {
@@ -109,5 +97,34 @@ else
         $(function () {
             initializeMap();
         });
+
+        function newLocation()
+        {
+            var obj = {
+                "Name": $("[name='Name']").val(),
+                "PCat": $("[name='PCat']").val(),
+                "SCat": $("[name='SCat']").val(),
+                "Lat": $("#lng").val(),
+                "Lng": $("#lat").val(),
+                "Desc": $("[name='Desc']").val()
+            };
+
+            $.ajax({
+                url: '../api/Locations',
+                type: 'POST',
+                data: obj,
+                beforeSend: function (xhr, settings) { xhr.setRequestHeader('Authorization', 'Bearer ' + getToken()); },
+                success: function (result) {
+                    window.location.replace("../");
+                },
+                error: function (error) {
+                    alert(error.responseText);
+                }
+            });
+        }
+
+        function getToken() {
+            return window.localStorage.getItem("token");
+        }
 </script>
 }

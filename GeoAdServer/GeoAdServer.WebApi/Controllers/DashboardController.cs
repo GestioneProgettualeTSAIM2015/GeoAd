@@ -16,11 +16,10 @@ namespace GeoAdServer.WebApi.Controllers
     {
         public ActionResult Home()
         {
-            var IsAdmin = User.Identity.Name.CompareTo("admin@geoad.com") == 0;
-            ViewBag.IsAdmin = IsAdmin;
+            var isAdmin = IsAdmin();
+            ViewBag.IsAdmin = isAdmin;
 
-            if (IsAdmin)
-
+            if (isAdmin)
             {
                 ViewBag.Name = "Super User";
             }
@@ -35,26 +34,9 @@ namespace GeoAdServer.WebApi.Controllers
         [HttpGet]
         public ActionResult NewLocation()
         {
-            var IsAdmin = User.Identity.Name.CompareTo("admin@geoad.com") == 0;
-            ViewBag.IsAdmin = IsAdmin;
+            ViewBag.IsAdmin = IsAdmin();
 
-            var NewLocation = new LocationApiModel();
-
-            return View(NewLocation);
-        }
-
-        [HttpPost]
-        public ActionResult NewLocation([Bind]LocationApiModel location)
-        {
-            if (ModelState.IsValid)
-            {
-                var UserId = User.Identity.GetUserId();
-                var ToAdd = location.CreateLocationFromModel(UserId, DataRepos.Locations);
-
-                DataRepos.Locations.Insert(ToAdd);
-            }
-
-            return RedirectToAction("Home");
+            return View();
         }
 
         public ActionResult ChangePassword()
@@ -64,8 +46,7 @@ namespace GeoAdServer.WebApi.Controllers
 
         public ActionResult ManageLocations()
         {
-            var IsAdmin = User.Identity.Name.CompareTo("admin@geoad.com") == 0;
-            ViewBag.IsAdmin = IsAdmin;
+            ViewBag.IsAdmin = IsAdmin();
 
             var UserId = User.Identity.GetUserId();
             ViewBag.UserId = UserId;
@@ -75,14 +56,11 @@ namespace GeoAdServer.WebApi.Controllers
             return View(vData);
         }
 
-        public ActionResult ManageOffers(int LocationId, string LocationName)
+        public ActionResult ManageOffers(int Id, string LocationName)
         {
-            IEnumerable<OfferingDTO> vData = DataRepos.Offerings.GetByLocationId(LocationId);
+            IEnumerable<OfferingDTO> vData = DataRepos.Offerings.GetByLocationId(Id);
 
-            var UserId = User.Identity.GetUserId();
-            ViewBag.UserId = UserId;
-
-            ViewBag.LocId = LocationId;
+            ViewBag.LocId = Id;
             ViewBag.LocName = LocationName;
 
             return View(vData);
@@ -90,12 +68,16 @@ namespace GeoAdServer.WebApi.Controllers
 
         public ActionResult EditLocation(int Id)
         {
-            var IsAdmin = User.Identity.Name.CompareTo("admin@geoad.com") == 0;
-            ViewBag.IsAdmin = IsAdmin;
+            ViewBag.IsAdmin = IsAdmin();
 
             LocationDTO vData = DataRepos.Locations.GetById(Id);
 
             return View(vData);
+        }
+
+        public bool IsAdmin()
+        {
+            return User.Identity.Name.CompareTo("admin@geoad.com") == 0;
         }
     }
 }

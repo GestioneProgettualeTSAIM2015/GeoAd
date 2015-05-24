@@ -23,13 +23,13 @@ namespace GeoAdServer.WebApi.Controllers
             return DataRepos.Offerings.GetByLocationId(id).AsQueryable();
         }
 
-        [Authorize]
+        //[Authorize]
         public HttpResponseMessage Post(Offering offering)
         {
             if (offering == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
 
-            if (!offering.LocationId.IsLocationOwner(RequestContext.GetUserId()))
-                return Request.CreateResponse(HttpStatusCode.Unauthorized);
+            //if (!offering.LocationId.IsLocationOwner(RequestContext.GetUserId()))
+              //  return Request.CreateResponse(HttpStatusCode.Unauthorized);
 
             int id = DataRepos.Offerings.Insert(offering);
             return id != -1 ? Request.CreateResponse(HttpStatusCode.OK, id) :
@@ -50,13 +50,13 @@ namespace GeoAdServer.WebApi.Controllers
 
         public HttpResponseMessage Delete(int id)
         {
-            if (!id.IsLocationOwner(RequestContext.GetUserId()))
-                return Request.CreateResponse(HttpStatusCode.Unauthorized);
+            //if (!id.IsLocationOwner(RequestContext.GetUserId()))
+            //    return Request.CreateResponse(HttpStatusCode.Unauthorized);
 
-            foreach (OfferingDTO off in DataRepos.Offerings.GetByLocationId(id))
-            {
-                DataRepos.Offerings.DeleteById(off.Id);
-            }
+            //foreach (OfferingDTO off in DataRepos.Offerings.GetByLocationId(id))
+            //{
+                DataRepos.Offerings.DeleteById(/*off.Id*/id);
+            //}
 
             foreach (PhotoDTO pho in DataRepos.Photos.GetByLocationId(id)) DataRepos.Offerings.DeleteById(pho.Id);
 
