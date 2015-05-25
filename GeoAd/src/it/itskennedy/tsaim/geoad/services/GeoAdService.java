@@ -17,6 +17,7 @@ import org.json.JSONArray;
 import android.app.Service;
 import android.content.Intent;
 import android.location.Location;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -30,7 +31,6 @@ public class GeoAdService extends Service implements LocationListener
 	public static final String OFFER_DATA = "offer_data";
 	public static final String NEAR_ACTION = "near_action";
 	public static final String NEAR_DATA = "near_data";
-	public static final String ASK_NEAR = "ask_near";
 	
 	public static final String NAME = "GeoAd Service";
 
@@ -55,6 +55,9 @@ public class GeoAdService extends Service implements LocationListener
 
 	  	mPendingOffer = new LinkedList<Offer>();
 		mNearLocations = new ArrayList<LocationModel>();
+		
+		//TEST
+		mNearLocations.add(new LocationModel(1, "", "", "PROVA", 46, 13, "", ""));
 
 	}
 	
@@ -78,10 +81,6 @@ public class GeoAdService extends Service implements LocationListener
 
 						manageOffer(vOffer, true);
 					}
-				}
-				else if(vAction.equals(ASK_NEAR))
-				{
-					broadcastNearLocation();
 				}
 			}
 		}
@@ -127,7 +126,7 @@ public class GeoAdService extends Service implements LocationListener
 	@Override
 	public IBinder onBind(Intent intent) 
 	{
-	    return null;
+	    return new GeoAdBinder();
 	}
 
 	@Override
@@ -225,5 +224,18 @@ public class GeoAdService extends Service implements LocationListener
 		vDispatchNear.setAction(GeoAdService.NEAR_ACTION);
 		vDispatchNear.putExtra(GeoAdService.NEAR_DATA, mNearString);
 		sendBroadcast(vDispatchNear);
+	}
+
+	public List<LocationModel> getNears() 
+	{
+		return mNearLocations;
+	}
+	
+	public class GeoAdBinder extends Binder
+	{
+		public GeoAdService getService()
+		{
+			return GeoAdService.this;
+		}
 	}
 }

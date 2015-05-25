@@ -1,26 +1,25 @@
 package it.itskennedy.tsaim.geoad.core.augmentedreality;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
-import android.location.Location;
-import android.util.Log;
 import it.itskennedy.tsaim.geoad.core.Engine;
 import it.itskennedy.tsaim.geoad.core.LocationManager;
 import it.itskennedy.tsaim.geoad.core.LocationManager.LocationListener;
 import it.itskennedy.tsaim.geoad.entity.LocationModel;
 import it.itskennedy.tsaim.geoad.services.GeoAdService;
+import it.itskennedy.tsaim.geoad.services.GeoAdService.GeoAdBinder;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.location.Location;
+import android.os.IBinder;
 
 public class AugmentedRealityManager implements LocationListener, SensorEventListener 
 {
@@ -46,27 +45,22 @@ public class AugmentedRealityManager implements LocationListener, SensorEventLis
 
 	private ArgumentedRealityListener mListener;
 	
-	private BroadcastReceiver mNearReceiver = new BroadcastReceiver() 
+	private GeoAdService mService;
+	private ServiceConnection mServiceConnection = new ServiceConnection()
 	{
 		@Override
-		public void onReceive(Context context, Intent intent)
+		public void onServiceDisconnected(ComponentName name)
 		{
-			String vNearString = intent.getExtras().getString(GeoAdService.NEAR_DATA);
-			try
-			{
-				if(vNearString != null)
-				{
-					mNears = LocationModel.getListFromJsonArray(new JSONArray(vNearString));
-				}
-				
-				onSomethingChange();
-			} 
-			catch (JSONException e)
-			{
-				Log.e(Engine.APP_NAME, "Json Decode Error");
-			}
+			mService = null;
+		}
+		
+		@Override
+		public void onServiceConnected(ComponentName name, IBinder service)
+		{
+			mService = ((GeoAdBinder) service).getService();
 		}
 	};
+	
 	private boolean mTooLowAccuracy;
 	
 	public interface ArgumentedRealityListener
@@ -82,15 +76,7 @@ public class AugmentedRealityManager implements LocationListener, SensorEventLis
 		mContext = aContext;
 		mNears = new ArrayList<LocationModel>();
 		
-		////////////////////////////////////////////////////////////////////////
-		//TEST
 		LocationManager.get(mContext).addListener(this);
-		mNears.add(new LocationModel(1, "", "", "PROVA", 46, 13, "", ""));
-		////////////////////////////////////////////////////////////////////////
-		
-		Intent vAskNear = new Intent(mContext, GeoAdService.class);
-		vAskNear.setAction(GeoAdService.ASK_NEAR);
-		mContext.startService(vAskNear);
 		
 		mSensorManager = (SensorManager) Engine.get().getSystemService(Context.SENSOR_SERVICE);
 		mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -100,15 +86,22 @@ public class AugmentedRealityManager implements LocationListener, SensorEventLis
 
     public void onResume() 
 	{
-    	mContext.registerReceiver(mNearReceiver, new IntentFilter(GeoAdService.NEAR_ACTION));
     	mSensorManager.registerListener(this, mMagnetometer, SensorManager.SENSOR_DELAY_UI);
     	mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_UI);
+    	
+    	Intent vBinding = new Intent(mContext, GeoAdService.class);
+		mContext.bindService(vBinding, mServiceConnection, Context.BIND_AUTO_CREATE);
     }
     
     public void onPause() 
 	{
         mSensorManager.unregisterListener(this);
-        mContext.unregisterReceiver(mNearReceiver);
+        
+        if(mService != null)
+        {
+        	mContext.unbindService(mServiceConnection);
+        	mService = null;
+        }
     }
 
 	@Override
@@ -238,6 +231,11 @@ public class AugmentedRealityManager implements LocationListener, SensorEventLis
 	
 	private void onSomethingChange()
 	{
+		if(mService != null)
+		{
+			mNears = mService.getNears();
+		}
+		
 		List<AugmentedRealityLocation> vResult = new ArrayList<AugmentedRealityLocation>();
 		
 		if(mActualLocation != null)
