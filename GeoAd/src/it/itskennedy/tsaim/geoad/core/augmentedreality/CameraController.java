@@ -47,4 +47,12 @@ public class CameraController extends SurfaceView implements SurfaceHolder.Callb
 	    }
 	}
 	
+	public float getHorizontalFov() {
+		return mCamera.getParameters().getHorizontalViewAngle();
+	}
+	
+	public float getVerticalFov() {
+		return mCamera.getParameters().getVerticalViewAngle();
+	}
+	
 }
