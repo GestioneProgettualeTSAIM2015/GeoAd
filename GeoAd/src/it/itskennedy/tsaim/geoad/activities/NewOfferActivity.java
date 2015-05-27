@@ -1,4 +1,4 @@
-package it.itskennedy.tsaim.geoad.activity;
+package it.itskennedy.tsaim.geoad.activities;
 
 import it.itskennedy.tsaim.geoad.R;
 import it.itskennedy.tsaim.geoad.entity.LocationModel;

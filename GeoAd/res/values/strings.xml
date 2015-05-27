@@ -5,5 +5,15 @@
     <string name="hello_world">Hello world!</string>
     <string name="new_offer">New offer for</string>
     <string name="title_activity_new_offer">New Offer</string>
+    
+    <string-array name="navigation_drawer_strings">
+        <item>Ricerca</item>
+        <item>Realtà Aumentata</item>
+        <item>Preferiti/Ignorati</item>
+        <item>Login</item>
+    </string-array>
+    
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
 
 </resources>

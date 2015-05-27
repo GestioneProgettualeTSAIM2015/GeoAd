@@ -199,6 +199,10 @@ Thumbs.db
 ##Other
 config.json
 
+##TestFiles
+Tests-*.*
+
+
 ##Exceptions
 !Npgsql.dll
 GeoAd/.settings/org.eclipse.jdt.core.prefs

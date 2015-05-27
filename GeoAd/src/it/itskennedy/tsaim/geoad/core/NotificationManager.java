@@ -6,9 +6,10 @@ import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import it.itskennedy.tsaim.geoad.R;
-import it.itskennedy.tsaim.geoad.activity.NewOfferActivity;
+import it.itskennedy.tsaim.geoad.activities.NewOfferActivity;
 import it.itskennedy.tsaim.geoad.entity.LocationModel;
 import it.itskennedy.tsaim.geoad.entity.Offer;
 
@@ -22,6 +23,7 @@ public class NotificationManager
         Intent resultIntent = new Intent(aContext, NewOfferActivity.class);
         resultIntent.putExtra(Offer.BUNDLE_KEY, aOffer.getBundle());
         resultIntent.putExtra(LocationModel.BUNDLE_KEY, aLocation.getBundle());
+       
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(aContext);
         stackBuilder.addParentStack(NewOfferActivity.class);
         stackBuilder.addNextIntent(resultIntent);
@@ -32,7 +34,7 @@ public class NotificationManager
 
         NotificationCompat.Builder vBuilder =
                 new NotificationCompat.Builder(aContext)
-                        //.setSmallIcon()
+                        .setSmallIcon(R.drawable.ic_launcher)
                         //.setLargeIcon()
                         .setContentTitle(vTitle)
                         .setContentText(aOffer.getDesc())
@@ -41,7 +43,6 @@ public class NotificationManager
 
         Notification vNotification = vBuilder.build();
 
-        vNotification.flags = Notification.DEFAULT_ALL;
         android.app.NotificationManager vNotificationManager = (android.app.NotificationManager) aContext.getSystemService(Context.NOTIFICATION_SERVICE);
         vNotificationManager.notify(aOffer.getId(), vNotification);
     }
