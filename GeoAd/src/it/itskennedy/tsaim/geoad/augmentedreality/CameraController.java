@@ -1,4 +1,4 @@
-package it.itskennedy.tsaim.geoad.core.augmentedreality;
+package it.itskennedy.tsaim.geoad.augmentedreality;
 
 import java.io.IOException;
 

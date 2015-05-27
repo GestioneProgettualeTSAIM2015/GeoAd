@@ -1,4 +1,4 @@
-package it.itskennedy.tsaim.geoad.core.augmentedreality;
+package it.itskennedy.tsaim.geoad.augmentedreality;
 
 import it.itskennedy.tsaim.geoad.core.Engine;
 import it.itskennedy.tsaim.geoad.core.LocationManager;
@@ -24,9 +24,6 @@ import android.os.IBinder;
 public class AugmentedRealityManager implements LocationListener, SensorEventListener 
 {
 	private static final int MAX_CHANGE = 6;
-	private static final int PITCH_THRESHOLD = 20;
-	private static final int ROLL_THRESHOLD = 12;
-	private static final int ANGLE_THRESHOLD = 50;
 	private static final int ACCURACY_THRESHOLD = 25;
 	
 	private Location mActualLocation;
@@ -38,12 +35,12 @@ public class AugmentedRealityManager implements LocationListener, SensorEventLis
 	private float[] accelerometerValues;
 	private float[] geomagneticMatrix;
 
-	private int mLastDirection = -1;
-	private int mLastPitch;
-	private int mLastRoll;
+	private float mLastDirection = -1;
+	private float mLastPitch;
+	private float mLastRoll;
 	boolean firstReading = true;
 
-	private ArgumentedRealityListener mListener;
+	private AugmentedRealityListener mListener;
 	
 	private GeoAdService mService;
 	private ServiceConnection mServiceConnection = new ServiceConnection()
@@ -63,12 +60,11 @@ public class AugmentedRealityManager implements LocationListener, SensorEventLis
 	
 	private boolean mTooLowAccuracy;
 	
-	public interface ArgumentedRealityListener
+	public interface AugmentedRealityListener
 	{
-		void onNewData(List<AugmentedRealityLocation> aToDraw, int aPitch, int aRoll);
+		void onNewData(List<AugmentedRealityLocation> aToDraw, float aPitch, float aRoll);
 		void tooLowAccuracy();
 		void onUnreliableSensor();
-		void deviceNotPointed();
 	}
 	
 	public AugmentedRealityManager(Context aContext)
@@ -170,58 +166,45 @@ public class AugmentedRealityManager implements LocationListener, SensorEventLis
 	            float values[] = new float[4];
 	            SensorManager.getOrientation(outR,values);
 
-	            int vDirection = normalizeDegrees(filterChange((int)Math.toDegrees(values[0])));
-	            mLastPitch = normalizeDegrees(Math.toDegrees(values[1]));
-	            mLastRoll = normalizeDegrees(Math.toDegrees(values[2]));
+	            float vDirection = normalizeDegrees((int)Math.toDegrees(values[0]));
+	            mLastPitch = (float) Math.toDegrees(values[1]);
+	            mLastRoll = (float) Math.toDegrees(values[2]);
 	            
-	            boolean vPitchControl = mLastPitch < PITCH_THRESHOLD || mLastPitch > 360 - PITCH_THRESHOLD;
-	            boolean vRollControl = Math.abs(mLastRoll - 90) < ROLL_THRESHOLD || Math.abs(mLastRoll - 270) < ROLL_THRESHOLD;
-	            
-	            if(vPitchControl && vRollControl)
-	            {
-	            	if(vDirection != mLastDirection)
-	                {
-	                    mLastDirection = vDirection;
-	                    onSomethingChange();
-	                }
-	            }
-	            else
-	            {
-	            	if(mListener != null)
-	            	{
-	            		mListener.deviceNotPointed();
-	            	}
-	            }
+            	if(vDirection != mLastDirection)
+                {
+                    mLastDirection = vDirection;
+                    onSomethingChange();
+                }
 	        }
 		}
 	}
 	
-	private int normalizeDegrees(double aRads)
+	private float normalizeDegrees(float aRads)
 	{
-	    return (int)((aRads + 360) % 360);
+	    return (aRads + 360f) % 360;
 	}
 
-	private int filterChange(int newDir)
-	{
-	    newDir = normalizeDegrees(newDir);
-	    
-	    if(firstReading)
-	    {
-	        firstReading = false;
-	        return newDir;
-	    }       
-
-	    int delta = newDir - mLastDirection;
-	    int normalizedDelta = normalizeDegrees(delta);
-	    int change = Math.min(Math.abs(delta), MAX_CHANGE);
-
-	    if(normalizedDelta > 180)
-	    {
-	        change = -change;
-	    }
-
-	    return mLastDirection + change;
-	}
+//	private int filterChange(int newDir)
+//	{
+//	    newDir = normalizeDegrees(newDir);
+//	    
+//	    if(firstReading)
+//	    {
+//	        firstReading = false;
+//	        return newDir;
+//	    }       
+//
+//	    int delta = newDir - mLastDirection;
+//	    int normalizedDelta = normalizeDegrees(delta);
+//	    int change = Math.min(Math.abs(delta), MAX_CHANGE);
+//
+//	    if(normalizedDelta > 180)
+//	    {
+//	        change = -change;
+//	    }
+//
+//	    return mLastDirection + change;
+//	}
 
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy)
@@ -233,7 +216,10 @@ public class AugmentedRealityManager implements LocationListener, SensorEventLis
 	{
 		if(mService != null)
 		{
-			mNears = mService.getNears();
+//			TEST!!!!!!!
+//			mNears = mService.getNears();
+			mNears.add(new LocationModel(1, "", "", "Pordenone", 45.966667, 12.65, "", ""));
+			mNears.add(new LocationModel(2, "", "", "Castello", 45.981389, 12.448889, "", ""));
 		}
 		
 		List<AugmentedRealityLocation> vResult = new ArrayList<AugmentedRealityLocation>();
@@ -244,19 +230,16 @@ public class AugmentedRealityManager implements LocationListener, SensorEventLis
 			{
 				Location vActual = mNears.get(i).getLocation();
 				
-				int vBearingTo = normalizeDegrees(mActualLocation.bearingTo(vActual));
-				int vAngleDifference = vBearingTo - mLastDirection;
+				float vBearingTo = normalizeDegrees(mActualLocation.bearingTo(vActual));
+				float vAngleDifference = vBearingTo - mLastDirection;
 				
-				if(Math.abs(vAngleDifference) < ANGLE_THRESHOLD)
-				{
-					int vId = mNears.get(i).getId();
-					String vName = mNears.get(i).getName();
-					
-					float vDistance = vActual.distanceTo(mActualLocation);
-					
-					AugmentedRealityLocation vToAdd = new AugmentedRealityLocation(vId, vName, vDistance, vAngleDifference);
-					vResult.add(vToAdd);
-				}
+				int vId = mNears.get(i).getId();
+				String vName = mNears.get(i).getName();
+				
+				float vDistance = vActual.distanceTo(mActualLocation);
+				
+				AugmentedRealityLocation vToAdd = new AugmentedRealityLocation(vId, vName, vDistance, vAngleDifference);
+				vResult.add(vToAdd);
 			}
 		}
 		
@@ -266,7 +249,7 @@ public class AugmentedRealityManager implements LocationListener, SensorEventLis
 		}
 	}
 	
-	public void setListener(ArgumentedRealityListener aListener)
+	public void setListener(AugmentedRealityListener aListener)
 	{
 		mListener = aListener;
 	}

@@ -9,5 +9,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Realtà aumentata" />
+    <Button
+        android:id="@+id/btn_augmented"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="AUG"
+        />
     
 </LinearLayout>
