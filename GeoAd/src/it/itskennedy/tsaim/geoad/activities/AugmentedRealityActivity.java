@@ -14,14 +14,14 @@ import android.content.Context;
 import android.os.Bundle;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 public class AugmentedRealityActivity extends Activity
 {
 	private CameraController mCameraSurface;
 	private AugmentedRealityManager mArgReality;
-	private FrameLayout preview;
+	private RelativeLayout preview;
 	
-	private Context mContext = this;
 	private float horizontalDegreesFOV;
 	private float verticalDegreesFOV;
 	
@@ -31,34 +31,40 @@ public class AugmentedRealityActivity extends Activity
 		@Override
 		public void onNewData(List<AugmentedRealityLocation> aToDraw, float aPitch, float aRoll)
 		{
-//			System.out.println("NEW DATA");
-//			for (AugmentedRealityLocation arl : aToDraw) {
-//				ImageView currentMarker = (ImageView) findViewById(arl.mId);
-//				if (Math.abs(arl.mAngleDifference) > horizontalDegreesFOV / 2) {
-//					if (currentMarker != null)  {
-////						preview.removeView(currentMarker);
-//						System.out.println("REMOVED " + arl.mAngleDifference);
-//						System.out.println("-------------");
-//					}
-//				} else {
-//					if (currentMarker == null) {
-//						ImageView markerImageView = new ImageView(mContext);
-//						markerImageView.setId(arl.mId);
-//						markerImageView.setImageResource(drawable.star_big_on);
-//						FrameLayout.LayoutParams parms = new FrameLayout.LayoutParams(60,60);
-//						markerImageView.setLayoutParams(parms);
-//						
-//						currentMarker = markerImageView;
-//						
-//						preview.addView(markerImageView);
-//						markerImageView.bringToFront();
-//					}
-//
-//					currentMarker.setX(getXPosition(arl.mAngleDifference) - 30);
-//					currentMarker.setY(getYPosition(aPitch) - 30);
-//					System.out.println("x pos: " + getXPosition(arl.mAngleDifference) + " y pos: " + getYPosition(aPitch));
-//				}
-//			}
+			System.out.println("NEW DATA");
+			for (AugmentedRealityLocation arl : aToDraw) {
+				ImageView currentMarker = (ImageView) findViewById(arl.mId);
+				if (Math.abs(arl.mAngleDifference) > horizontalDegreesFOV / 2) {
+					if (currentMarker != null)  {
+						preview.removeView(currentMarker);
+						System.out.println("REMOVED " + arl.mAngleDifference);
+						System.out.println("-------------");
+					}
+				} else {
+					if (currentMarker == null) {
+						ImageView markerImageView = new ImageView(getBaseContext());
+						markerImageView.setId(arl.mId);
+						markerImageView.setImageResource(drawable.star_big_on);
+						RelativeLayout.LayoutParams parms = new RelativeLayout.LayoutParams(60,60);
+						markerImageView.setLayoutParams(parms);
+						
+						currentMarker = markerImageView;
+						
+						preview.addView(markerImageView);
+						markerImageView.bringToFront();
+					}
+
+					float oldX = currentMarker.getX();
+					float oldY = currentMarker.getY();
+					float newX = getXPosition(arl.mAngleDifference) - 30;
+					float newY = getYPosition(aPitch) - 30;
+					if (Math.abs(oldX - newX) > 50) currentMarker.setX(newX);
+					if (Math.abs(oldY - newY) > 50) currentMarker.setY(newY);
+//					currentMarker.setX(newX);
+//					currentMarker.setY(newY);
+					System.out.println("x pos: " + newX + " y pos: " + newY);
+				}
+			}
 
 		}
 		
@@ -99,8 +105,8 @@ public class AugmentedRealityActivity extends Activity
         mCameraSurface = new CameraController(this);
         horizontalDegreesFOV = mCameraSurface.getHorizontalFov();
         verticalDegreesFOV = mCameraSurface.getVerticalFov();
-        preview = (FrameLayout) findViewById(R.id.camerapreview);
-        preview.addView(mCameraSurface);
+        preview = (RelativeLayout) findViewById(R.id.camerapreview);
+//        preview.addView(mCameraSurface);
     }
 
 	@Override

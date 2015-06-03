@@ -5,16 +5,14 @@
     android:layout_height="match_parent"
     tools:context="${relativePackage}.${activityClass}" >
 
-    <FrameLayout
+    <RelativeLayout
         android:id="@+id/camerapreview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:layout_centerVertical="false" >
 
-    </FrameLayout>
+    </RelativeLayout>
 
 </RelativeLayout>

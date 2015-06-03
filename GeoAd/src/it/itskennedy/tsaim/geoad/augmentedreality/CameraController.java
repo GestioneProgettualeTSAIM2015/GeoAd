@@ -1,9 +1,11 @@
 package it.itskennedy.tsaim.geoad.augmentedreality;
 
 import java.io.IOException;
+import java.util.List;
 
 import android.content.Context;
 import android.hardware.Camera;
+import android.hardware.Camera.Parameters;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -25,6 +27,11 @@ public class CameraController extends SurfaceView implements SurfaceHolder.Callb
 	{
 		try 
 		{
+			Parameters p = mCamera.getParameters();
+			List<int[]> supportedPreviews = p.getSupportedPreviewFpsRange();
+			int[] bestSupportedPreview = supportedPreviews.get(supportedPreviews.size() - 1);
+			p.setPreviewFpsRange(bestSupportedPreview[0], bestSupportedPreview[1]);
+			mCamera.setParameters(p);
 			mCamera.setPreviewDisplay(holder);
 		}
 		catch (IOException e)

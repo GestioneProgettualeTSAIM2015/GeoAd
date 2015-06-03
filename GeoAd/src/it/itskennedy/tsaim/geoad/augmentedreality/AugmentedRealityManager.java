@@ -26,6 +26,10 @@ public class AugmentedRealityManager implements LocationListener, SensorEventLis
 	private static final int MAX_CHANGE = 6;
 	private static final int ACCURACY_THRESHOLD = 25;
 	
+	private static final int GEOMAGNETIC_POOL_SIZE = 10;
+	private float[] geomagneticValues = new float[GEOMAGNETIC_POOL_SIZE];
+	private int currentReadingNumber = 0;
+	
 	private Location mActualLocation;
 	private List<LocationModel> mNears;
 	private Context mContext;
@@ -170,11 +174,16 @@ public class AugmentedRealityManager implements LocationListener, SensorEventLis
 	            mLastPitch = (float) Math.toDegrees(values[1]);
 	            mLastRoll = (float) Math.toDegrees(values[2]);
 	            
-            	if(vDirection != mLastDirection)
-                {
-                    mLastDirection = vDirection;
-                    onSomethingChange();
-                }
+	            geomagneticValues[currentReadingNumber % GEOMAGNETIC_POOL_SIZE] = vDirection;
+	            currentReadingNumber++;
+	            
+	        	if(currentReadingNumber > GEOMAGNETIC_POOL_SIZE)
+	            {
+	        		float sum = 0;
+	        		for (float v : geomagneticValues) sum += v;
+	                mLastDirection = (mLastDirection + (sum / GEOMAGNETIC_POOL_SIZE)) / 2;
+	                onSomethingChange();
+	            }
 	        }
 		}
 	}
