@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace GeoAdServer.Domain.Contracts
 {
-    public interface ILocationsRepository
+    public interface ILocationsRepository : IDisposable
     {
         IEnumerable<LocationDTO> GetAll();
 

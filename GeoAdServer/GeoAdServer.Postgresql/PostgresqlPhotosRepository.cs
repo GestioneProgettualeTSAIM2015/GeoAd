@@ -22,7 +22,7 @@ namespace GeoAdServer.Postgresql
 
         IEnumerable<PhotoDTO> IPhotosRepository.GetByLocationId(int locationId)
         {
-            string query = @"SELECT ""Id"", ""Data"", ""Width"", ""Height""
+            string query = @"SELECT ""Id"", ""Width"", ""Height"", ""Base64Thumbnail""
                              FROM public.""Photos""
                              WHERE ""LocationId"" = " + locationId;
 
@@ -33,14 +33,15 @@ namespace GeoAdServer.Postgresql
                     Id = dr.Field<int>("Id"),
                     LocationId = locationId,
                     Width = dr.Field<int>("Width"),
-                    Height = dr.Field<int>("Height")
+                    Height = dr.Field<int>("Height"),
+                    Base64Thumbnail = dr.Field<string>("Base64Thumbnail")
                 };
             });
         }
 
         PhotoDTO IPhotosRepository.GetById(int photoId)
         {
-            string query = @"SELECT ""LocationId"", ""Width"", ""Height""
+            string query = @"SELECT ""LocationId"", ""Width"", ""Height"", ""Base64Thumbnail""
                              FROM public.""Photos""
                              WHERE ""Id"" = " + photoId;
 
@@ -51,45 +52,62 @@ namespace GeoAdServer.Postgresql
                     Id = photoId,
                     LocationId = dr.Field<int>("LocationId"),
                     Width = dr.Field<int>("Width"),
-                    Height = dr.Field<int>("Height")
+                    Height = dr.Field<int>("Height"),
+                    Base64Thumbnail = dr.Field<string>("Base64Thumbnail")
                 };
             }).ElementAtOrDefault(0);
         }
 
-        byte[] IPhotosRepository.GetPhotoData(int photoId)
+        PhotoDataDTO IPhotosRepository.GetPhotoBase64Data(int photoId)
         {
-            string query = @"SELECT ""Data""
-                             FROM public.""Photos""
-                             WHERE ""Id"" = " + photoId;
+            string query = @"SELECT ""Base64Data""
+                             FROM public.""PhotosData""
+                             WHERE ""PhotoId"" = " + photoId;
 
-            return ExecQuery<byte[]>(query, (dr) =>
+            return ExecQuery<PhotoDataDTO>(query, (dr) =>
             {
-                return dr.Field<byte[]>("Data");
+                return new PhotoDataDTO
+                {
+                    PhotoId = photoId,
+                    Base64Data = dr.Field<string>("Base64Data")
+                };
             }).ElementAtOrDefault(0);
         }
 
         int IPhotosRepository.Insert(Photo photo)
         {
             var templateCommand = @"INSERT INTO
-                                   public.""Photos"" (""Id"", ""LocationId"", ""Data"", ""Width"", ""Height"")
-                                   VALUES (DEFAULT, {0}, :bytesData, {1}, {2})
+                                   public.""Photos"" (""Id"", ""LocationId"", ""Width"", ""Height"", ""Base64Thumbnail"")
+                                   VALUES (DEFAULT, {0}, {1}, {2}, '{3}')
                                    RETURNING ""Id""";
 
-            NpgsqlParameter bytesData = new NpgsqlParameter(":bytesData", NpgsqlDbType.Bytea);
-            bytesData.Value = photo.Data;
-
             object row = ExecCommand(string.Format(templateCommand,
-                photo.LocationId, photo.Width, photo.Height), bytesData);
+                photo.LocationId, photo.Width, photo.Height, photo.Base64Thumbnail));
 
             return (int) row;
         }
 
+        void IPhotosRepository.InsertData(int photoId, string base64Data)
+        {
+            var templateCommand = @"INSERT INTO
+                                   public.""PhotosData"" (""PhotoId"", ""Base64Data"")
+                                   VALUES ({0}, '{1}')";
+
+            object row = ExecCommand(string.Format(templateCommand, photoId, base64Data));
+        }
+
         bool IPhotosRepository.Delete(int photoId)
         {
-            var templateCommand = @"DELETE FROM public.""Photos""
+            var templateCommand = @"DELETE FROM public.""PhotosData""
+                                    WHERE ""PhotoId"" = {0}";
+
+            ExecCommand(string.Format(templateCommand, photoId));
+
+            templateCommand = @"DELETE FROM public.""Photos""
                                     WHERE ""Id"" = {0}";
 
-            object row = ExecCommand(string.Format(templateCommand, photoId));
+            ExecCommand(string.Format(templateCommand, photoId));
+
             return true;
         }
     }

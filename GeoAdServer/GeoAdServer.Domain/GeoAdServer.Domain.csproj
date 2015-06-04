@@ -44,6 +44,7 @@
     <Compile Include="Contracts\IPhotosRepository.cs" />
     <Compile Include="Entities\DTOs\LocationDTO.cs" />
     <Compile Include="Entities\DTOs\OfferingDTO.cs" />
+    <Compile Include="Entities\DTOs\PhotoDataDTO.cs" />
     <Compile Include="Entities\DTOs\PhotoDTO.cs" />
     <Compile Include="Entities\ReflectiveEquals.cs" />
     <Compile Include="Entities\Location.cs" />

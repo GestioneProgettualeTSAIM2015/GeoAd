@@ -17,7 +17,7 @@ namespace GeoAdServer.Domain.ContractsImplementations.Test
         public void OfferingsRepositoryTest()
         {
             //Container initialization
-            string connectionString = "Server=localhost;Port=5012;UserId=postgres;Password=admin;Database=GeoAdDb";
+            string connectionString = "";
 
             var container = new WindsorContainer();
             container.Register(

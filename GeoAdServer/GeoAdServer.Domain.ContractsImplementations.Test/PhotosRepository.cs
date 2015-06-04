@@ -17,7 +17,7 @@ namespace GeoAdServer.Domain.ContractsImplementations.Test
         public void PhotosRepositoryTest()
         {
             //Container initialization
-            string connectionString = "Server=localhost;Port=5012;UserId=postgres;Password=admin;Database=GeoAdDb";
+            string connectionString = "";
 
             var container = new WindsorContainer();
             container.Register(
@@ -38,20 +38,19 @@ namespace GeoAdServer.Domain.ContractsImplementations.Test
             var locationEnum = locationsRepository.GetAll().GetEnumerator();
             locationEnum.MoveNext();
             int locationId = locationEnum.Current.Id;
-            byte[] data = new byte[] {1, 2, 4};
+            string data = "abc";
 
             var photo = new Photo
             {
                 LocationId = locationId,
-                Data = data,
-                Width = 3,
+                Base64Thumbnail = data,
+                Width = 2,
                 Height = 1
             };
             int id = photosRepository.Insert(photo);
             var photoDTO = photosRepository.GetById(id);
-            var photoDTOData = photosRepository.GetPhotoData(id);
-            Assert.IsTrue(photo.Data.Length == photoDTOData.Length);
-            for (int i = 0; i < photo.Data.Length; i++) Assert.IsTrue(photo.Data[i] == photoDTOData[i]);
+            Assert.IsTrue(photo.Base64Thumbnail.Length == photoDTO.Base64Thumbnail.Length);
+            Assert.AreEqual(photo.Base64Thumbnail, photoDTO.Base64Thumbnail);
             var photos = photosRepository.GetByLocationId(locationId);
             Assert.IsTrue(new List<PhotoDTO>(photos).Contains(photoDTO));
             Assert.IsTrue(photosRepository.Delete(id + 1));

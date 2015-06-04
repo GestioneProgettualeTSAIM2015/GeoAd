@@ -1,0 +1,143 @@
+﻿@model IEnumerable<GeoAdServer.Domain.Entities.DTOs.PhotoDTO>
+@Scripts.Render("~/bundles/jquery")
+
+<h2>Gestione Foto @ViewBag.LocName</h2>
+
+<div id="gallery">
+    @if (Model.Count() == 0)
+    {
+        <h5>Non sono presenti foto</h5>
+    }
+    else
+    {
+
+        foreach (var item in Model)
+        {         
+            <div class="photo" data-id="@item.Id" id="@item.Id" style="float:none;">
+                <img src="data:image/jpg;base64,@item.Base64Thumbnail" />
+                <span class="glyphicon glyphicon-trash delete" data-id="@item.Id" style="cursor:pointer; float:left;"></span>
+            </div>           
+        }
+
+    }
+</div>
+<hr />
+<div>
+    <input type="file" id="photoInput" />
+    <br />
+    <button class="btn btn-primary btn-sm" onclick="uploadPhoto();">Carica Foto</button>
+</div>  
+
+<script type="text/javascript" src="~/Scripts/loginScript.js"></script>
+<script>
+
+    var photoNumber = @Model.Count();
+
+    function uploadPhoto()
+    {
+        var files = document.getElementById("photoInput").files;
+
+        if (files.length > 0)
+        {
+            var reader = new FileReader();
+
+            reader.onloadend = function ()
+            {
+                var base64 = reader.result;
+
+                if(base64.length > 1048576)
+                {
+                    alert("Foto troppo grande");
+                    return;
+                }
+
+                var datas = {
+                    "Base64Data": base64.replace("data:image/jpeg;base64,", ""),
+                    "LocationId": @ViewBag.LocId,
+                };
+
+                $.ajax({
+                    url: '../../api/Photos',
+                    type: 'POST',
+                    data: datas,
+                    beforeSend: function (xhr, settings) { xhr.setRequestHeader('Authorization', 'Bearer ' + getToken()); },
+                    success: function (obj) {
+
+                        if(photoNumber == 0)
+                        {
+                            $("#gallery").html("");
+                        }
+
+                        photoNumber++;
+                        $("#gallery").append("<div class=\"photo\" data-id=\"" + obj.Id + "\" id=\"" + obj.Id + "\" style=\"float:none;\">" +
+                        "<img src=\"data:image/jpeg;base64," + obj.Base64Thumbnail + "\" />" +
+                        "<span class=\"glyphicon glyphicon-trash delete\" data-id=\"" + obj.Id + "\" style=\"cursor:pointer; float:left;\"></span>" +
+                        "</div>"); 
+                    },
+                    error: function (error) {
+                        alert(error.responseText);
+                    }
+                });
+            }
+
+            reader.readAsDataURL(files[0]);
+        }
+        else
+        {
+            alert("Seleziona una foto!");
+        }
+    }
+
+    function generateImgDiv(base64)
+    {
+        var ret = "<img src=\"data:image/jpeg;base64," + base64 + "\" /><br />";
+        return ret;
+    }
+    
+
+    $(".photo").each(function(){
+        var photoId = $(this).data("id");
+
+        $.ajax({
+            url: '../../api/Photos/GetPhotoData?id=' + photoId,
+            type: 'GET',
+            beforeSend: function(xhr, settings) { xhr.setRequestHeader('Authorization','Bearer ' + getToken()); },
+            success: function (result)
+            {
+                //todo popup
+            },
+            error: function (error)
+            {
+                alert(error.responseText);
+            }
+        });
+    });
+
+    $(document.body).on("click", ".delete",function () {
+        var photoId = $(this).data("id");
+
+        var r = confirm("Cancellare la foto " + photoId + "?");
+        if (r == true)
+        {
+            $.ajax({
+                url: '../../api/Photos/' + photoId,
+                type: 'DELETE',
+                beforeSend: function(xhr, settings) { xhr.setRequestHeader('Authorization','Bearer ' + getToken()); },
+                success: function (result)
+                {
+                    photoNumber--;
+                    $("#" + photoId).remove();
+                    if(photoNumber == 0)
+                    {
+                        $("#gallery").html("<h5>Non sono presenti foto</h5>");
+                    }
+                },
+                error: function (error)
+                {
+                    alert(error.responseText);
+                }
+            });
+        }
+    });
+
+</script>

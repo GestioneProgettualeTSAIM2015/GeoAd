@@ -48,19 +48,13 @@ namespace GeoAdServer.WebApi.Controllers
             return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
         }
 
+        [Authorize]
         public HttpResponseMessage Delete(int id)
         {
             if (!id.IsLocationOwner(RequestContext.GetUserId()))
                 return Request.CreateResponse(HttpStatusCode.Unauthorized);
 
-            foreach (OfferingDTO off in DataRepos.Offerings.GetByLocationId(id))
-            {
-                DataRepos.Offerings.DeleteById(off.Id);
-            }
-
-            foreach (PhotoDTO pho in DataRepos.Photos.GetByLocationId(id)) DataRepos.Offerings.DeleteById(pho.Id);
-
-            var result = DataRepos.Locations.DeleteById(id);
+            var result = DataRepos.Offerings.DeleteById(id);
             return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
         }
     }

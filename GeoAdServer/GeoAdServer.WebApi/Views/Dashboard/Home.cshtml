@@ -1,0 +1,26 @@
+﻿<h2>Bentornato @ViewBag.Name</h2>
+
+<div>   
+        @if (ViewBag.IsAdmin)
+        {
+            <h5>Gestione Punti d'Interesse</h5>
+            <ul>
+                <li>@Html.ActionLink("Inserisci nuovo punto d'interesse", "NewLocation", "Dashboard")</li>
+                <li>@Html.ActionLink("Gestione punti d'interesse", "ManageLocations", "Dashboard")</li>
+            </ul>
+        }
+        else
+        {
+            <h5>Gestione Attività Commerciali</h5>
+            <ul>
+                <li>@Html.ActionLink("Inserisci nuova attività commerciale", "NewLocation", "Dashboard")</li>
+                <li>@Html.ActionLink("Gestisci le tue attività", "ManageLocations", "Dashboard")</li>
+            </ul>
+            <br />
+            <h5>Gestione Account</h5>
+            <ul>
+                <li>@Html.ActionLink("Cambio Password", "ChangePassword", "Dashboard")</li>
+            </ul>
+        }
+</div>
+

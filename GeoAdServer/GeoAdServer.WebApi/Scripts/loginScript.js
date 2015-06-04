@@ -1,4 +1,6 @@
-﻿$(function () {
+﻿var headToken = "oauth2token";
+
+$(function () {
 
     var loginDiv = $("#loginDiv");
     var dataDiv = $("#dataDiv");
@@ -6,8 +8,6 @@
     var regisForm = $('#regisForm');
     var loginForm = $('#loginForm');
     var pass, user;
-
-    var headToken = "oauth2token:";
 
     regisForm.submit(function (event) {
         event.preventDefault();
@@ -64,7 +64,8 @@
             type: 'POST',
             data: tokenRequest,
             success: function (data) {
-                saveToken(data.userName, data.access_token);
+                saveToken(data.access_token);
+                window.location.replace("/Dashboard/Home");
             },
             error: function (xhr) {
                 console.log("Errore nel login: " + xhr.responseText);
@@ -72,8 +73,8 @@
         });
     }
 
-    function saveToken(user, token) {
-        sessionStorage.setItem(headToken + user, token);
+    function saveToken(token) {
+        localStorage.setItem(headToken, token);
 
         logInAccount(token);
     }
@@ -115,3 +116,7 @@
         logOutAccount();
     });
 });
+
+function getToken() {
+    return localStorage.getItem(headToken);
+}

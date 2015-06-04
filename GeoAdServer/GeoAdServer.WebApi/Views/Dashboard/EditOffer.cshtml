@@ -1,0 +1,70 @@
+﻿@model GeoAdServer.Domain.Entities.DTOs.OfferingDTO
+
+<h2>Modifica Offerta @ViewBag.Title</h2>
+
+<hr />
+
+<div>
+    <div id="formNewOffer">
+        <div class="form-group">
+            <p class="control-label col-md-2">Descrizione</p>
+            <div class="col-md-10">
+                <textarea id="desc" style="width:100%; resize:none;" rows="6">@Model.Desc</textarea>
+            </div>
+        </div>
+
+        &nbsp;
+
+        <div class="form-group">
+            <p class="control-label col-md-2">Data Scadenza</p>
+            <div class="col-md-10">
+                <input type="date" id="expDate" value="@{
+                    var date = new DateTime(1970, 1, 1);
+                    date = date.AddMilliseconds(Model.ExpDateMillis);
+                    @Html.Raw(date.ToString("yyyy-MM-dd"))
+                }">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button class="btn btn-default btn-sm" onclick="updateOffer();">Salva Modifiche</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr />
+@Html.ActionLink("Offerte dell'attività", "ManageOffers/" + Model.LocationId)
+
+
+@section Scripts {
+    <script type="text/javascript" src="~/Scripts/loginScript.js"></script>
+    <script type="text/javascript">
+
+        function updateOffer() {
+
+            var date = new Date($("#expDate").val());
+            var milliseconds = date.getTime();
+
+            var obj = {
+                "LocationId": @Model.LocationId,
+                "Desc": $("#desc").val(),
+                "ExpDateMillis": milliseconds
+            };
+
+            $.ajax({
+                url: '../../api/Offerings/' + @Model.Id,
+                type: 'PUT',
+                data: obj,
+                beforeSend: function (xhr, settings) { xhr.setRequestHeader('Authorization', 'Bearer ' + getToken()); },
+                success: function (result) {
+                    window.location.replace("../ManageOffers/" + @Model.LocationId);
+                },
+                error: function (error) {
+                    alert(error.responseText);
+                }
+            });
+        }
+    </script>
+}

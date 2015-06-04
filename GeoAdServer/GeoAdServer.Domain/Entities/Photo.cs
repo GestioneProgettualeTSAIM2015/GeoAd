@@ -10,7 +10,7 @@ namespace GeoAdServer.Domain.Entities
     {
         public int LocationId { get; set; }
 
-        public byte[] Data { get; set; }
+        public string Base64Thumbnail { get; set; }
 
         public int Width { get; set; }
 
