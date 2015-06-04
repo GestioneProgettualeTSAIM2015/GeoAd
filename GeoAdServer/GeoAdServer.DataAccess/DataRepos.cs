@@ -13,21 +13,30 @@ namespace GeoAdServer.DataAccess
 {
     public class DataRepos
     {
-        public static ILocationsRepository Locations { get; private set; }
-
-        public static IPhotosRepository Photos { get; private set; }
-
-        public static IOfferingsRepository Offerings { get; private set; }
-
-        static DataRepos()
+        public static ILocationsRepository Locations
         {
-            var connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["PostgresqlCS"].ConnectionString;
-            Locations = new PostgresqlLocationsRepository(connectionString);
-            var connection = (Locations as PostgresqlLocationsRepository).Connection;
-            Photos = new PostgresqlPhotosRepository(connection);
-            Offerings = new PostgresqlOfferingsRepository(connection);
-            if (connection.State != System.Data.ConnectionState.Open)
-                throw new ApplicationException(connection.State.ToString());
+            get
+            {
+                return new PostgresqlLocationsRepository(connectionString);
+            }
         }
+
+        public static IPhotosRepository Photos
+        {
+            get
+            {
+                return new PostgresqlPhotosRepository(connectionString);
+            }
+        }
+
+        public static IOfferingsRepository Offerings
+        {
+            get
+            {
+                return new PostgresqlOfferingsRepository(connectionString);
+            }
+        }
+
+        private readonly static string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["PostgresqlCS"].ConnectionString;
     }
 }

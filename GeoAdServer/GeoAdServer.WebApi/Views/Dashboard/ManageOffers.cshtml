@@ -20,11 +20,11 @@
             <th class="text-center">
                 Scadenza
             </th>
-            <th>
-                &nbsp;
+            <th class="text-center">
+                Modifica
             </th>
-            <th>
-                &nbsp;
+            <th class="text-center">
+                Elimina
             </th>
         </tr>
         @foreach (var item in Model)
@@ -37,18 +37,29 @@
                     @Html.DisplayFor(modelItem => item.Desc)
                 </td>
                 <td class="col-md-2">
-                    @Html.DisplayFor(modelItem => item.InsDateMillis)
+                    @{
+                        var date = new DateTime(1970, 1, 1);
+                        date = date.AddMilliseconds(item.InsDateMillis);
+                        @Html.Raw(date.ToString("yyyy-MM-dd"))
+                    }   
                 </td>
                 <td class="col-md-2">
-                    @Html.DisplayFor(modelItem => item.ExpDateMillis)
+                    @{
+                        var dateexp = new DateTime(1970, 1, 1);
+                        dateexp = dateexp.AddMilliseconds(item.ExpDateMillis);
+                        @Html.Raw(dateexp.ToString("yyyy-MM-dd"))
+                    }
+                    
                 </td>
                 <td class="col-md-1 text-center">
-                    @Html.ActionLink("Modifica", "EditOffer", "Dashboard", new { Id = item.Id }, new { @class = "btn btn-default btn-sm" })
+                    @Html.ActionLink(" ", "EditOffer", "Dashboard",
+                        new { Id = item.Id, Desc = item.Desc, 
+                            ExpDateMillis = item.ExpDateMillis, 
+                            LocationId = item.LocationId},
+                         new { @class = "glyphicon glyphicon-pencil", @style = "color:black; text-decoration:none;" })
                 </td>
                 <td class="col-md-1 text-center">
-                    <button type="button" class="btn btn-default btn-sm delete" data-id="@item.Id">
-                        Elimina
-                    </button>
+                    <span class="glyphicon glyphicon-trash delete" data-id="@item.Id" style="cursor:pointer;"></span>
                 </td>
             </tr>
         }
@@ -69,21 +80,26 @@ else
                 <textarea id="offDesc" style="width:100%; resize:none;" rows="6"></textarea>
             </div>
         </div>
-        
+        &nbsp;
         <div class="form-group">
             <p class="control-label col-md-2">Data Scadenza</p>
             <div class="col-md-10">
                 <input type="date" id="offExpDate" />
             </div>
         </div>
-        
-        <button onclick="addOffer();">Aggiungi Offerta</button>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button class="btn btn-default btn-sm" onclick="addOffer();">Inserisci offerta</button>
+            </div>
+        </div>
     </div>
 </div>
-<br />
+
 <hr />
 @Html.ActionLink("Le mie attività", "ManageLocations", "Dashboard")
 
+<script type="text/javascript" src="~/Scripts/loginScript.js"></script>
 <script type="text/javascript">
 
     $(".delete").click(function () {
@@ -104,10 +120,6 @@ else
             });
         }
     });
-
-    function getToken() {
-        return window.localStorage.getItem("token");
-    }
 
     function addOffer()
     {

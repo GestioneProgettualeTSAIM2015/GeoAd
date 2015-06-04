@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace GeoAdServer.Domain.Contracts
 {
-    public interface IOfferingsRepository
+    public interface IOfferingsRepository : IDisposable
     {
         IEnumerable<OfferingDTO> GetAll();
 

@@ -9,7 +9,7 @@ else
     <h2>Modifica Attività Commerciale</h2>
 }
     
-<div class="form-horizontal" style="width:50%; float:left;">
+<div class="form-horizontal col-md-6" >
     <hr />
 
     <input type="hidden" name="lat" id="lat" />
@@ -49,13 +49,15 @@ else
 <input type="hidden" name="lat" id="lat" class="form-control">
 <input type="hidden" name="lng" id="lng" class="form-control">
 
-<div id="map_container" style="height: 400px; width: 50%;">
+<div class="col-md-6" >
+    <div id="map_container" style="min-height:350px;">
 
+    </div>
 </div>
 
 <div class="form-group">
     <div class="col-md-offset-2 col-md-10">
-        <button class="btn btn-default" onclick="updateLocation();">Salva Modifiche</button>
+        <button class="btn btn-default btn-sm" onclick="updateLocation();">Salva Modifiche</button>
     </div>
 </div>
 
@@ -66,6 +68,7 @@ else
 </div>
 
 @section Scripts {
+    <script type="text/javascript" src="~/Scripts/loginScript.js"></script>
     <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
     <script type="text/javascript">
 
@@ -133,8 +136,5 @@ else
             });
         }
 
-        function getToken() {
-            return window.localStorage.getItem("token");
-        }
     </script>
 }

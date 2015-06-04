@@ -29,16 +29,19 @@ else
             <th class="text-center">
                 Descrizione
             </th>
-            <th>
-                &nbsp;
+            <th class ="text-center">
+                Modifica
             </th>
-            <th>
-                &nbsp;
+            <th class="text-center">
+                Foto
             </th>
             @if (!ViewBag.IsAdmin)
             {
-                <th>&nbsp;</th>
+                <th class ="text-center">Offerte</th>
             }
+            <th class ="text-center">
+                Elimina
+            </th>
         </tr>
         @foreach (var item in Model)
         {
@@ -59,20 +62,20 @@ else
                     @Html.DisplayFor(modelItem => item.Desc)
                 </td>
                 <td class="col-md-1 text-center">
-                    @Html.ActionLink("Modifica", "EditLocation", "Dashboard", new { Id = item.Id }, new { @class = "btn btn-default btn-sm" })                  
+                    @Html.ActionLink(" ", "EditLocation", "Dashboard", new { Id = item.Id }, new { @class = "glyphicon glyphicon-pencil", @style="color:black; text-decoration:none;" })                  
                 </td>
                 <td class="col-md-1 text-center">
-                    <button type="button" class="btn btn-default btn-sm delete" id="@item.Id" data-name="@item.Name">
-                        Elimina
-                    </button>
+                    @Html.ActionLink(" ", "ManagePhotos", "Dashboard", new { Id = item.Id }, new { @class = "glyphicon glyphicon-camera", @style = "color:black; text-decoration:none;" })
                 </td>
                 @if (!ViewBag.IsAdmin)
                 {
                     <td class="col-md-1 text-center">
-                        @Html.ActionLink("Offerte", "ManageOffers", "Dashboard", new { Id = item.Id, LocationName = item.Name }, new { @class = "btn btn-default btn-sm" }) 
-                    </td>
-                    
+                        @Html.ActionLink(" ", "ManageOffers", "Dashboard", new { Id = item.Id }, new { @class = "glyphicon glyphicon-star", @style = "color:black; text-decoration:none;" }) 
+                    </td> 
                 }
+                <td class="col-md-1 text-center">
+                    <span class="glyphicon glyphicon-trash delete" id="@item.Id" data-name="@item.Name" style="cursor:pointer;"></span>
+                </td>
             </tr>
         }
     </table>
@@ -88,18 +91,27 @@ else
         <h5>Non hai registrato attività commerciali</h5>
     }
 }
-<br />
 
 <hr />
 @Html.ActionLink("Home", "Home", "Dashboard")
 
+<script type="text/javascript" src="~/Scripts/loginScript.js"></script>
 <script type="text/javascript">
 
     $(".delete").click(function () {
         var name = $(this).data("name");
         var id = $(this).attr("id");
 
-        var r = confirm("Cancellare il punto d'interesse " + name + "?");
+        var r = confirm("Cancellare @{
+            if (ViewBag.IsAdmin)
+            {
+                 @Html.Raw("il punto d'interesse") 
+            }   
+            else
+            {
+                @Html.Raw("l'attività commerciale")
+            }
+        } " + name + "?");
         if (r == true)
         {
             $.ajax({
@@ -117,10 +129,5 @@ else
             });
         }
     });
-
-    function getToken()
-    {
-        return window.localStorage.getItem("token");
-    }
 
 </script>

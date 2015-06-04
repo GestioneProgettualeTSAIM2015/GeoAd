@@ -8,15 +8,17 @@ using System.Threading.Tasks;
 
 namespace GeoAdServer.Domain.Contracts
 {
-    public interface IPhotosRepository
+    public interface IPhotosRepository : IDisposable
     {
         IEnumerable<PhotoDTO> GetByLocationId(int locationId);
 
         PhotoDTO GetById(int photoId);
 
-        byte[] GetPhotoData(int photoId);
+        PhotoDataDTO GetPhotoBase64Data(int photoId);
 
         int Insert(Photo photo);
+
+        void InsertData(int photoId, string base64Data);
 
         bool Delete(int photoId);
     }

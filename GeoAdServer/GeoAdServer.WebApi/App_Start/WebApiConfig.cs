@@ -24,6 +24,11 @@ namespace GeoAdServer.WebApi
             config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(
+                name: "PhotoData",
+                routeTemplate: "api/{controller}/data/{photoId}"
+            );
+
+            config.Routes.MapHttpRoute(
                 name: "FromUserApi",
                 routeTemplate: "api/{controller}/fromuser/{userId}"
             );
@@ -38,10 +43,6 @@ namespace GeoAdServer.WebApi
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
-
-            /*ODataConventionModelBuilder builder = new ODataConventionModelBuilder();
-            builder.EntitySet<LocationDTO>("Location");
-            config.Routes.MapODataServiceRoute("odataRoute", "odata", builder.GetEdmModel());*/
 
             config.AddODataQueryFilter();
         }

@@ -15,5 +15,7 @@ namespace GeoAdServer.Domain.Entities.DTOs
         public int Width { get; set; }
 
         public int Height { get; set; }
+
+        public string Base64Thumbnail { get; set; }
     }
 }
