@@ -13,7 +13,7 @@ using GeoAdServer.Domain.Contracts;
 
 namespace GeoAdServer.WebApi.Controllers
 {
-    [Authorize]
+    [RedirAuthorize(RedirectToController="Login")]
     public class DashboardController : Controller
     {
         public ActionResult Home()

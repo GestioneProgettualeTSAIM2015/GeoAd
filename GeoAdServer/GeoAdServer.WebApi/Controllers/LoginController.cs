@@ -10,7 +10,7 @@ namespace GeoAdServer.WebApi.Controllers
 {
     public class LoginController : Controller
     {
-        public ActionResult Login()
+        public ActionResult Index()
         {
             ViewBag.Title = "Login Page";
 

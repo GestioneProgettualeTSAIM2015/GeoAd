@@ -236,6 +236,7 @@
     <Compile Include="Providers\ApplicationOAuthProvider.cs" />
     <Compile Include="Results\ChallengeResult.cs" />
     <Compile Include="Startup.cs" />
+    <Compile Include="Support\RedirAuthorizeAttribute.cs" />
     <Compile Include="Support\Utils.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -300,7 +301,7 @@
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
-    <Content Include="Views\Login\Login.cshtml" />
+    <Content Include="Views\Login\Index.cshtml" />
     <Content Include="Views\Dashboard\Home.cshtml" />
     <Content Include="Views\Dashboard\ChangePassword.cshtml" />
     <Content Include="Views\Dashboard\ManageLocations.cshtml" />
