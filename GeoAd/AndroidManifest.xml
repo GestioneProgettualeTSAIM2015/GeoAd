@@ -73,6 +73,16 @@
             android:name="it.itskennedy.tsaim.geoad.activities.NewOfferActivity"
             android:label="@string/title_activity_new_offer" >
         </activity>
+        <provider
+            android:name=".localdb.DataFavContentProvider"
+            android:authorities="it.itskennedy.tsaim.geoad.localdb.datafavcontentprovider"
+            android:exported="false">
+        </provider>
+        <provider
+            android:name=".localdb.DataOffersContentProvider"
+            android:authorities="it.itskennedy.tsaim.geoad.localdb.dataofferscontentprovider"
+            android:exported="false">
+        </provider>
     </application>
 
 </manifest>
