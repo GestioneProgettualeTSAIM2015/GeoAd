@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Contracts\IEventsQueue.cs" />
     <Compile Include="Contracts\ILocationsRepository.cs" />
     <Compile Include="Contracts\IOfferingsRepository.cs" />
     <Compile Include="Contracts\IPhotosRepository.cs" />
@@ -46,6 +47,14 @@
     <Compile Include="Entities\DTOs\OfferingDTO.cs" />
     <Compile Include="Entities\DTOs\PhotoDataDTO.cs" />
     <Compile Include="Entities\DTOs\PhotoDTO.cs" />
+    <Compile Include="Entities\Events\ChangedPosition.cs" />
+    <Compile Include="Entities\Events\IEvent.cs" />
+    <Compile Include="Entities\Events\OfferingCreated.cs" />
+    <Compile Include="Entities\Events\LocationCreated.cs" />
+    <Compile Include="Entities\Events\OfferingDeleted.cs" />
+    <Compile Include="Entities\Events\LocationDeleted.cs" />
+    <Compile Include="Entities\Events\OfferingUpdated.cs" />
+    <Compile Include="Entities\Events\LocationUpdated.cs" />
     <Compile Include="Entities\ReflectiveEquals.cs" />
     <Compile Include="Entities\Location.cs" />
     <Compile Include="Entities\Offering.cs" />

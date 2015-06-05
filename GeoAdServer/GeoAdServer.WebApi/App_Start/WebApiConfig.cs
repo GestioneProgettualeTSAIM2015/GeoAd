@@ -29,6 +29,11 @@ namespace GeoAdServer.WebApi
             );
 
             config.Routes.MapHttpRoute(
+                name: "MapKey",
+                routeTemplate: "api/{controller}/{key}"
+            );
+
+            config.Routes.MapHttpRoute(
                 name: "FromUserApi",
                 routeTemplate: "api/{controller}/fromuser/{userId}"
             );

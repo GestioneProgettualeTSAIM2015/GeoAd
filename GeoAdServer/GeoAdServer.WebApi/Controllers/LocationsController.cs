@@ -16,19 +16,19 @@ namespace GeoAdServer.WebApi.Controllers
 {
     public class LocationsController : ApiController
     {
-        public IQueryable<LocationDTO> Get()
-        {
-            using (ILocationsRepository repo = DataRepos.Locations)
-            {
-                return repo.GetAll().AsQueryable();
-            }
-        }
-
         public LocationDTO Get(int id)
         {
             using (ILocationsRepository repo = DataRepos.Locations)
             {
                 return repo.GetById(id);
+            }
+        }
+
+        public IQueryable<LocationDTO> GetWithKey(string key)
+        {
+            using (ILocationsRepository repo = DataRepos.Locations)
+            {
+                return repo.GetAll().AsQueryable();
             }
         }
 
