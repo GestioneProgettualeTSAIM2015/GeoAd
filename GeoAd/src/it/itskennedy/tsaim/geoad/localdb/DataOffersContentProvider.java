@@ -1,5 +1,6 @@
 package it.itskennedy.tsaim.geoad.localdb;
 
+import it.itskennedy.tsaim.geoad.core.Engine;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -8,6 +9,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.util.Log;
 
 /**
  * Created by Cado on 13/05/2015.
@@ -75,13 +77,15 @@ public class DataOffersContentProvider extends ContentProvider {
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        long result;
+        long result = -1;
         switch (uriMatcher.match(uri)) {
             case FULL_OFFERS_TABLE:
                 result = db.insert(OffersHelper.TABLE_NAME, null, values);
                 getContext().getContentResolver().notifyChange(uri, null);
                 return Uri.parse(OFFERS_URI.toString() + "/" + result);
         }
+        
+        Log.d(Engine.APP_NAME, "ROW INSERTED ID: " + result);
         return null;
     }
 

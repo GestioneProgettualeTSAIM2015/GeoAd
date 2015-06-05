@@ -8,6 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import it.itskennedy.tsaim.geoad.core.Engine;
+import it.itskennedy.tsaim.geoad.localdb.OffersHelper;
 
 /**
  * Created by Marco Zeni on 15/05/2015.
@@ -69,10 +70,11 @@ public class Offer
     {
         ContentValues vContentValues = new ContentValues();
 
-        //TODO cadorin
-        //impostati l'oggetto secondo i nomi delle tue colonne
+        vContentValues.put(OffersHelper.DESC, mDesc);
+        vContentValues.put(OffersHelper.LOCATION_ID, mLocationId);
+        vContentValues.put(OffersHelper.EXP_DATE, mExpDate);
 
-        return null;
+        return vContentValues;
     }
 
     public static Offer fromBundle(Bundle aOfferBundle)

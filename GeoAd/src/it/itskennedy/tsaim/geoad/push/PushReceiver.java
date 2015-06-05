@@ -11,6 +11,11 @@ import it.itskennedy.tsaim.geoad.services.GeoAdService;
 
 public class PushReceiver extends WakefulBroadcastReceiver 
 {
+	public static final int NEW_LOCATION = 0;
+	public static final int NEW_OFFER = 1;
+	public static final int DELETE_LOCATION = 2;
+	public static final int DELETE_OFFER = 3;
+	
     @Override
     public void onReceive(Context context, Intent intent) 
     {
@@ -20,12 +25,43 @@ public class PushReceiver extends WakefulBroadcastReceiver
 
         if(!vExtras.isEmpty())
         {
-            String vJsonOffer = vExtras.getString("json_obj");
-
-            Intent vDispatchOffer = new Intent(context, GeoAdService.class);
-            vDispatchOffer.setAction(GeoAdService.OFFER_ACTION);
-            vDispatchOffer.putExtra(GeoAdService.OFFER_DATA, vJsonOffer);
-            context.startService(vDispatchOffer);
+        	int vPushCode = vExtras.getInt("push_code");
+        	
+        	Intent vToService = new Intent(context, GeoAdService.class);
+        	
+        	switch(vPushCode)
+        	{
+	        	case NEW_OFFER:
+	        	{
+	        		String vJsonOffer = vExtras.getString("json_obj");
+	                vToService.setAction(GeoAdService.NEW_OFFER);
+	                vToService.putExtra(GeoAdService.DATA, vJsonOffer);
+	                context.startService(vToService);
+	                break;
+	        	}
+	        	case NEW_LOCATION:
+	        	{
+	        		String vJsonLocation = vExtras.getString("json_obj");
+	                vToService.setAction(GeoAdService.NEW_LOCATION);
+	                vToService.putExtra(GeoAdService.DATA, vJsonLocation);
+	                context.startService(vToService);
+	                break;
+	        	}
+	        	case DELETE_OFFER:
+	        	{
+	        		vToService.setAction(GeoAdService.DELETE_OFFER);
+	        		vToService.putExtra(GeoAdService.DELETE_ID, vExtras.getInt("delete_id"));
+	                context.startService(vToService);
+	                break;
+	        	}
+	        	case DELETE_LOCATION:
+	        	{
+	        		vToService.setAction(GeoAdService.DELETE_LOCATION);
+	        		vToService.putExtra(GeoAdService.DELETE_ID, vExtras.getInt("delete_id"));
+	                context.startService(vToService);
+	                break;
+	        	}
+        	}
         }
     }
 }

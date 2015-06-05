@@ -6,6 +6,7 @@ import it.itskennedy.tsaim.geoad.core.LocationManager.LocationListener;
 import it.itskennedy.tsaim.geoad.core.NotificationManager;
 import it.itskennedy.tsaim.geoad.entity.LocationModel;
 import it.itskennedy.tsaim.geoad.entity.Offer;
+import it.itskennedy.tsaim.geoad.localdb.DataOffersContentProvider;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -17,32 +18,36 @@ import org.json.JSONArray;
 import android.app.Service;
 import android.content.Intent;
 import android.location.Location;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Process;
+import android.provider.BaseColumns;
 
 import com.loopj.android.http.RequestParams;
 
 public class GeoAdService extends Service implements LocationListener
 {
-	public static final String OFFER_ACTION = "offer_action";
-	public static final String OFFER_DATA = "offer_data";
-	public static final String NEAR_ACTION = "near_action";
-	public static final String NEAR_DATA = "near_data";
-	public static final String ASK_NEAR = "ask_near";
+	public static final String NEW_OFFER = "new_offer_action";
+	public static final String DELETE_OFFER = "delete_offer";
+	
+	public static final String NEW_LOCATION = "new_location_action";
+	public static final String DELETE_LOCATION = "delete_location";
+	
+	public static final String DATA = "new_data";
+	public static final String DELETE_ID = "delete_id";
 	
 	public static final String NAME = "GeoAd Service";
 
 	private static final int EARTH_RADIUS = 6371;
 	private static final double LAT_SPLIT = 0.006;
 	private static final float SPEED_THRESHOLD = 5; //m/s
-	private static final int DISTANCE_THRESHOLD = 0; //ONLY FOR TEST
+	private static final int DISTANCE_THRESHOLD = 0; //0 ONLY FOR TEST
 	private double LNG_SPLIT;
 
 	private Location mPosition;
 	private List<LocationModel> mNearLocations;
-	private String mNearString;
 	private Queue<Offer> mPendingOffer;
 
 	@Override
@@ -55,7 +60,6 @@ public class GeoAdService extends Service implements LocationListener
 
 	  	mPendingOffer = new LinkedList<Offer>();
 		mNearLocations = new ArrayList<LocationModel>();
-
 	}
 	
 	@Override
@@ -67,26 +71,62 @@ public class GeoAdService extends Service implements LocationListener
 			
 			if(vAction != null)
 			{
-				if(vAction.equals(OFFER_ACTION))
+				if(vAction.equals(NEW_OFFER))
 				{
 					Bundle vExtra = intent.getExtras();
-
 					if(!vExtra.isEmpty())
 					{
-						String vJson = intent.getExtras().getString(OFFER_DATA);
-						Offer vOffer = Offer.fromJSON(vJson);
-
-						manageOffer(vOffer, true);
+						String vJson = intent.getExtras().getString(DATA);
+						manageOffer(Offer.fromJSON(vJson), true);
 					}
 				}
-				else if(vAction.equals(ASK_NEAR))
+				else if(vAction.equals(DELETE_OFFER))
 				{
-					broadcastNearLocation();
+					int vToRemove = intent.getIntExtra(DELETE_ID, 0);
+					getContentResolver().delete(DataOffersContentProvider.OFFERS_URI, BaseColumns._ID + " = " + vToRemove, null);
+				}
+				else if(vAction.equals(NEW_LOCATION))
+				{
+					Bundle vExtra = intent.getExtras();
+					if(!vExtra.isEmpty())
+					{
+						String vJson = intent.getExtras().getString(DATA);
+						addIfNotExist(LocationModel.fromJSON(vJson));
+					}
+				}
+				else if(vAction.equals(DELETE_LOCATION))
+				{
+					removeIfExist(intent.getIntExtra(DELETE_ID, 0));
 				}
 			}
 		}
 		
 	    return START_STICKY;
+	}
+	
+	private void addIfNotExist(LocationModel aLocation)
+	{
+		for(int i = 0; i < mNearLocations.size(); ++i)
+		{
+			if(mNearLocations.get(i).getId() == aLocation.getId())
+			{
+				return;
+			}
+		}
+		
+		mNearLocations.add(aLocation);
+	}
+	
+	private void removeIfExist(int aId)
+	{
+		for(int i = 0; i < mNearLocations.size(); ++i)
+		{
+			if(mNearLocations.get(i).getId() == aId)
+			{
+				mNearLocations.remove(i);
+				return;
+			}
+		}
 	}
 
 	private void manageOffer(Offer vOffer, boolean aCanEnqueue)
@@ -96,8 +136,7 @@ public class GeoAdService extends Service implements LocationListener
 		if(vSearch != null)
 		{
 			NotificationManager.showOffer(GeoAdService.this, vOffer, vSearch);
-			//TODO cadorin
-			//getContentResolver().insert(URI, vOffer.getContentValues());
+			getContentResolver().insert(DataOffersContentProvider.OFFERS_URI, vOffer.getContentValues());
 		}
 		else
 		{
@@ -127,7 +166,7 @@ public class GeoAdService extends Service implements LocationListener
 	@Override
 	public IBinder onBind(Intent intent) 
 	{
-	    return null;
+	    return new GeoAdBinder();
 	}
 
 	@Override
@@ -201,7 +240,7 @@ public class GeoAdService extends Service implements LocationListener
 		vParams.add("south_lat", (aLocation.getLatitude() - vLat) + "");
 		vParams.add("east_lng", (aLocation.getLongitude() - vLng) + "");
 
-		ConnectionManager.obtain().get("api/Locations", vParams, new ConnectionManager.JsonResponse()
+		ConnectionManager.obtain().get("api/locations", vParams, new ConnectionManager.JsonResponse()
 		{
 			@Override
 			public void onResponse(boolean aResult, Object aResponse)
@@ -209,21 +248,23 @@ public class GeoAdService extends Service implements LocationListener
 				if(aResult && aResponse != null && aResponse instanceof JSONArray)
 				{
 					mNearLocations = LocationModel.getListFromJsonArray((JSONArray)aResponse);
-					mNearString = aResponse.toString();
-					
-					broadcastNearLocation();
 					
 					manageOfferIfExist();	
 				}
 			}
 		});
 	}
-	
-	private void broadcastNearLocation() 
+
+	public List<LocationModel> getNears() 
 	{
-		Intent vDispatchNear = new Intent();
-		vDispatchNear.setAction(GeoAdService.NEAR_ACTION);
-		vDispatchNear.putExtra(GeoAdService.NEAR_DATA, mNearString);
-		sendBroadcast(vDispatchNear);
+		return mNearLocations;
+	}
+	
+	public class GeoAdBinder extends Binder
+	{
+		public GeoAdService getService()
+		{
+			return GeoAdService.this;
+		}
 	}
 }

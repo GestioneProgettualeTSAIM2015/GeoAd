@@ -83,8 +83,8 @@ public class LocationModel
                 String vName = vActual.getString(NAME);
                 String vPCat = vActual.getString(PCAT);
                 String vSCat = vActual.getString(SCAT);
-                double vLat = vActual.getDouble(LAT);
-                double vLng = vActual.getDouble(LNG);
+                double vLat = vActual.optDouble(LAT);
+                double vLng = vActual.optDouble(LNG);
                 String vDesc = vActual.getString(DESC);
                 String vType = vActual.getString(TYPE);
 
@@ -129,4 +129,29 @@ public class LocationModel
 
         return new LocationModel(vId, vPCat, vSCat, vName, vLat, vLng, vDesc, vType);
     }
+
+	public static LocationModel fromJSON(String aJson) 
+	{
+		try
+        {
+            JSONObject vObj = new JSONObject(aJson);
+
+            int vId = vObj.getInt(ID);
+            String vName = vObj.getString(NAME);
+            String vDesc = vObj.getString(DESC);
+            String vPCat = vObj.getString(PCAT);
+            String vSCat = vObj.getString(SCAT);
+            double vLat = vObj.getDouble(LAT);
+            double vLng = vObj.getDouble(LNG);
+            String vType = vObj.getString(TYPE);
+
+            return new LocationModel(vId, vPCat, vSCat, vName, vLat, vLng, vDesc, vType);
+        }
+        catch (JSONException e)
+        {
+            Log.d(Engine.APP_NAME, "Json Parse Error");
+        }
+
+        return null;
+	}
 }
