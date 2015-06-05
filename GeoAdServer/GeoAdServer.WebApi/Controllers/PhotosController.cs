@@ -20,28 +20,44 @@ namespace GeoAdServer.WebApi.Controllers
 {
     public class PhotosController : ApiController
     {
+        private static double IMAGE_WIDTH = 960.0;
+        private static double IMAGE_HEIGHT = 720.0;
+        private static double THUMB_WIDTH = 200.0;
+        private static double THUMB_HEIGHT = 150.0;
+
         [ActionName("FromLocation")]
         public IQueryable<PhotoDTO> GetFromLocation(int locationId)
         {
-            return DataRepos.Photos.GetByLocationId(locationId).AsQueryable();
+            using (IPhotosRepository repo = DataRepos.Photos)
+            {
+                return repo.GetByLocationId(locationId).AsQueryable();
+            }
         }
 
         public PhotoDTO Get(int id)
         {
-            return DataRepos.Photos.GetById(id);
+            using (IPhotosRepository repo = DataRepos.Photos)
+            {
+                return repo.GetById(id);
+            }
         }
 
+        [Authorize]
         [ActionName("Data")]
-        public HttpResponseMessage GetPhotoData(int photoId)
+        public HttpResponseMessage GetData(int photoId)
         {
-            PhotoDataDTO data = DataRepos.Photos.GetPhotoBase64Data(photoId);
-
-            if (data != null)
+            using (IPhotosRepository repo = DataRepos.Photos)
             {
-                HttpResponseMessage message = new HttpResponseMessage(HttpStatusCode.OK);
-                message.Content = new StringContent(data.Base64Data);
-                return message;
-            } else return Request.CreateResponse(HttpStatusCode.NotFound);
+                PhotoDataDTO data = repo.GetPhotoBase64Data(photoId);
+
+                if (data != null)
+                {
+                    HttpResponseMessage message = new HttpResponseMessage(HttpStatusCode.OK);
+                    message.Content = new StringContent(data.Base64Data);
+                    return message;
+                }
+                else return Request.CreateResponse(HttpStatusCode.NotFound);
+            }
         }
 
         [Authorize]
@@ -62,18 +78,26 @@ namespace GeoAdServer.WebApi.Controllers
 
                 Image imageToSave, thumb;
 
-                if (imageFromUpload.Width > 1280 || imageFromUpload.Height > 960)
+                if (imageFromUpload.Width > IMAGE_WIDTH || imageFromUpload.Height > IMAGE_HEIGHT)
                 {
-                    imageToSave = (Image)(new Bitmap(imageFromUpload, new Size(1280, 960)));
+                    var widthScale = (double)imageFromUpload.Width / IMAGE_WIDTH;
+                    var heightScale = (double)imageFromUpload.Height / IMAGE_HEIGHT;
+                    var scale = widthScale > heightScale ? widthScale : heightScale;
+                    
+                    imageToSave = (Image)(new Bitmap(imageFromUpload, new Size((int)(imageFromUpload.Width / scale), (int) (imageFromUpload.Height / scale))));
                 }
                 else
                 {
                     imageToSave = imageFromUpload;
                 }
 
-                if (imageFromUpload.Width > 200 || imageFromUpload.Height < 150)
+                if (imageFromUpload.Width > THUMB_WIDTH || imageFromUpload.Height > THUMB_WIDTH)
                 {
-                    thumb = (Image)(new Bitmap(imageFromUpload, new Size(200, 150)));
+                    var widthScale = (double)imageFromUpload.Width / THUMB_WIDTH;
+                    var heightScale = (double)imageFromUpload.Height / THUMB_HEIGHT;
+                    var scale = widthScale > heightScale ? widthScale : heightScale;
+
+                    thumb = (Image)(new Bitmap(imageFromUpload, new Size((int)(imageFromUpload.Width / scale), (int)(imageFromUpload.Height / scale))));
                 }
                 else
                 {
@@ -112,7 +136,9 @@ namespace GeoAdServer.WebApi.Controllers
                 return Request.CreateResponse(HttpStatusCode.OK, new PhotoDTOApiModel
                 {
                     Id = id,
-                    Base64Thumbnail = base64Thumbnail
+                    Base64Thumbnail = base64Thumbnail,
+                    WidthBig = imageToSave.Width,
+                    HeightBig = imageToSave.Height
                 });
             }
            

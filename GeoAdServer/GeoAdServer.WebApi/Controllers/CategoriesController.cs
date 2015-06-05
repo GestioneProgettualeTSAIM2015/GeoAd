@@ -1,4 +1,5 @@
 ﻿using GeoAdServer.DataAccess;
+using GeoAdServer.Domain.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,10 @@ namespace GeoAdServer.WebApi.Controllers
     {
         public IQueryable<string> Get()
         {
-            return DataRepos.Locations.GetCategories().Select(pair => pair.Value).AsQueryable();
+            using (ILocationsRepository repo =  DataRepos.Locations)
+            {
+                return repo.GetCategories().Select(pair => pair.Value).AsQueryable();
+            }
         }
     }
 }

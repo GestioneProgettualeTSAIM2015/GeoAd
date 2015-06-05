@@ -18,8 +18,8 @@ namespace GeoAdServer.WebApi.Controllers
     {
         public ActionResult Home()
         {
-            var isAdmin = IsAdmin();
-            ViewBag.IsAdmin = IsAdmin();
+            var isAdmin = User.Identity.IsAdmin();
+            ViewBag.IsAdmin = isAdmin;
 
             if (isAdmin)
             {
@@ -35,17 +35,15 @@ namespace GeoAdServer.WebApi.Controllers
 
         public ActionResult NewLocation()
         {
-            ViewBag.IsAdmin = IsAdmin();
+            ViewBag.IsAdmin = User.Identity.IsAdmin();
             return View();
         }
 
         public ActionResult ChangePassword()
         {
-            if (IsAdmin())
+            if (User.Identity.IsAdmin())
             {
-                ViewBag.Title = "Unauthorize";
-                ViewBag.Message = "You don't have permissions to see this page";
-                return View("~/Views/Dashboard/Error.cshtml");
+                return NewErrorView();
             }
 
             return View();
@@ -55,7 +53,7 @@ namespace GeoAdServer.WebApi.Controllers
         {
             using (ILocationsRepository repo = DataRepos.Locations)
             {
-                ViewBag.IsAdmin = IsAdmin();
+                ViewBag.IsAdmin = User.Identity.IsAdmin();
 
                 var UserId = User.Identity.GetUserId();
                 ViewBag.UserId = UserId;
@@ -68,11 +66,9 @@ namespace GeoAdServer.WebApi.Controllers
 
         public ActionResult ManageOffers(int Id)
         {
-            if (IsAdmin())
+            if (User.Identity.IsAdmin())
             {
-                ViewBag.Title = "Unauthorize";
-                ViewBag.Message = "You don't have permissions to see this page";
-                return View("~/Views/Dashboard/Error.cshtml");
+                return NewErrorView();
             }
 
             using (IOfferingsRepository repo = DataRepos.Offerings)
@@ -107,33 +103,36 @@ namespace GeoAdServer.WebApi.Controllers
 
         public ActionResult EditLocation(int Id)
         {
-            ViewBag.IsAdmin = IsAdmin();
+            using (ILocationsRepository repo = DataRepos.Locations)
+            {
+                ViewBag.IsAdmin = User.Identity.IsAdmin();
 
-            LocationDTO vData = DataRepos.Locations.GetById(Id);
-            return View(vData);
+                LocationDTO vData = repo.GetById(Id);
+                return View(vData);
+            }
         }
 
         public ActionResult EditOffer([Bind] OfferingDTO offer)
         {
-            if (IsAdmin())
+            if (User.Identity.IsAdmin())
             {
-                ViewBag.Title = "Unauthorize";
-                ViewBag.Message = "You don't have permissions to see this page";
-                return View("~/Views/Dashboard/Error.cshtml");
+                return NewErrorView();
             }
 
             ViewBag.Title = truncDesc(offer.Desc);
             return View(offer);
         }
 
-        private bool IsAdmin()
-        {
-            return User.Identity.Name.CompareTo("admin@geoad.com") == 0;
-        }
-
         private string truncDesc(string aDesc)
         {
             return aDesc.Length <= 20 ? aDesc : aDesc.Substring(0, 20) + "...";
+        }
+
+        public ViewResult NewErrorView()
+        {
+            ViewBag.Title = "Unauthorize";
+            ViewBag.Message = "You don't have permissions to see this page";
+            return View("~/Views/Dashboard/Error.cshtml");
         }
     }
 }

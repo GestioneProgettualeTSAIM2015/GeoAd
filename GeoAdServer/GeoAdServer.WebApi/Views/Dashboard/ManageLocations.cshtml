@@ -1,5 +1,4 @@
 ﻿@model IEnumerable<GeoAdServer.Domain.Entities.DTOs.LocationDTO>
-@Scripts.Render("~/bundles/jquery")
 
 @if (ViewBag.IsAdmin)
 {
@@ -95,39 +94,40 @@ else
 <hr />
 @Html.ActionLink("Home", "Home", "Dashboard")
 
-<script type="text/javascript" src="~/Scripts/loginScript.js"></script>
-<script type="text/javascript">
+@section scripts {
+    <script type="text/javascript" src="~/Scripts/loginScript.js"></script>
+    <script type="text/javascript">
 
-    $(".delete").click(function () {
-        var name = $(this).data("name");
-        var id = $(this).attr("id");
+        $(".delete").click(function () {
+            var name = $(this).data("name");
+            var id = $(this).attr("id");
 
-        var r = confirm("Cancellare @{
-            if (ViewBag.IsAdmin)
-            {
-                 @Html.Raw("il punto d'interesse") 
-            }   
-            else
-            {
-                @Html.Raw("l'attività commerciale")
-            }
-        } " + name + "?");
-        if (r == true)
-        {
-            $.ajax({
-                url: '../api/Locations/' + id,
-                type: 'DELETE',
-                beforeSend: function(xhr, settings) { xhr.setRequestHeader('Authorization','Bearer ' + getToken()); },
-                success: function (result)
+            var r = confirm("Cancellare @{
+                if (ViewBag.IsAdmin)
                 {
-                    window.location.reload();
-                },
-                error: function (error)
+                     @Html.Raw("il punto d'interesse") 
+                }   
+                else
                 {
-                    alert(error.responseText);
+                    @Html.Raw("l'attività commerciale")
                 }
-            });
-        }
-    });
-
-</script>
+            } " + name + "?");
+            if (r == true)
+            {
+                $.ajax({
+                    url: '../api/Locations/' + id,
+                    type: 'DELETE',
+                    beforeSend: function(xhr, settings) { xhr.setRequestHeader('Authorization','Bearer ' + getToken()); },
+                    success: function (result)
+                    {
+                        window.location.reload();
+                    },
+                    error: function (error)
+                    {
+                        alert(error.responseText);
+                    }
+                });
+            }
+        });
+    </script>
+}

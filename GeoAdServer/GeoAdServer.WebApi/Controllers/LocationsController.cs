@@ -18,58 +18,82 @@ namespace GeoAdServer.WebApi.Controllers
     {
         public IQueryable<LocationDTO> Get()
         {
-            return DataRepos.Locations.GetAll().AsQueryable();
+            using (ILocationsRepository repo = DataRepos.Locations)
+            {
+                return repo.GetAll().AsQueryable();
+            }
         }
 
         public LocationDTO Get(int id)
         {
-            return DataRepos.Locations.GetById(id);
+            using (ILocationsRepository repo = DataRepos.Locations)
+            {
+                return repo.GetById(id);
+            }
         }
 
         public IQueryable<LocationDTO> Get(string userId)
         {
-            return DataRepos.Locations.GetByUserId(userId).AsQueryable();
+            using (ILocationsRepository repo = DataRepos.Locations)
+            {
+                return repo.GetByUserId(userId).AsQueryable();
+            }
         }
 
         [Authorize]
         public HttpResponseMessage Post([FromBody]LocationApiModel locationApiModel)
         {
-            if (locationApiModel == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
+            using (ILocationsRepository repo = DataRepos.Locations)
+            {
+                if (locationApiModel == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
 
-            var location = locationApiModel.CreateLocationFromModel(RequestContext.GetUserId(), DataRepos.Locations);
-            int id = DataRepos.Locations.Insert(location);
-            return id != -1 ? Request.CreateResponse(HttpStatusCode.OK, id) :
-                              Request.CreateResponse(HttpStatusCode.InternalServerError);
+                var location = locationApiModel.CreateLocationFromModel(RequestContext.GetUserId(), repo, User.Identity);
+                int id = repo.Insert(location);
+                return id != -1 ? Request.CreateResponse(HttpStatusCode.OK, id) :
+                                  Request.CreateResponse(HttpStatusCode.InternalServerError);
+            }
         }
 
         [Authorize]
         public HttpResponseMessage Put(int id, [FromBody]LocationApiModel locationApiModel)
         {
-            if (locationApiModel == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
+            using (ILocationsRepository repo = DataRepos.Locations)
+            {
+                if (locationApiModel == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
 
-            if (!id.IsLocationOwner(RequestContext.GetUserId()))
-                return Request.CreateResponse(HttpStatusCode.Unauthorized);
+                if (!id.IsLocationOwner(RequestContext.GetUserId()))
+                    return Request.CreateResponse(HttpStatusCode.Unauthorized);
 
-            var location = locationApiModel.CreateLocationFromModel(RequestContext.GetUserId(), DataRepos.Locations);
-            var result = DataRepos.Locations.Update(id, location);
-            return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
+                var location = locationApiModel.CreateLocationFromModel(RequestContext.GetUserId(), repo, User.Identity);
+                var result = repo.Update(id, location);
+                return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
+            }
         }
 
         [Authorize]
         public HttpResponseMessage Delete(int id)
         {
-            if (!id.IsLocationOwner(RequestContext.GetUserId()))
-                return Request.CreateResponse(HttpStatusCode.Unauthorized);
-
-            foreach (OfferingDTO off in DataRepos.Offerings.GetByLocationId(id))
+            using (ILocationsRepository repoLoc = DataRepos.Locations)
             {
-                DataRepos.Offerings.DeleteById(off.Id);
+                if (!id.IsLocationOwner(RequestContext.GetUserId()))
+                    return Request.CreateResponse(HttpStatusCode.Unauthorized);
+
+                using (IOfferingsRepository repoOff = DataRepos.Offerings)
+                {
+                    foreach (OfferingDTO off in DataRepos.Offerings.GetByLocationId(id))
+                    {
+                        DataRepos.Offerings.DeleteById(off.Id);
+                    }
+
+                    using (IPhotosRepository repoPho = DataRepos.Photos)
+                    {
+                        foreach (PhotoDTO pho in repoPho.GetByLocationId(id)) repoPho.Delete(pho.Id);
+
+                        var result = repoLoc.DeleteById(id);
+                        return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
+                    }
+                }
             }
-
-            foreach (PhotoDTO pho in DataRepos.Photos.GetByLocationId(id)) DataRepos.Offerings.DeleteById(pho.Id);
-
-            var result = DataRepos.Locations.DeleteById(id);
-            return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
         }
     }
 }

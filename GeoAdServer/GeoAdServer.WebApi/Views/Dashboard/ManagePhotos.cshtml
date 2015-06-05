@@ -1,5 +1,6 @@
 ﻿@model IEnumerable<GeoAdServer.Domain.Entities.DTOs.PhotoDTO>
-@Scripts.Render("~/bundles/jquery")
+
+<link rel="stylesheet" href="~/Content/jquery-ui.css" />
 
 <h2>Gestione Foto @ViewBag.LocName</h2>
 
@@ -13,7 +14,7 @@
 
         foreach (var item in Model)
         {         
-            <div class="photo" data-id="@item.Id" id="@item.Id" style="float:none;">
+            <div class="photo" data-id="@item.Id" data-w="@item.Width" data-h="@item.Height" id="@item.Id" style="cursor:pointer; float:none;">
                 <img src="data:image/jpg;base64,@item.Base64Thumbnail" />
                 <span class="glyphicon glyphicon-trash delete" data-id="@item.Id" style="cursor:pointer; float:left;"></span>
             </div>           
@@ -26,118 +27,147 @@
     <input type="file" id="photoInput" />
     <br />
     <button class="btn btn-primary btn-sm" onclick="uploadPhoto();">Carica Foto</button>
+    <div id="progressbar"></div>
 </div>  
+<div>
+    <hr />
+    @Html.ActionLink("Le mie attività", "ManageLocations")
+</div>
 
-<script type="text/javascript" src="~/Scripts/loginScript.js"></script>
-<script>
+<div id="dialog" title="Immagine"><img id="contentimg" /></div>
 
-    var photoNumber = @Model.Count();
+@section scripts {
+    <script type="text/javascript" src="~/Scripts/loginScript.js"></script>
+    <script type="text/javascript" src="~/Scripts/jquery-ui-1.10.4.js"></script>
+    <script>
 
-    function uploadPhoto()
-    {
-        var files = document.getElementById("photoInput").files;
+        var photoNumber = @Model.Count();
 
-        if (files.length > 0)
+        function uploadPhoto()
         {
-            var reader = new FileReader();
+            var files = document.getElementById("photoInput").files;
 
-            reader.onloadend = function ()
+            if (files.length > 0)
             {
-                var base64 = reader.result;
+                var reader = new FileReader();
 
-                if(base64.length > 1048576)
+                reader.onloadend = function ()
                 {
-                    alert("Foto troppo grande");
-                    return;
+                    var base64 = reader.result;
+
+                    if(base64.length > 1048576)
+                    {
+                        alert("Foto troppo grande");
+                        return;
+                    }
+
+                    var datas = {
+                        "Base64Data": base64.replace("data:image/jpeg;base64,", ""),
+                        "LocationId": @ViewBag.LocId,
+                    };
+
+                    $.ajax({
+                        url: '../../api/Photos',
+                        type: 'POST',
+                        data: datas,
+                        beforeSend: function (xhr, settings) { 
+                            xhr.setRequestHeader('Authorization', 'Bearer ' + getToken());
+                        },
+                        success: function (obj) {
+
+                            if(photoNumber == 0)
+                            {
+                                $("#gallery").html("");
+                            }
+
+                            photoNumber++;
+                            $("#gallery").append("<div class=\"photo\" data-id=\"" + obj.Id + "\" data-h=\"" + obj.HeightBig + "\" data-w=\"" + obj.WidthBig + "\" id=\"" + obj.Id + "\" style=\"cursor:pointer; float:none;\">" +
+                            "<img src=\"data:image/jpeg;base64," + obj.Base64Thumbnail + "\" />" +
+                            "<span class=\"glyphicon glyphicon-trash delete\" data-id=\"" + obj.Id + "\" style=\"cursor:pointer; float:left;\"></span>" +
+                            "</div>"); 
+                        },
+                        error: function (error) {
+                            alert(error.responseText);
+                        }
+                    });
                 }
 
-                var datas = {
-                    "Base64Data": base64.replace("data:image/jpeg;base64,", ""),
-                    "LocationId": @ViewBag.LocId,
-                };
-
-                $.ajax({
-                    url: '../../api/Photos',
-                    type: 'POST',
-                    data: datas,
-                    beforeSend: function (xhr, settings) { xhr.setRequestHeader('Authorization', 'Bearer ' + getToken()); },
-                    success: function (obj) {
-
-                        if(photoNumber == 0)
-                        {
-                            $("#gallery").html("");
-                        }
-
-                        photoNumber++;
-                        $("#gallery").append("<div class=\"photo\" data-id=\"" + obj.Id + "\" id=\"" + obj.Id + "\" style=\"float:none;\">" +
-                        "<img src=\"data:image/jpeg;base64," + obj.Base64Thumbnail + "\" />" +
-                        "<span class=\"glyphicon glyphicon-trash delete\" data-id=\"" + obj.Id + "\" style=\"cursor:pointer; float:left;\"></span>" +
-                        "</div>"); 
-                    },
-                    error: function (error) {
-                        alert(error.responseText);
-                    }
-                });
+                reader.readAsDataURL(files[0]);
             }
-
-            reader.readAsDataURL(files[0]);
+            else
+            {
+                alert("Seleziona una foto!");
+            }
         }
-        else
+
+        function generateImgDiv(base64)
         {
-            alert("Seleziona una foto!");
+            var ret = "<img src=\"data:image/jpeg;base64," + base64 + "\" /><br />";
+            return ret;
         }
-    }
-
-    function generateImgDiv(base64)
-    {
-        var ret = "<img src=\"data:image/jpeg;base64," + base64 + "\" /><br />";
-        return ret;
-    }
     
+        $(document.body).on("click", ".photo", function(){
+            var photoId = $(this).data("id");
+            var h = $(this).data("h");
+            var w = $(this).data("w");
 
-    $(".photo").each(function(){
-        var photoId = $(this).data("id");
+            h = h < 128 ? 128 : h;
+            w = w < 128 ? 128 : w;
 
-        $.ajax({
-            url: '../../api/Photos/GetPhotoData?id=' + photoId,
-            type: 'GET',
-            beforeSend: function(xhr, settings) { xhr.setRequestHeader('Authorization','Bearer ' + getToken()); },
-            success: function (result)
-            {
-                //todo popup
-            },
-            error: function (error)
-            {
-                alert(error.responseText);
-            }
-        });
-    });
+            $("#dialog").dialog({
+                width: w + 40,
+                height: h + 90,
+                resizable:false,
+                draggable:false,
+                modal:true
+            });
 
-    $(document.body).on("click", ".delete",function () {
-        var photoId = $(this).data("id");
+            $("#contentimg").attr("src", "/Content/images/Loader.GIF");
 
-        var r = confirm("Cancellare la foto " + photoId + "?");
-        if (r == true)
-        {
             $.ajax({
-                url: '../../api/Photos/' + photoId,
-                type: 'DELETE',
+                url: '../../api/Photos/data/' + photoId,
+                type: 'GET',
                 beforeSend: function(xhr, settings) { xhr.setRequestHeader('Authorization','Bearer ' + getToken()); },
-                success: function (result)
+                success: function (base64)
                 {
-                    photoNumber--;
-                    $("#" + photoId).remove();
-                    if(photoNumber == 0)
-                    {
-                        $("#gallery").html("<h5>Non sono presenti foto</h5>");
-                    }
+                    $("#contentimg").attr("src", "data:image/jpeg;base64," + base64);
                 },
                 error: function (error)
                 {
                     alert(error.responseText);
                 }
             });
-        }
-    });
+        });
 
-</script>
+        $(document.body).on("click", ".delete", function (evt) {
+
+            evt.stopPropagation();
+
+            var photoId = $(this).data("id");
+
+            var r = confirm("Cancellare la foto " + photoId + "?");
+            if (r == true)
+            {
+                $.ajax({
+                    url: '../../api/Photos/' + photoId,
+                    type: 'DELETE',
+                    beforeSend: function(xhr, settings) { xhr.setRequestHeader('Authorization','Bearer ' + getToken()); },
+                    success: function (result)
+                    {
+                        photoNumber--;
+                        $("#" + photoId).remove();
+                        if(photoNumber == 0)
+                        {
+                            $("#gallery").html("<h5>Non sono presenti foto</h5>");
+                        }
+                    },
+                    error: function (error)
+                    {
+                        alert(error.responseText);
+                    }
+                });
+            }
+        });
+
+    </script>
+}

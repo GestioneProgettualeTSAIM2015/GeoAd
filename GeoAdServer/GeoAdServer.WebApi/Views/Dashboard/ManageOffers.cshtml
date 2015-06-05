@@ -1,5 +1,4 @@
 ﻿@model IEnumerable<GeoAdServer.Domain.Entities.DTOs.OfferingDTO>
-@Scripts.Render("~/bundles/jquery")
 
 <h2>Gestione Offerte @ViewBag.LocName</h2>
 
@@ -99,17 +98,44 @@ else
 <hr />
 @Html.ActionLink("Le mie attività", "ManageLocations", "Dashboard")
 
-<script type="text/javascript" src="~/Scripts/loginScript.js"></script>
-<script type="text/javascript">
+@section scripts {
+    <script type="text/javascript" src="~/Scripts/loginScript.js"></script>
+    <script type="text/javascript">
 
-    $(".delete").click(function () {
-        var id = $(this).data("id");
+        $(".delete").click(function () {
+            var id = $(this).data("id");
 
-        var r = confirm("Cancellare l'offerta " + id + "?");
-        if (r == true) {
+            var r = confirm("Cancellare l'offerta " + id + "?");
+            if (r == true) {
+                $.ajax({
+                    url: '../../api/Offerings/' + id,
+                    type: 'DELETE',
+                    beforeSend: function (xhr, settings) { xhr.setRequestHeader('Authorization', 'Bearer ' + getToken()); },
+                    success: function (result) {
+                        window.location.reload();
+                    },
+                    error: function (error) {
+                        alert(error.responseText);
+                    }
+                });
+            }
+        });
+
+        function addOffer()
+        {
+            var date = new Date($("#offExpDate").val());
+            var milliseconds = date.getTime();
+
+            var offerObj = {
+                "LocationId": @ViewBag.LocId,
+                "Desc": $("#offDesc").val(),
+                "ExpDateMillis": milliseconds
+            };
+
             $.ajax({
-                url: '../../api/Offerings/' + id,
-                type: 'DELETE',
+                url: '../../api/Offerings',
+                type: 'POST',
+                data: offerObj,
                 beforeSend: function (xhr, settings) { xhr.setRequestHeader('Authorization', 'Bearer ' + getToken()); },
                 success: function (result) {
                     window.location.reload();
@@ -119,31 +145,5 @@ else
                 }
             });
         }
-    });
-
-    function addOffer()
-    {
-        var date = new Date($("#offExpDate").val());
-        var milliseconds = date.getTime();
-
-        var offerObj = {
-            "LocationId": @ViewBag.LocId,
-            "Desc": $("#offDesc").val(),
-            "ExpDateMillis": milliseconds
-        };
-
-        $.ajax({
-            url: '../../api/Offerings',
-            type: 'POST',
-            data: offerObj,
-            beforeSend: function (xhr, settings) { xhr.setRequestHeader('Authorization', 'Bearer ' + getToken()); },
-            success: function (result) {
-                window.location.reload();
-            },
-            error: function (error) {
-                alert(error.responseText);
-            }
-        });
-    }
-
-</script>
+    </script>
+}
