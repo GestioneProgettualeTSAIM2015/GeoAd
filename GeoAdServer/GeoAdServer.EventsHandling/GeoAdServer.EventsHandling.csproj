@@ -4,7 +4,7 @@
 	<PropertyGroup>
 		<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
 		<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-		<ProjectGuid>2a019356-fb5b-4e7c-ae54-f8736b578bdc</ProjectGuid>
+		<ProjectGuid>1ba07bee-463c-4e9b-8f1c-e7650a64b5a1</ProjectGuid>
 		<OutputType>Library</OutputType>
 		<AppDesignerFolder>Properties</AppDesignerFolder>
 		<RootNamespace>GeoAdServer.EventsHandling</RootNamespace>

@@ -11,6 +11,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using GeoAdServer.WebApi.Support;
+using GeoAdServer.Domain.Entities.Events;
 
 namespace GeoAdServer.WebApi.Controllers
 {
@@ -24,11 +25,15 @@ namespace GeoAdServer.WebApi.Controllers
             }
         }
 
-        public IQueryable<LocationDTO> GetWithKey(string key)
+        public IQueryable<LocationDTO> GetWithKey([FromUri]ChangedPosition chp)
         {
             using (ILocationsRepository repo = DataRepos.Locations)
             {
-                return repo.GetAll().AsQueryable();
+                return repo.GetAll().Where(x =>
+                    Double.Parse(x.Lat) < Double.Parse(chp.NWCoord.Lat) &&
+                    Double.Parse(x.Lat) > Double.Parse(chp.SECoord.Lat) &&
+                    Double.Parse(x.Lng) < Double.Parse(chp.SECoord.Lng) &&
+                    Double.Parse(x.Lng) > Double.Parse(chp.NWCoord.Lng)).AsQueryable();
             }
         }
 

@@ -13,7 +13,6 @@ namespace GeoAdServer.WebApi
         public void Configuration(IAppBuilder app)
         {
             ConfigureAuth(app);
-            DataAccess.DataRepos.Locations.ToString(); //forces initialization
         }
     }
 }

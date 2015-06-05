@@ -30,7 +30,7 @@ namespace GeoAdServer.WebApi
 
             config.Routes.MapHttpRoute(
                 name: "MapKey",
-                routeTemplate: "api/{controller}/{key}"
+                routeTemplate: "api/{controller}/{chp}"
             );
 
             config.Routes.MapHttpRoute(

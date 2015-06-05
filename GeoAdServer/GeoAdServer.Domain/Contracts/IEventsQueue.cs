@@ -12,8 +12,6 @@ namespace GeoAdServer.Domain.Contracts
     public interface IEventsQueue
     {
         void Enqueue(IEvent command);
-
-        IEvent Dequeue();
     }
 
     public static class CommandsUtils
