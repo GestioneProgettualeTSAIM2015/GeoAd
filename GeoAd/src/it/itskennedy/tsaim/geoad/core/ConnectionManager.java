@@ -1,8 +1,6 @@
 package it.itskennedy.tsaim.geoad.core;
 
 import java.util.ArrayList;
-import org.json.*;
-import org.apache.http.*;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -123,42 +121,8 @@ public class ConnectionManager extends BroadcastReceiver
 	
 	                Log.d(Engine.APP_NAME, "URL: " + Engine.SERVER_URL + aUrl);
 	
-	                JsonHttpResponseHandler vResponseHandler = new JsonHttpResponseHandler()
-	                {
-	                    @Override
-						public void onSuccess(int statusCode, Header[] headers,	JSONObject response)
-	                    {
-	                    	if(aListener != null)
-	                        {
-	                            aListener.onResponse(true, response);
-	                        }
-	
-	                        executeQueue();
-						}
-	
-						@Override
-	                    public void onSuccess(int statusCode, Header[] headers, JSONArray response)
-	                    {
-	                        if(aListener != null)
-	                        {
-	                            aListener.onResponse(true, response);
-	                        }
-	
-	                        executeQueue();
-	                    }
-	
-	                    @Override
-	                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse)
-	                    {
-	                    	if(aListener != null)
-	                    	{
-	                    		aListener.onResponse(false, null);
-	                    	}
-	                    	
-	                    	executeQueue();
-	                    }
-	                };
-	                
+	                JsonHttpResponseHandler vResponseHandler = new MyJsonHttpResponseHandler(aListener, this);
+	                      
 	                switch(aType)
 	                {
 						case DELETE:

@@ -235,10 +235,10 @@ public class GeoAdService extends Service implements LocationListener
 			vLng = LNG_SPLIT * 2;
 		}
 
-		vParams.add("north_lat", (aLocation.getLatitude() + vLat) + "");
-		vParams.add("west_lng", (aLocation.getLongitude() + vLng) + "");
-		vParams.add("south_lat", (aLocation.getLatitude() - vLat) + "");
-		vParams.add("east_lng", (aLocation.getLongitude() - vLng) + "");
+		vParams.add("nwcoord.lat", (aLocation.getLatitude() + vLat) + "");
+		vParams.add("nwcoord.lng", (aLocation.getLongitude() + vLng) + "");
+		vParams.add("secoord.lat", (aLocation.getLatitude() - vLat) + "");
+		vParams.add("secoord.lng", (aLocation.getLongitude() - vLng) + "");
 
 		ConnectionManager.obtain().get("api/locations", vParams, new ConnectionManager.JsonResponse()
 		{
