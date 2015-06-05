@@ -26,13 +26,21 @@ namespace GeoAdServer.WebApi.Support
 
         public static bool IsLocationOwner(this int id, string userId)
         {
-            var owner = DataRepos.Locations.GetOwnerId(id);
-            if (owner == null) return false;
+            using (ILocationsRepository repo = DataRepos.Locations)
+            {
+                var owner = repo.GetOwnerId(id);
+                if (owner == null) return false;
 
-            return owner == userId;
+                return owner == userId;
+            }
         }
 
-        public static Location CreateLocationFromModel(this LocationApiModel model, string userId, ILocationsRepository repository)
+        public static bool IsAdmin(this IIdentity identity)
+        {
+            return identity.Name.CompareTo("admin@geoad.com") == 0;
+        }
+
+        public static Location CreateLocationFromModel(this LocationApiModel model, string userId, ILocationsRepository repository, IIdentity identity)
         {
             var categories = repository.GetCategories();
 
@@ -43,8 +51,7 @@ namespace GeoAdServer.WebApi.Support
             int? sCatId = categories.FirstOrDefault(pair => pair.Value == model.SCat).Key;
             if (sCatId == 0) sCatId = null;
 
-            //check auth
-            var typeId = true ? 0 : 1;
+            var typeId = identity.IsAdmin() ? 1 : 0;
 
             return new Location
             {

@@ -116,7 +116,7 @@ namespace GeoAdServer.WebApi.Controllers
 
         // POST api/Account/ChangePassword
         [Route("ChangePassword")]
-        public async Task<IHttpActionResult> ChangePassword(ChangePasswordBindingModel model)
+        public async Task<IHttpActionResult> ChangePassword([FromBody]ChangePasswordBindingModel model)
         {
             if (!ModelState.IsValid)
             {
