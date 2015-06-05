@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeoAdServer.WebApi", "GeoAd
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeoAdServer.DataAccess", "GeoAdServer.DataAccess\GeoAdServer.DataAccess.csproj", "{4D8B54D3-E5A3-402E-A5E8-86E4A9AAA7DE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeoAdServer.EventsHandling", "GeoAdServer.EventsHandling\GeoAdServer.EventsHandling.csproj", "{96705535-97E5-4A9D-8126-47D78B8EC0BE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{4D8B54D3-E5A3-402E-A5E8-86E4A9AAA7DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D8B54D3-E5A3-402E-A5E8-86E4A9AAA7DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4D8B54D3-E5A3-402E-A5E8-86E4A9AAA7DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96705535-97E5-4A9D-8126-47D78B8EC0BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96705535-97E5-4A9D-8126-47D78B8EC0BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96705535-97E5-4A9D-8126-47D78B8EC0BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96705535-97E5-4A9D-8126-47D78B8EC0BE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

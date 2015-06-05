@@ -8,6 +8,7 @@ using Newtonsoft.Json.Serialization;
 using System.Web.Http.OData.Builder;
 using System.Web.Http.OData.Extensions;
 using GeoAdServer.Domain.Entities.DTOs;
+using System.Web.Http.Routing;
 
 namespace GeoAdServer.WebApi
 {
@@ -30,7 +31,9 @@ namespace GeoAdServer.WebApi
 
             config.Routes.MapHttpRoute(
                 name: "MapKey",
-                routeTemplate: "api/{controller}/{chp}"
+                routeTemplate: "api/{controller}/{chp}",
+                defaults: new { controller = "locations" },
+                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) }
             );
 
             config.Routes.MapHttpRoute(
