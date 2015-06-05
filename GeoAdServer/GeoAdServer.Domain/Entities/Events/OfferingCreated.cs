@@ -10,5 +10,9 @@ namespace GeoAdServer.Domain.Entities.Events
     public class OfferingCreated : IEvent
     {
         public OfferingDTO Offering { get; set; }
+
+        public string Lat { get; set; }
+
+        public string Lng { get; set; }
     }
 }

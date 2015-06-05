@@ -9,5 +9,9 @@ namespace GeoAdServer.Domain.Entities.Events
     public class LocationDeleted : IEvent
     {
         public int LocationId { get; set; }
+
+        public string Lat { get; set; }
+
+        public string Lng { get; set; }
     }
 }
