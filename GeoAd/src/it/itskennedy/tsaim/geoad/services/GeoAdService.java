@@ -1,6 +1,7 @@
 package it.itskennedy.tsaim.geoad.services;
 
 import it.itskennedy.tsaim.geoad.core.ConnectionManager;
+import it.itskennedy.tsaim.geoad.core.Engine;
 import it.itskennedy.tsaim.geoad.core.LocationManager;
 import it.itskennedy.tsaim.geoad.core.LocationManager.LocationListener;
 import it.itskennedy.tsaim.geoad.core.NotificationManager;
@@ -24,6 +25,7 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Process;
 import android.provider.BaseColumns;
+import android.util.Log;
 
 import com.loopj.android.http.RequestParams;
 
@@ -41,7 +43,7 @@ public class GeoAdService extends Service implements LocationListener
 	public static final String NAME = "GeoAd Service";
 
 	private static final int EARTH_RADIUS = 6371;
-	private static final double LAT_SPLIT = 0.006;
+	private static final double LAT_SPLIT = 0.007;
 	private static final float SPEED_THRESHOLD = 5; //m/s
 	private static final int DISTANCE_THRESHOLD = 0; //0 ONLY FOR TEST
 	private double LNG_SPLIT;
@@ -212,7 +214,7 @@ public class GeoAdService extends Service implements LocationListener
 		return null;
 	}
 
-	private void  updateLngSplit(Location aLocation)
+	private void updateLngSplit(Location aLocation)
 	{
 		double vParallelRadius = Math.cos(Math.toRadians(aLocation.getLatitude())) * EARTH_RADIUS;
 		double vParallelLength = vParallelRadius * 2 * Math.PI;
@@ -236,9 +238,9 @@ public class GeoAdService extends Service implements LocationListener
 		}
 
 		vParams.add("nwcoord.lat", (aLocation.getLatitude() + vLat) + "");
-		vParams.add("nwcoord.lng", (aLocation.getLongitude() + vLng) + "");
+		vParams.add("nwcoord.lng", (aLocation.getLongitude() - vLng) + "");
 		vParams.add("secoord.lat", (aLocation.getLatitude() - vLat) + "");
-		vParams.add("secoord.lng", (aLocation.getLongitude() - vLng) + "");
+		vParams.add("secoord.lng", (aLocation.getLongitude() + vLng) + "");
 
 		ConnectionManager.obtain().get("api/locations", vParams, new ConnectionManager.JsonResponse()
 		{
@@ -248,7 +250,6 @@ public class GeoAdService extends Service implements LocationListener
 				if(aResult && aResponse != null && aResponse instanceof JSONArray)
 				{
 					mNearLocations = LocationModel.getListFromJsonArray((JSONArray)aResponse);
-					
 					manageOfferIfExist();	
 				}
 			}
