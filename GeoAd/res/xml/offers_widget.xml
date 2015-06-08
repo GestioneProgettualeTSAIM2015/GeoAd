@@ -1,0 +1,11 @@
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minHeight="110dp"
+	android:minResizeHeight="110dp"
+	android:minResizeWidth="250dp"
+	android:minWidth="250dp"
+	android:autoAdvanceViewId="@id/offers"
+    android:updatePeriodMillis="60000"
+    android:previewImage="@drawable/ic_launcher"
+    android:initialLayout="@layout/widget_offers_layout"
+    android:resizeMode="vertical" >
+</appwidget-provider>

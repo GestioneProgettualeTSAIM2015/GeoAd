@@ -32,7 +32,7 @@ public class Engine extends Application implements PushKeyReceiver
     public void onCreate()
     {
         super.onCreate();
-
+        
         Intent vService = new Intent(this, GeoAdService.class);
         startService(vService);
 
@@ -71,7 +71,8 @@ public class Engine extends Application implements PushKeyReceiver
         catch (JSONException e)
         {
             e.printStackTrace();
-        } finally
+        } 
+        finally
         {
             if (reader != null)
             {

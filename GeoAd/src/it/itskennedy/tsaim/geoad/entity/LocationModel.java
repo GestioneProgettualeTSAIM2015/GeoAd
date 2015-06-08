@@ -73,28 +73,23 @@ public class LocationModel
     {
         List<LocationModel> vResult = new ArrayList<LocationModel>();
 
-        try
+        for(int i = 0; i < aServerData.length(); ++i)
         {
-            for(int i = 0; i < aServerData.length(); ++i)
+        	LocationModel vToAdd = null;
+        	
+        	try
+        	{
+        		vToAdd = fromJSON(aServerData.getString(i));
+        	}
+	        catch (JSONException e)
+	        {
+	            Log.e(Engine.APP_NAME, "Json Decode Error");
+	        }
+        	
+            if(vToAdd != null)
             {
-                JSONObject vActual = aServerData.getJSONObject(i);
-
-                int vId = vActual.getInt(ID);
-                String vName = vActual.getString(NAME);
-                String vPCat = vActual.getString(PCAT);
-                String vSCat = vActual.getString(SCAT);
-                double vLat = vActual.optDouble(LAT);
-                double vLng = vActual.optDouble(LNG);
-                String vDesc = vActual.getString(DESC);
-                String vType = vActual.getString(TYPE);
-
-                LocationModel vToAdd = new LocationModel(vId, vPCat, vSCat, vName, vLat, vLng, vDesc, vType);
-                vResult.add(vToAdd);
-            }
-        }
-        catch (JSONException e)
-        {
-            Log.e(Engine.APP_NAME, "Json Decode Error");
+            	vResult.add(vToAdd);
+            }  
         }
 
         return vResult;
@@ -128,6 +123,11 @@ public class LocationModel
         String vType = aLocationBundle.getString(TYPE);
 
         return new LocationModel(vId, vPCat, vSCat, vName, vLat, vLng, vDesc, vType);
+    }
+    
+    public static LocationModel fromJSON(JSONObject aObj)
+    {
+    	return fromJSON(aObj.toString());
     }
 
 	public static LocationModel fromJSON(String aJson) 

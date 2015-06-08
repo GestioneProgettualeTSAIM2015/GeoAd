@@ -56,8 +56,6 @@ public class ConnectionManager extends BroadcastReceiver
         mRequests = new ArrayList<RequestParams>();
         mListeners = new ArrayList<JsonResponse>();
         
-        updateConnectionState();
-        
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);        
         Engine.get().registerReceiver(this, filter);
     }

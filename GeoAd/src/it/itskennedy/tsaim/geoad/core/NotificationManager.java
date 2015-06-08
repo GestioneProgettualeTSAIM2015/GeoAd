@@ -9,7 +9,6 @@ import android.support.v4.app.NotificationCompat;
 
 import it.itskennedy.tsaim.geoad.R;
 import it.itskennedy.tsaim.geoad.activities.NewOfferActivity;
-import it.itskennedy.tsaim.geoad.entity.LocationModel;
 import it.itskennedy.tsaim.geoad.entity.Offer;
 
 /**
@@ -17,18 +16,17 @@ import it.itskennedy.tsaim.geoad.entity.Offer;
  */
 public class NotificationManager
 {
-    public static void showOffer(Context aContext, Offer aOffer, LocationModel aLocation)
+    public static void showOffer(Context aContext, Offer aOffer)
     {
         Intent resultIntent = new Intent(aContext, NewOfferActivity.class);
         resultIntent.putExtra(Offer.BUNDLE_KEY, aOffer.getBundle());
-        resultIntent.putExtra(LocationModel.BUNDLE_KEY, aLocation.getBundle());
        
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(aContext);
         stackBuilder.addParentStack(NewOfferActivity.class);
         stackBuilder.addNextIntent(resultIntent);
         PendingIntent vPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        String vName = aLocation != null ? aLocation.getName() : "Unknown";
+        String vName = aOffer.getLocationName();
         String vTitle = aContext.getString(R.string.new_offer) + " " + vName;
 
         NotificationCompat.Builder vBuilder =
