@@ -69,13 +69,6 @@ public class ConnectionManager extends BroadcastReceiver
         
         Log.d(Engine.APP_NAME, "Connection State Change: " + mIsConnection);
 	}
-    
-    @Override
-	protected void finalize() throws Throwable 
-	{
-    	Engine.get().unregisterReceiver(this);
-		super.finalize();
-	}
 
 	public void get(String aUrl, RequestParams vParams, JsonResponse jsonResponse)
     {
