@@ -47,14 +47,11 @@ namespace GeoAdServer.WebApi.Support
 
         public static Location CreateLocationFromModel(this LocationApiModel model, string userId, ILocationsRepository repository, IIdentity identity)
         {
-            var categories = repository.GetCategories();
+            int pCatId;
+            int? sCatId = null;
 
-            if (!categories.ContainsValue(model.PCat)) repository.InsertCategory(model.PCat);
-            if (model.SCat != null && !categories.ContainsValue(model.SCat)) repository.InsertCategory(model.SCat);
-
-            int pCatId = categories.FirstOrDefault(pair => pair.Value == model.PCat).Key;
-            int? sCatId = categories.FirstOrDefault(pair => pair.Value == model.SCat).Key;
-            if (sCatId == 0) sCatId = null;
+            if ((pCatId = repository.GetCategoryId(model.PCat).Value) == -1) pCatId = repository.InsertCategory(model.PCat, null);
+            if (model.SCat != null && (sCatId = repository.GetCategoryId(model.SCat).Value) == -1) repository.InsertCategory(model.SCat, pCatId);
 
             var typeId = identity.IsAdmin() ? 1 : 0;
 

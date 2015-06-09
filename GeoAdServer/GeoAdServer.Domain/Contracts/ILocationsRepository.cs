@@ -24,10 +24,12 @@ namespace GeoAdServer.Domain.Contracts
 
         bool DeleteById(int locationId);
 
-        int InsertCategory(string name);
+        int InsertCategory(string name, int? aggregate);
 
         bool DeleteCategory(string name);
 
-        Dictionary<int, string> GetCategories();
+        Dictionary<CategoryDTO, IList<CategoryDTO>> GetCategories();
+
+        int? GetCategoryId(string name);
     }
 }

@@ -32,14 +32,12 @@ namespace GeoAdServer.Domain.ContractsImplementations.Test
             //Category Test
             string newCategory = "aggghtldon";
             Assert.IsFalse(locationRepository.DeleteCategory(newCategory));
-            Assert.IsTrue(locationRepository.InsertCategory(newCategory) != -1);
-            Assert.IsTrue(locationRepository.GetCategories().ContainsValue(newCategory));
+            Assert.IsTrue(locationRepository.InsertCategory(newCategory, null) != -1);
             Assert.IsTrue(locationRepository.DeleteCategory(newCategory));
-            Assert.IsFalse(locationRepository.GetCategories().ContainsValue(newCategory));
 
             //Location Test
             var enumerator = locationRepository.GetCategories().GetEnumerator();
-            enumerator.MoveNext(); int pCatId = enumerator.Current.Key;
+            enumerator.MoveNext(); int pCatId = enumerator.Current.Key.Id;
             var userId = "-a1";
 
             var loc = new Location

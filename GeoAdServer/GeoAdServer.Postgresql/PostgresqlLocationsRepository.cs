@@ -13,7 +13,9 @@ namespace GeoAdServer.Postgresql
 {
     public class PostgresqlLocationsRepository : AbstractPostgresqlRepository, ILocationsRepository
     {
-        public Dictionary<int, string> Categories { get;  private set; }
+        public Dictionary<CategoryDTO, IList<CategoryDTO>> Categories { get;  private set; }
+
+        private DataTable CategoriesDataTable { get; set; }
 
         public PostgresqlLocationsRepository(string connectionString) : base(connectionString)
         {
@@ -36,8 +38,8 @@ namespace GeoAdServer.Postgresql
 
                 int? sCatId = dr.Field<int?>("SCatId");
 
-                Categories.TryGetValue(dr.Field<int>("PCatId"), out pCat);
-                if (sCatId.HasValue) Categories.TryGetValue(sCatId.Value, out sCat);
+                pCat = CategoriesDataTable.Rows.Find(dr.Field<int>("PCatId")).Field<string>("Name");
+                if (sCatId.HasValue) sCat = CategoriesDataTable.Rows.Find(sCatId.Value).Field<string>("Name");
 
                 return new LocationDTO
                 {
@@ -65,8 +67,8 @@ namespace GeoAdServer.Postgresql
 
                 int? sCatId = dr.Field<int?>("SCatId");
 
-                Categories.TryGetValue(dr.Field<int>("PCatId"), out pCat);
-                if (sCatId.HasValue) Categories.TryGetValue(sCatId.Value, out sCat);
+                pCat = CategoriesDataTable.Rows.Find(dr.Field<int>("PCatId")).Field<string>("Name");
+                if (sCatId.HasValue) sCat = CategoriesDataTable.Rows.Find(sCatId.Value).Field<string>("Name");
 
                 return new LocationDTO
                 {
@@ -94,8 +96,8 @@ namespace GeoAdServer.Postgresql
 
                 int? sCatId = dr.Field<int?>("SCatId");
 
-                Categories.TryGetValue(dr.Field<int>("PCatId"), out pCat);
-                if (sCatId.HasValue) Categories.TryGetValue(sCatId.Value, out sCat);
+                pCat = CategoriesDataTable.Rows.Find(dr.Field<int>("PCatId")).Field<string>("Name");
+                if (sCatId.HasValue) sCat = CategoriesDataTable.Rows.Find(sCatId.Value).Field<string>("Name");
 
                 return new LocationDTO
                 {
@@ -166,56 +168,116 @@ namespace GeoAdServer.Postgresql
             return true;
         }
 
-        int ILocationsRepository.InsertCategory(string name)
+        int ILocationsRepository.InsertCategory(string name, int? aggregate)
         {
-            if (Categories.ContainsValue(name)) return -1;
+            if (CategoriesDataTable.Select("Name = " + name).Length > 0) return -1;
 
             var templateCommand = @"INSERT INTO
-                                   ""Categories""(""Id"", ""Name"")
-                                   VALUES (DEFAULT, '{0}')
+                                   ""Categories""(""Id"", ""Name"", ""Aggregate"")
+                                   VALUES (DEFAULT, '{0}', {1})
                                    RETURNING ""Id""";
 
-            object row = ExecCommand(string.Format(templateCommand, name));
+            object row = ExecCommand(string.Format(new NullFormat(), templateCommand, name, aggregate));
 
-            Categories.Add((int)row, name);
+            CategoriesDataTable.Rows.Add((int)row, name, aggregate);
 
             return (int)row;
         }
 
         bool ILocationsRepository.DeleteCategory(string name)
         {
-            if (!Categories.ContainsValue(name)) return false;
+            if (CategoriesDataTable.Select("Name = " + name).Length == 0) return false;
 
             string commandTemplate = @"DELETE FROM ""Categories""
                                        WHERE ""Name"" = '{0}'
                                        RETURNING ""Id""";
 
             object row = ExecCommand(string.Format(commandTemplate, name));
-            Categories.Remove((int)row);
+            CategoriesDataTable.Rows.Find((int)row).Delete();
 
             return true;
         }
 
-        Dictionary<int, string> ILocationsRepository.GetCategories()
+        Dictionary<CategoryDTO, IList<CategoryDTO>> ILocationsRepository.GetCategories()
         {
             return Categories;
         }
 
-        Dictionary<int, string> FetchCategories()
+        Dictionary<CategoryDTO, IList<CategoryDTO>> FetchCategories()
         {
-            string query = @"SELECT ""Id"", ""Name""
+            string query = @"SELECT ""Id"", ""Name"", ""Aggregate""
                              FROM public.""Categories""";
 
-            Dictionary<int, string> dictionary = new Dictionary<int, string>();
-            foreach (var pair in ExecQuery<KeyValuePair<int, string>>(query, (dr) =>
+            Dictionary<CategoryDTO, IList<CategoryDTO>> dictionary =
+                new Dictionary<CategoryDTO, IList<CategoryDTO>>(new CategoriesEqualitiComparer());
+
+            InitCategoriesDataTable();
+
+            foreach (var cat in ExecQuery<CategoryDTO>(query, (dr) =>
             {
-                return new KeyValuePair<int, string>(dr.Field<int>("Id"), dr.Field<string>("Name"));
+                return new CategoryDTO
+                {
+                    Id = dr.Field<int>("Id"),
+                    Name = dr.Field<string>("Name"),
+                    Aggregate = dr.Field<int?>("Aggregate")
+                };
             }))
             {
-                dictionary.Add(pair.Key, pair.Value);
+                if (cat.Aggregate.HasValue) CategoriesDataTable.Rows.Add(cat.Id, cat.Name, cat.Aggregate.Value);
+                else CategoriesDataTable.Rows.Add(cat.Id, cat.Name, DBNull.Value);
+
+                if (!cat.Aggregate.HasValue)
+                    dictionary.Add(cat, new List<CategoryDTO>());
+                else
+                {
+                    IList<CategoryDTO> secondaryCategories;
+
+                    if (dictionary.TryGetValue(new CategoryDTO
+                    {
+                        Id = cat.Aggregate.Value
+                    }, out secondaryCategories))
+                    {
+                        secondaryCategories.Add(cat);
+                    }
+                }
             }
 
             return dictionary;
+        }
+
+        int? ILocationsRepository.GetCategoryId(string name)
+        {
+            var row = CategoriesDataTable.Select("Name = " + name).FirstOrDefault();
+            if (row == null) return -1;
+
+            return row.Field<int>("Id");
+        }
+
+        void InitCategoriesDataTable()
+        {
+            CategoriesDataTable = new DataTable();
+            CategoriesDataTable.Columns.Add("Id", typeof(int));
+            CategoriesDataTable.Columns.Add("Name", typeof(string));
+
+            DataColumn aggregateColumn;
+            aggregateColumn = new DataColumn("Aggregate", typeof(int));
+            aggregateColumn.AllowDBNull = true;
+            CategoriesDataTable.Columns.Add(aggregateColumn);
+
+            CategoriesDataTable.PrimaryKey = new DataColumn[] { CategoriesDataTable.Columns["Id"] };
+        }
+
+        class CategoriesEqualitiComparer : IEqualityComparer<CategoryDTO>
+        {
+            bool IEqualityComparer<CategoryDTO>.Equals(CategoryDTO cat1, CategoryDTO cat2)
+            {
+                return cat1.Id == cat2.Id;
+            }
+
+            int IEqualityComparer<CategoryDTO>.GetHashCode(CategoryDTO cat)
+            {
+                return cat.Id;
+            }
         }
     }
 }

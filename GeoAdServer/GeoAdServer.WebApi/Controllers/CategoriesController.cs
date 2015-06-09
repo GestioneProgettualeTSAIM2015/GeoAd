@@ -1,5 +1,6 @@
 ﻿using GeoAdServer.DataAccess;
 using GeoAdServer.Domain.Contracts;
+using GeoAdServer.Domain.Entities.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,11 +12,11 @@ namespace GeoAdServer.WebApi.Controllers
 {
     public class CategoriesController : ApiController
     {
-        public IQueryable<string> Get()
+        public IQueryable<KeyValuePair<CategoryDTO, IList<CategoryDTO>>> Get()
         {
             using (var repos =  DataRepos.Instance)
             {
-                return repos.Locations.GetCategories().Select(pair => pair.Value).AsQueryable();
+                return repos.Locations.GetCategories().AsQueryable();
             }
         }
     }
