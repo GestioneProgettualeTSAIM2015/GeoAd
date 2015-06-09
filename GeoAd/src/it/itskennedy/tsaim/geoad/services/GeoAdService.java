@@ -8,6 +8,7 @@ import it.itskennedy.tsaim.geoad.core.NotificationManager;
 import it.itskennedy.tsaim.geoad.entity.LocationModel;
 import it.itskennedy.tsaim.geoad.entity.Offer;
 import it.itskennedy.tsaim.geoad.localdb.DataOffersContentProvider;
+import it.itskennedy.tsaim.geoad.localdb.OffersHelper;
 import it.itskennedy.tsaim.geoad.widgets.OffersWidgetProvider;
 
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import android.app.Service;
 import android.appwidget.AppWidgetManager;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.location.Location;
 import android.os.Binder;
 import android.os.Bundle;
@@ -94,7 +96,7 @@ public class GeoAdService extends Service implements LocationListener
 					if(!vExtra.isEmpty())
 					{
 						String vJson = intent.getExtras().getString(DATA);
-						addIfNotExist(LocationModel.fromJSON(vJson));
+						addOrReplace(LocationModel.fromJSON(vJson));
 					}
 				}
 				else if(vAction.equals(DELETE_LOCATION))
@@ -107,12 +109,13 @@ public class GeoAdService extends Service implements LocationListener
 	    return START_STICKY;
 	}
 	
-	private void addIfNotExist(LocationModel aLocation)
+	private void addOrReplace(LocationModel aLocation)
 	{
 		for(int i = 0; i < mNearLocations.size(); ++i)
 		{
 			if(mNearLocations.get(i).getId() == aLocation.getId())
 			{
+				mNearLocations.add(i, aLocation);
 				return;
 			}
 		}
@@ -142,7 +145,19 @@ public class GeoAdService extends Service implements LocationListener
 				if(aLocation != null)
 				{
 					NotificationManager.showOffer(GeoAdService.this, vOffer);
-					getContentResolver().insert(DataOffersContentProvider.OFFERS_URI, vOffer.getContentValues());
+					
+					Cursor vCur = getContentResolver().query(DataOffersContentProvider.OFFERS_URI, null, OffersHelper.LOCATION_ID + " = " + vOffer.getId(), null, null);
+					
+					if(vCur.getCount() == 0)
+					{
+						getContentResolver().insert(DataOffersContentProvider.OFFERS_URI, vOffer.getContentValues());
+					}
+					else
+					{
+						getContentResolver().update(DataOffersContentProvider.OFFERS_URI, vOffer.getContentValues(), OffersHelper.LOCATION_ID + " = " + vOffer.getId(), null);
+					}
+					
+					
 				}
 			}
 		});
