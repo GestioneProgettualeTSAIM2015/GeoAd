@@ -226,7 +226,7 @@ namespace GeoAdServer.Postgresql
 
         int ILocationsRepository.InsertCategory(string name, int? aggregate)
         {
-            if (CategoriesDataTable.Select("Name = " + name).Length > 0) return -1;
+            if (CategoriesDataTable.Select("Name = '" + name + "'").Length > 0) return -1;
 
             var templateCommand = @"INSERT INTO
                                    ""Categories""(""Id"", ""Name"", ""Aggregate"")
@@ -237,19 +237,52 @@ namespace GeoAdServer.Postgresql
 
             CategoriesDataTable.Rows.Add((int)row, name, aggregate);
 
+            if (!aggregate.HasValue)
+                Categories.Add(name, new List<string>());
+            else
+            {
+                string primaryCategoryName = CategoriesDataTable.Rows.Find(aggregate.Value).Field<string>("Name");
+
+                IList<string> secondaryCategories;
+
+                if (Categories.TryGetValue(primaryCategoryName, out secondaryCategories))
+                {
+                    secondaryCategories.Add(name);
+                }
+            }
+
             return (int)row;
         }
 
         bool ILocationsRepository.DeleteCategory(string name)
         {
-            if (CategoriesDataTable.Select("Name = " + name).Length == 0) return false;
+            DataRow[] rows;
+            if ((rows = CategoriesDataTable.Select("Name = '" + name + "'")).Length == 0) return false;
 
             string commandTemplate = @"DELETE FROM ""Categories""
                                        WHERE ""Name"" = '{0}'
                                        RETURNING ""Id""";
 
             object row = ExecCommand(string.Format(commandTemplate, name));
-            CategoriesDataTable.Rows.Find((int)row).Delete();
+
+            rows.Single().Delete();
+
+            if (Categories.ContainsKey(name))
+            {
+                Categories.Remove(name);
+            }
+            else
+            {
+                foreach (var pair in Categories)
+                {
+                    var sCats = pair.Value;
+                    if (sCats.Contains(name))
+                    {
+                        sCats.Remove(name);
+                        break;
+                    }
+                }
+            }
 
             return true;
         }
@@ -263,8 +296,6 @@ namespace GeoAdServer.Postgresql
         {
             string query = @"SELECT ""Id"", ""Name"", ""Aggregate""
                              FROM public.""Categories""";
-
-            Dictionary<string, IList<string>> dictionary = new Dictionary<string, IList<string>>();
 
             InitCategoriesDataTable();
 
@@ -281,6 +312,8 @@ namespace GeoAdServer.Postgresql
                 if (cat.Aggregate.HasValue) CategoriesDataTable.Rows.Add(cat.Id, cat.Name, cat.Aggregate.Value);
                 else CategoriesDataTable.Rows.Add(cat.Id, cat.Name, DBNull.Value);
             }
+
+            Dictionary<string, IList<string>> dictionary = new Dictionary<string, IList<string>>();
 
             foreach (DataRow row in CategoriesDataTable.Rows)
             {
@@ -305,8 +338,8 @@ namespace GeoAdServer.Postgresql
 
         int? ILocationsRepository.GetCategoryId(string name)
         {
-            var row = CategoriesDataTable.Select("Name = " + name).FirstOrDefault();
-            if (row == null) return -1;
+            var row = CategoriesDataTable.Select("Name = '" + name + "'").FirstOrDefault();
+            if (row == null) return null;
 
             return row.Field<int>("Id");
         }
