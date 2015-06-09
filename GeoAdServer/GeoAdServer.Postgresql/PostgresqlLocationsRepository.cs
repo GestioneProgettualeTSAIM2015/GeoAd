@@ -13,18 +13,74 @@ namespace GeoAdServer.Postgresql
 {
     public class PostgresqlLocationsRepository : AbstractPostgresqlRepository, ILocationsRepository
     {
-        public Dictionary<CategoryDTO, IList<CategoryDTO>> Categories { get;  private set; }
+        private static Dictionary<string, IList<string>> _categories;
 
-        private DataTable CategoriesDataTable { get; set; }
+        public static Dictionary<string, IList<string>> Categories
+        {
+            get
+            {
+                if (_categories == null) return _categories;
+
+                lock (_categories)
+                {
+                    return _categories;
+                }
+            }
+
+            private set
+            {
+                if (_categories != null)
+                {
+                    lock (_categories)
+                    {
+                        _categories = value;
+                    }
+                }
+                else
+                {
+                    _categories = value;
+                }
+            }
+        }
+
+        private static DataTable _categoriesDataTable;
+
+        private static DataTable CategoriesDataTable
+        {
+            get
+            {
+                if (_categories == null) return _categoriesDataTable;
+
+                lock (_categories)
+                {
+                    return _categoriesDataTable;
+                }
+            }
+
+            set
+            {
+                if (_categories != null)
+                {
+                    lock (_categories)
+                    {
+                        _categoriesDataTable = value;
+                    }
+                }
+                else
+                {
+                    _categoriesDataTable = value;
+                }
+            }
+        }
 
         public PostgresqlLocationsRepository(string connectionString) : base(connectionString)
         {
-            Categories = FetchCategories();
+            if (Categories == null) Categories = FetchCategories();
         }
 
         public PostgresqlLocationsRepository(NpgsqlConnection connection) : base(connection)
         {
-            Categories = FetchCategories();
+            if (Categories == null) Categories = FetchCategories();
         }
 
         IEnumerable<LocationDTO> ILocationsRepository.GetAll()
@@ -198,18 +254,17 @@ namespace GeoAdServer.Postgresql
             return true;
         }
 
-        Dictionary<CategoryDTO, IList<CategoryDTO>> ILocationsRepository.GetCategories()
+        Dictionary<string, IList<string>> ILocationsRepository.GetCategories()
         {
             return Categories;
         }
 
-        Dictionary<CategoryDTO, IList<CategoryDTO>> FetchCategories()
+        Dictionary<string, IList<string>> FetchCategories()
         {
             string query = @"SELECT ""Id"", ""Name"", ""Aggregate""
                              FROM public.""Categories""";
 
-            Dictionary<CategoryDTO, IList<CategoryDTO>> dictionary =
-                new Dictionary<CategoryDTO, IList<CategoryDTO>>(new CategoriesEqualitiComparer());
+            Dictionary<string, IList<string>> dictionary = new Dictionary<string, IList<string>>();
 
             InitCategoriesDataTable();
 
@@ -225,19 +280,22 @@ namespace GeoAdServer.Postgresql
             {
                 if (cat.Aggregate.HasValue) CategoriesDataTable.Rows.Add(cat.Id, cat.Name, cat.Aggregate.Value);
                 else CategoriesDataTable.Rows.Add(cat.Id, cat.Name, DBNull.Value);
+            }
 
-                if (!cat.Aggregate.HasValue)
-                    dictionary.Add(cat, new List<CategoryDTO>());
+            foreach (DataRow row in CategoriesDataTable.Rows)
+            {
+                if (!row.Field<int?>("Aggregate").HasValue)
+                    dictionary.Add(row.Field<string>("Name"), new List<string>());
                 else
                 {
-                    IList<CategoryDTO> secondaryCategories;
+                    string primaryCategoryName = CategoriesDataTable.Rows.Find(
+                        row.Field<int?>("Aggregate").Value).Field<string>("Name");
 
-                    if (dictionary.TryGetValue(new CategoryDTO
+                    IList<string> secondaryCategories;
+
+                    if (dictionary.TryGetValue(primaryCategoryName, out secondaryCategories))
                     {
-                        Id = cat.Aggregate.Value
-                    }, out secondaryCategories))
-                    {
-                        secondaryCategories.Add(cat);
+                        secondaryCategories.Add(row.Field<string>("Name"));
                     }
                 }
             }
@@ -265,19 +323,6 @@ namespace GeoAdServer.Postgresql
             CategoriesDataTable.Columns.Add(aggregateColumn);
 
             CategoriesDataTable.PrimaryKey = new DataColumn[] { CategoriesDataTable.Columns["Id"] };
-        }
-
-        class CategoriesEqualitiComparer : IEqualityComparer<CategoryDTO>
-        {
-            bool IEqualityComparer<CategoryDTO>.Equals(CategoryDTO cat1, CategoryDTO cat2)
-            {
-                return cat1.Id == cat2.Id;
-            }
-
-            int IEqualityComparer<CategoryDTO>.GetHashCode(CategoryDTO cat)
-            {
-                return cat.Id;
-            }
         }
     }
 }

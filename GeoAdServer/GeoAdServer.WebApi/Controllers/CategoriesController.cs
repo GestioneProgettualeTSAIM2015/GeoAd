@@ -12,11 +12,11 @@ namespace GeoAdServer.WebApi.Controllers
 {
     public class CategoriesController : ApiController
     {
-        public IQueryable<KeyValuePair<CategoryDTO, IList<CategoryDTO>>> Get()
+        public Dictionary<string, IList<string>> Get()
         {
             using (var repos =  DataRepos.Instance)
             {
-                return repos.Locations.GetCategories().AsQueryable();
+                return repos.Locations.GetCategories();
             }
         }
     }

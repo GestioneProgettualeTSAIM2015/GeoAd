@@ -28,7 +28,7 @@ namespace GeoAdServer.Domain.Contracts
 
         bool DeleteCategory(string name);
 
-        Dictionary<CategoryDTO, IList<CategoryDTO>> GetCategories();
+        Dictionary<string, IList<string>> GetCategories();
 
         int? GetCategoryId(string name);
     }
