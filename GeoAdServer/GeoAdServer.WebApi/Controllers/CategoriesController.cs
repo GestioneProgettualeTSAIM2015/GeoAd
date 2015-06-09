@@ -13,9 +13,9 @@ namespace GeoAdServer.WebApi.Controllers
     {
         public IQueryable<string> Get()
         {
-            using (ILocationsRepository repo =  DataRepos.Locations)
+            using (var repos =  DataRepos.Instance)
             {
-                return repo.GetCategories().Select(pair => pair.Value).AsQueryable();
+                return repos.Locations.GetCategories().Select(pair => pair.Value).AsQueryable();
             }
         }
     }

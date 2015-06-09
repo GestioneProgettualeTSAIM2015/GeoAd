@@ -31,6 +31,7 @@ namespace GeoAdServer.Postgresql
                 return new OfferingDTO
                 {
                     Id = dr.Field<int>("Id"),
+                    Name = dr.Field<string>("Name"),
                     LocationId = dr.Field<int>("LocationId"),
                     Desc = dr.Field<string>("Desc"),
                     InsDateMillis = dr.Field<long>("InsDateMillis"),
@@ -50,6 +51,7 @@ namespace GeoAdServer.Postgresql
                 return new OfferingDTO
                 {
                     Id = dr.Field<int>("Id"),
+                    Name = dr.Field<string>("Name"),
                     LocationId = locationId,
                     Desc = dr.Field<string>("Desc"),
                     InsDateMillis = dr.Field<long>("InsDateMillis"),
@@ -58,16 +60,36 @@ namespace GeoAdServer.Postgresql
             });
         }
 
+        OfferingDTO IOfferingsRepository.GetById(int offeringId)
+        {
+            string query = @"SELECT *
+                             FROM ""Offerings""
+                             WHERE ""Id"" = {0}";
+
+            return ExecQuery<OfferingDTO>(string.Format(query, offeringId), (dr) =>
+            {
+                return new OfferingDTO
+                {
+                    Id = offeringId,
+                    Name = dr.Field<string>("Name"),
+                    LocationId = dr.Field<int>("LocationId"),
+                    Desc = dr.Field<string>("Desc"),
+                    InsDateMillis = dr.Field<long>("InsDateMillis"),
+                    ExpDateMillis = dr.Field<long>("ExpDateMillis")
+                };
+            }).ElementAtOrDefault(0);
+        }
+
         int IOfferingsRepository.Insert(Offering offering)
         {
             var templateCommand = @"INSERT INTO
-                                   ""Offerings"" (""Id"", ""LocationId"", ""Desc"", ""InsDateMillis"", ""ExpDateMillis"")
-                                   VALUES (DEFAULT, {0}, '{1}', {2}, {3})
+                                   ""Offerings"" (""Id"", ""LocationId"", ""Desc"", ""InsDateMillis"", ""ExpDateMillis"", ""Name"")
+                                   VALUES (DEFAULT, {0}, '{1}', {2}, {3}, '{4}')
                                    RETURNING ""Id""";
 
             object row = ExecCommand(string.Format(new NullFormat(), templateCommand,
                 offering.LocationId, offering.Desc,
-                (long) (DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds, offering.ExpDateMillis));
+                (long) (DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds, offering.ExpDateMillis, offering.Name));
 
             return (int)row;
         }
@@ -77,12 +99,13 @@ namespace GeoAdServer.Postgresql
             var templateCommand = @"UPDATE public.""Offerings""
                                     SET ""LocationId"" = {0},
                                         ""Desc"" = '{1}',
-                                        ""ExpDateMillis"" = {2}
-                                    WHERE ""Id"" = {3}
+                                        ""ExpDateMillis"" = {2},
+                                        ""Name"" = '{3}'
+                                    WHERE ""Id"" = {4}
                                     RETURNING ""Id""";
 
             object row = ExecCommand(string.Format(templateCommand,
-                offering.LocationId, offering.Desc, offering.ExpDateMillis, id));
+                offering.LocationId, offering.Desc, offering.ExpDateMillis, offering.Name, id));
 
             return row != null && (int)row == id;
         }

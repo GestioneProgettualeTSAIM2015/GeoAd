@@ -51,14 +51,14 @@ namespace GeoAdServer.WebApi.Controllers
 
         public ActionResult ManageLocations()
         {
-            using (ILocationsRepository repo = DataRepos.Locations)
+            using (var repos = DataRepos.Instance)
             {
                 ViewBag.IsAdmin = User.Identity.IsAdmin();
 
                 var UserId = User.Identity.GetUserId();
                 ViewBag.UserId = UserId;
 
-                IEnumerable<LocationDTO> vData = repo.GetByUserId(UserId);
+                IEnumerable<LocationDTO> vData = repos.Locations.GetByUserId(UserId);
 
                 return View(vData);
             }
@@ -71,43 +71,37 @@ namespace GeoAdServer.WebApi.Controllers
                 return NewErrorView();
             }
 
-            using (IOfferingsRepository repo = DataRepos.Offerings)
+            using (var repos = DataRepos.Instance)
             {
-                using (ILocationsRepository repo2 = DataRepos.Locations)
-                {
-                    IEnumerable<OfferingDTO> vData = repo.GetByLocationId(Id);
+                IEnumerable<OfferingDTO> vData = repos.Offerings.GetByLocationId(Id);
 
-                    ViewBag.LocId = Id;
-                    ViewBag.LocName = repo2.GetById(Id).Name;
+                ViewBag.LocId = Id;
+                ViewBag.LocName = repos.Locations.GetById(Id).Name;
 
-                    return View(vData);
-                }
+                return View(vData);
             }
         }
 
         public ActionResult ManagePhotos(int Id)
         {
-            using (IPhotosRepository repo = DataRepos.Photos)
+            using (var repos = DataRepos.Instance)
             {
-                using (ILocationsRepository repo2 = DataRepos.Locations)
-                {
-                    IEnumerable<PhotoDTO> vData = repo.GetByLocationId(Id);
+                IEnumerable<PhotoDTO> vData = repos.Photos.GetByLocationId(Id);
 
-                    ViewBag.LocId = Id;
-                    ViewBag.LocName = repo2.GetById(Id).Name;
+                ViewBag.LocId = Id;
+                ViewBag.LocName = repos.Locations.GetById(Id).Name;
 
-                    return View(vData);
-                }
+                return View(vData);
             }
         }
 
         public ActionResult EditLocation(int Id)
         {
-            using (ILocationsRepository repo = DataRepos.Locations)
+            using (var repos = DataRepos.Instance)
             {
                 ViewBag.IsAdmin = User.Identity.IsAdmin();
 
-                LocationDTO vData = repo.GetById(Id);
+                LocationDTO vData = repos.Locations.GetById(Id);
                 return View(vData);
             }
         }

@@ -11,32 +11,35 @@ using System.Reflection;
 
 namespace GeoAdServer.DataAccess
 {
-    public class DataRepos
+    public class DataRepos : IDisposable
     {
-        public static ILocationsRepository Locations
-        {
+        public static DataRepos Instance {
             get
             {
-                return new PostgresqlLocationsRepository(connectionString);
+                return new DataRepos();
             }
         }
 
-        public static IPhotosRepository Photos
+        public ILocationsRepository Locations { get; private set; }
+
+        public IPhotosRepository Photos { get; private set; }
+
+        public IOfferingsRepository Offerings { get; private set; }
+
+        private readonly static string connectionString =
+            System.Configuration.ConfigurationManager.ConnectionStrings["PostgresqlCS"].ConnectionString;
+
+        private DataRepos()
         {
-            get
-            {
-                return new PostgresqlPhotosRepository(connectionString);
-            }
+            Locations = new PostgresqlLocationsRepository(connectionString);
+            var connection = ((AbstractPostgresqlRepository)Locations).Connection;
+            Photos = new PostgresqlPhotosRepository(connection);
+            Offerings = new PostgresqlOfferingsRepository(connection);
         }
 
-        public static IOfferingsRepository Offerings
+        void IDisposable.Dispose()
         {
-            get
-            {
-                return new PostgresqlOfferingsRepository(connectionString);
-            }
+            Locations.Dispose();
         }
-
-        private readonly static string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["PostgresqlCS"].ConnectionString;
     }
 }

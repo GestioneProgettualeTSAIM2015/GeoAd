@@ -26,13 +26,18 @@ namespace GeoAdServer.WebApi.Support
 
         public static bool IsLocationOwner(this int id, string userId)
         {
-            using (ILocationsRepository repo = DataRepos.Locations)
+            using (var repos = DataRepos.Instance)
             {
-                var owner = repo.GetOwnerId(id);
-                if (owner == null) return false;
-
-                return owner == userId;
+                return id.IsLocationOwner(userId, repos.Locations);
             }
+        }
+
+        public static bool IsLocationOwner(this int id, string userId, ILocationsRepository repoloc)
+        {
+            var owner = repoloc.GetOwnerId(id);
+            if (owner == null) return false;
+
+            return owner == userId;
         }
 
         public static bool IsAdmin(this IIdentity identity)

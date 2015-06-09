@@ -8,6 +8,8 @@ namespace GeoAdServer.Domain.Entities
 {
     public class Offering
     {
+        public string Name { get; set; }
+
         public int LocationId { get; set; }
 
         public string Desc { get; set; }

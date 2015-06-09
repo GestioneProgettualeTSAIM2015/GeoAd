@@ -14,6 +14,8 @@ namespace GeoAdServer.Domain.Contracts
 
         IEnumerable<OfferingDTO> GetByLocationId(int locationId);
 
+        OfferingDTO GetById(int offeringId);
+
         int Insert(Offering offering);
 
         bool Update(int id, Offering offering);

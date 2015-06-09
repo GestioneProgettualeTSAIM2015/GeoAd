@@ -16,31 +16,31 @@ namespace GeoAdServer.WebApi.Controllers
     {
         public IQueryable<OfferingDTO> Get()
         {
-            using (IOfferingsRepository repo = DataRepos.Offerings)
+            using (var repos = DataRepos.Instance)
             {
-                return repo.GetAll().AsQueryable();
+                return repos.Offerings.GetAll().AsQueryable();
             }
         }
         
         public IQueryable<OfferingDTO> Get(int id)
         {
-            using (IOfferingsRepository repo = DataRepos.Offerings)
+            using (var repos = DataRepos.Instance)
             {
-                return repo.GetByLocationId(id).AsQueryable();
+                return repos.Offerings.GetByLocationId(id).AsQueryable();
             }
         }
 
         [Authorize]
         public HttpResponseMessage Post(Offering offering)
         {
-            using (IOfferingsRepository repo = DataRepos.Offerings)
+            using (var repos = DataRepos.Instance)
             {
                 if (offering == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
 
                 if (!offering.LocationId.IsLocationOwner(RequestContext.GetUserId()))
                     return Request.CreateResponse(HttpStatusCode.Unauthorized);
 
-                int id = repo.Insert(offering);
+                int id = repos.Offerings.Insert(offering);
                 return id != -1 ? Request.CreateResponse(HttpStatusCode.OK, id) :
                                   Request.CreateResponse(HttpStatusCode.InternalServerError);
             }
@@ -51,17 +51,17 @@ namespace GeoAdServer.WebApi.Controllers
         {
             if (offering == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
 
-            using (IOfferingsRepository repo = DataRepos.Offerings)
+            using (var repos = DataRepos.Instance)
             {
-                var dbOffering = repo.GetAll().Where(x => x.Id == id).SingleOrDefault();
+                var dbOffering = repos.Offerings.GetById(id);
 
                 var result = false;
                 if (dbOffering != null)
                 {
-                    if (!dbOffering.LocationId.IsLocationOwner(RequestContext.GetUserId()))
+                    if (!dbOffering.LocationId.IsLocationOwner(RequestContext.GetUserId(), repos.Locations))
                         return Request.CreateResponse(HttpStatusCode.Unauthorized);
 
-                    result = repo.Update(id, offering);
+                    result = repos.Offerings.Update(id, offering);
                 }
 
                 return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
@@ -71,17 +71,17 @@ namespace GeoAdServer.WebApi.Controllers
         [Authorize]
         public HttpResponseMessage Delete(int id)
         {
-            using (IOfferingsRepository repo = DataRepos.Offerings)
+            using (var repos = DataRepos.Instance)
             {
-                var dbOffering = repo.GetAll().Where(x => x.Id == id).SingleOrDefault();
+                var dbOffering = repos.Offerings.GetById(id);
 
                 var result = false;
                 if (dbOffering != null)
                 {
-                    if (!dbOffering.LocationId.IsLocationOwner(RequestContext.GetUserId()))
+                    if (!dbOffering.LocationId.IsLocationOwner(RequestContext.GetUserId(), repos.Locations))
                         return Request.CreateResponse(HttpStatusCode.Unauthorized);
 
-                    result = repo.DeleteById(id);
+                    result = repos.Offerings.DeleteById(id);
                 }
 
                 return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);

@@ -28,17 +28,17 @@ namespace GeoAdServer.WebApi.Controllers
         [ActionName("FromLocation")]
         public IQueryable<PhotoDTO> GetFromLocation(int locationId)
         {
-            using (IPhotosRepository repo = DataRepos.Photos)
+            using (var repos = DataRepos.Instance)
             {
-                return repo.GetByLocationId(locationId).AsQueryable();
+                return repos.Photos.GetByLocationId(locationId).AsQueryable();
             }
         }
 
         public PhotoDTO Get(int id)
         {
-            using (IPhotosRepository repo = DataRepos.Photos)
+            using (var repos = DataRepos.Instance)
             {
-                return repo.GetById(id);
+                return repos.Photos.GetById(id);
             }
         }
 
@@ -46,9 +46,9 @@ namespace GeoAdServer.WebApi.Controllers
         [ActionName("Data")]
         public HttpResponseMessage GetData(int photoId)
         {
-            using (IPhotosRepository repo = DataRepos.Photos)
+            using (var repos = DataRepos.Instance)
             {
-                PhotoDataDTO data = repo.GetPhotoBase64Data(photoId);
+                PhotoDataDTO data = repos.Photos.GetPhotoBase64Data(photoId);
 
                 if (data != null)
                 {
@@ -63,11 +63,11 @@ namespace GeoAdServer.WebApi.Controllers
         [Authorize]
         public HttpResponseMessage Post([FromBody]PhotoApiModel photoApiModel)
         {
-            using (IPhotosRepository repo = DataRepos.Photos)
+            using (var repos = DataRepos.Instance)
             {
                 if (photoApiModel == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
 
-                if (!photoApiModel.LocationId.IsLocationOwner(RequestContext.GetUserId()))
+                if (!photoApiModel.LocationId.IsLocationOwner(RequestContext.GetUserId(), repos.Locations))
                     return Request.CreateResponse(HttpStatusCode.Unauthorized);
 
                 byte[] imageBytes = Convert.FromBase64String(photoApiModel.Base64Data);
@@ -123,7 +123,7 @@ namespace GeoAdServer.WebApi.Controllers
                     base64Thumbnail = Convert.ToBase64String(bytes);
                 }
 
-                var id = repo.Insert(new Photo
+                var id = repos.Photos.Insert(new Photo
                 {
                     LocationId = photoApiModel.LocationId,
                     Base64Thumbnail = base64Thumbnail,
@@ -131,7 +131,7 @@ namespace GeoAdServer.WebApi.Controllers
                     Height = imageToSave.Height
                 });
 
-                repo.InsertData(id, base64Data);
+                repos.Photos.InsertData(id, base64Data);
 
                 return Request.CreateResponse(HttpStatusCode.OK, new PhotoDTOApiModel
                 {
@@ -147,14 +147,14 @@ namespace GeoAdServer.WebApi.Controllers
         [Authorize]
         public HttpResponseMessage Delete(int id)
         {
-            using(IPhotosRepository repo = DataRepos.Photos)
+            using (var repos = DataRepos.Instance)
             { 
-                PhotoDTO photo = repo.GetById(id);
+                PhotoDTO photo = repos.Photos.GetById(id);
 
-                if (!photo.LocationId.IsLocationOwner(RequestContext.GetUserId()))
+                if (!photo.LocationId.IsLocationOwner(RequestContext.GetUserId(), repos.Locations))
                     return Request.CreateResponse(HttpStatusCode.Unauthorized);
 
-                var result = repo.Delete(id);
+                var result = repos.Photos.Delete(id);
                 return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
             }
         }
