@@ -3,8 +3,8 @@ using GeoAdServer.Domain.Entities.Events;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,121 +13,82 @@ namespace GeoAdServer.EventsHandling
 {
     public class AndroidEventPropagator : IEventsHandler
     {
-        private HttpClient _httpClient;
-
         IChangedPositionHandler IEventsHandler.ChpHandler { get; set; }
 
         public bool IsWorking { get; private set; }
 
-        private const int DEFAULT_WAITING_TIME = 500;
-        private const int MAX_WAITING_TIME = 5000;
-        private const int ATTEMPTS = 12;
-
         private static ConcurrentQueue<IEvent> _eventsQueue;
 
-        public AndroidEventPropagator()
+        public string Id { get; private set; }
+
+        private Logger _logger;
+
+        public AndroidEventPropagator(string logDirPath)
         {
             if (_eventsQueue == null) _eventsQueue = new ConcurrentQueue<IEvent>();
-            _httpClient = new HttpClient();
+
+            _logger = new Logger()
+            {
+                LogDirPath = logDirPath
+            };
+            Id = Utils.BuildRandomString(8);
+        }
+
+        private void Log(string message)
+        {
+            _logger.Log(Id + " => " + message);
         }
 
         void IEventsHandler.Enqueue(IEvent command)
         {
             _eventsQueue.Enqueue(command);
-        }
-
-        public void StartWorking()
-        {
             if (!IsWorking)
             {
-                Log("~ starting perfomer");
                 IsWorking = true;
-                new Thread(Run).Start();
+                new Thread(Process).Start();
             }
         }
 
-        private void Run()
+        private void Process()
         {
-            Log("~ performer starts running");
-            int waitingTime = DEFAULT_WAITING_TIME;
-            int currentAttempt = -1;
+            Log("performer starts running");
             while (IsWorking)
             {
                 IEvent ievent;
                 _eventsQueue.TryDequeue(out ievent);
                 if (ievent != null)
                 {
-                    currentAttempt = 0;
-                    waitingTime = DEFAULT_WAITING_TIME;
-
-                    try
+                    if (ievent is LocationCreated)
                     {
-                        if (ievent is LocationCreated)
-                        {
-                            Handle(ievent as LocationCreated);
-                        }
-                        else if (ievent is LocationUpdated)
-                        {
-                            Handle(ievent as LocationUpdated);
-                        }
-                        else if (ievent is LocationDeleted)
-                        {
-                            Handle(ievent as LocationDeleted);
-                        }
-                        else if (ievent is OfferingCreated)
-                        {
-                            Handle(ievent as OfferingCreated);
-                        }
-                        else if (ievent is OfferingUpdated)
-                        {
-                            Handle(ievent as OfferingUpdated);
-                        }
-                        else if (ievent is OfferingDeleted)
-                        {
-                            Handle(ievent as OfferingDeleted);
-                        }
+                        Handle(ievent as LocationCreated);
                     }
-                    catch (Exception ex)
+                    else if (ievent is LocationUpdated)
                     {
-                        Log(String.Format("Exception occurred:\n{0}\n", ex.Message), ConsoleColor.Red);
+                        Handle(ievent as LocationUpdated);
+                    }
+                    else if (ievent is LocationDeleted)
+                    {
+                        Handle(ievent as LocationDeleted);
+                    }
+                    else if (ievent is OfferingCreated)
+                    {
+                        Handle(ievent as OfferingCreated);
+                    }
+                    else if (ievent is OfferingUpdated)
+                    {
+                        Handle(ievent as OfferingUpdated);
+                    }
+                    else if (ievent is OfferingDeleted)
+                    {
+                        Handle(ievent as OfferingDeleted);
                     }
                 }
                 else
                 {
-                    currentAttempt++;
+                    IsWorking = false;
+                    Log("performer stopped");
                 }
-
-                if (currentAttempt >= ATTEMPTS)
-                {
-                    currentAttempt = 0;
-                    if (waitingTime < MAX_WAITING_TIME)
-                        waitingTime += 250;
-                    Log("~ Increase waiting time to " + waitingTime, ConsoleColor.DarkYellow);
-                }
-
-                Thread.Sleep(waitingTime);
             }
-
-            Log("~ performer stopped");
-        }
-
-        public void StopWorking()
-        {
-            Log("~ stopping perfomer");
-            IsWorking = false;
-        }
-
-        private void Log(string message)
-        {
-            Log(message, ConsoleColor.DarkGray);
-        }
-
-        private void Log(string message, ConsoleColor color)
-        {
-            ConsoleColor oldColor = Console.ForegroundColor;
-            Console.ForegroundColor = color;
-            Console.WriteLine(message);
-            Console.ForegroundColor = oldColor;
         }
 
         private void Handle(LocationCreated ievent)
@@ -162,13 +123,66 @@ namespace GeoAdServer.EventsHandling
 
         private void NotifyAffected(string lat, string lng)
         {
-            //IEnumerable<string> keys = PositionsContainer.Instance.GetKeysAffected(Double.Parse(lat), Double.Parse(lng));
-            //push
+            IEnumerable<string> keys = ((IEventsHandler) this).ChpHandler.GetKeysAffected(Double.Parse(lat), Double.Parse(lng));
+            Push(keys);
         }
 
         private void Push(IEnumerable<string> keys)
         {
+            Log("pushed to " + keys.Count() + " apps");
+        }
+    }
 
+    internal class Logger
+    {
+        private string _logDirPath;
+
+        public string LogDirPath {
+            get
+            {
+                return _logDirPath;
+            }
+
+            set
+            {
+                if (value == null) return;
+
+                if (!Directory.Exists(value))
+                    Directory.CreateDirectory(value);
+
+                _logDirPath = value;
+                _logFilePath = string.Format("{0}\\{1}.logs", value, DateTime.Now.ToString("yyyyMMdd"));
+            }
+        }
+
+        private string _logFilePath;
+
+        public async void Log(string log)
+        {
+            if (_logFilePath == null) return;
+
+            using (StreamWriter outfile = new StreamWriter(_logFilePath, true))
+            {
+                await outfile.WriteAsync(string.Format("[{0}] {1}\n", DateTime.Now.ToString(), log));
+            }
+        }
+    }
+
+    internal class Utils
+    {
+        private static Random random = new Random((int)DateTime.Now.Ticks);
+
+        public static string BuildRandomString(int size)
+        {
+            StringBuilder builder = new StringBuilder();
+            char ch;
+            for (int i = 0; i < size; i++)
+            {
+                ch = Convert.ToChar(Convert.ToInt32(Math.Floor(26 * random.NextDouble() + 97)));
+                builder.Append(ch);
+            }
+
+            return builder.ToString();
         }
     }
 }

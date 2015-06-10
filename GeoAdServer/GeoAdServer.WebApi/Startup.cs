@@ -7,8 +7,6 @@ using GeoAdServer.WebApi.Services;
 using GeoAdServer.EventsHandling;
 using GeoAdServer.Domain.Contracts;
 
-[assembly: OwinStartup(typeof(GeoAdServer.WebApi.Startup))]
-
 namespace GeoAdServer.WebApi
 {
     public partial class Startup
@@ -19,9 +17,10 @@ namespace GeoAdServer.WebApi
 
             IChangedPositionHandler chpHandler = new PositionsContainer();
 
-            EventService.Instance.Add(new AndroidEventPropagator());
+            EventService.Instance.Add(new AndroidEventPropagator(
+                System.Web.HttpContext.Current.Server.MapPath("~/App_Data/Logs")));
 
-            EventService.Instance.Set(chpHandler);
+            EventService.Instance.SetPositionsContainer(chpHandler);
         }
     }
 }

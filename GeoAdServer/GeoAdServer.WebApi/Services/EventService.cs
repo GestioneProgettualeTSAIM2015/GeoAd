@@ -37,7 +37,7 @@ namespace GeoAdServer.WebApi.Services
             _eventsHandlers.Remove(eventsHandler);
         }
 
-        public void Set(IChangedPositionHandler chHandler)
+        public void SetPositionsContainer(IChangedPositionHandler chHandler)
         {
             _chpHandler = chHandler;
             foreach (IEventsHandler eventHandler in _eventsHandlers)
