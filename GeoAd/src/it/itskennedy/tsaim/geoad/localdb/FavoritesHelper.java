@@ -16,7 +16,7 @@ public class FavoritesHelper implements BaseColumns {
     public final static String CREATE_QUERY = "CREATE TABLE " + TABLE_NAME +"("
             + _ID + " INTEGER PRIMARY KEY, "
             + NAME + " TEXT NOT NULL, "
-            + LAT + " DOUBLE "
+            + LAT + " DOUBLE, "
             + LNG + " DOUBLE "
             + "); ";
 }

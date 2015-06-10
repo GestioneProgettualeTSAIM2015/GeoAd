@@ -16,7 +16,7 @@ public class OffersHelper implements BaseColumns {
     public final static String CREATE_QUERY = "CREATE TABLE " + TABLE_NAME +"("
             + _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + LOCATION_ID + " INTEGER NOT NULL, "
-            + DESC + " TEXT "
+            + DESC + " TEXT, "
             + EXP_DATE + " DATETIME "
             + "); ";
 }

@@ -57,7 +57,7 @@ public class GeoAdService extends Service implements LocationListener
 		mNearLocations = new ArrayList<LocationModel>();
 		
 		//TEST
-		mNearLocations.add(new LocationModel(1, "", "", "PROVA", 46, 13, "", ""));
+//		mNearLocations.add(new LocationModel(1, "", "", "PROVA", 46, 13, "", ""));
 
 	}
 	
