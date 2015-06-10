@@ -28,6 +28,8 @@ namespace GeoAdServer.WebApi.Controllers
 
         public IQueryable<LocationDTO> GetWithKey([FromUri]ChangedPosition chp)
         {
+            EventService.Instance.HandleChangedPosition(chp);
+
             using (var repos = DataRepos.Instance)
             {
                 return repos.Locations.GetAll().Where(x =>

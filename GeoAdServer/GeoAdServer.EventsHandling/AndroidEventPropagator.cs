@@ -1,10 +1,13 @@
 ﻿using GeoAdServer.Domain.Contracts;
 using GeoAdServer.Domain.Entities.Events;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,6 +16,9 @@ namespace GeoAdServer.EventsHandling
 {
     public class AndroidEventPropagator : IEventsHandler
     {
+        private readonly static string _applicationId =
+            ConfigurationManager.AppSettings["androidApplicationId"];
+
         IChangedPositionHandler IEventsHandler.ChpHandler { get; set; }
 
         public bool IsWorking { get; private set; }
@@ -31,7 +37,10 @@ namespace GeoAdServer.EventsHandling
             {
                 LogDirPath = logDirPath
             };
-            Id = Utils.BuildRandomString(8);
+
+            Id = Utils.BuildRandomString(6);
+
+            Log("new AndroidEventPropagator");
         }
 
         private void Log(string message)
@@ -51,7 +60,7 @@ namespace GeoAdServer.EventsHandling
 
         private void Process()
         {
-            Log("performer starts running");
+            Log("aep starts running");
             while (IsWorking)
             {
                 IEvent ievent;
@@ -86,50 +95,91 @@ namespace GeoAdServer.EventsHandling
                 else
                 {
                     IsWorking = false;
-                    Log("performer stopped");
+                    Log("aep stopped");
                 }
             }
         }
 
         private void Handle(LocationCreated ievent)
         {
-            NotifyAffected(ievent.Location.Lat, ievent.Location.Lng);
+            NotifyAffected("LocationCreated", JsonConvert.SerializeObject(ievent), ievent.Location.Lat, ievent.Location.Lng);
         }
 
         private void Handle(LocationUpdated ievent)
         {
-            NotifyAffected(ievent.Location.Lat, ievent.Location.Lng);
+            NotifyAffected("LocationUpdated", JsonConvert.SerializeObject(ievent), ievent.Location.Lat, ievent.Location.Lng);
         }
 
         private void Handle(LocationDeleted ievent)
         {
-            NotifyAffected(ievent.Lat, ievent.Lng);
+            NotifyAffected("LocationDeleted", JsonConvert.SerializeObject(ievent), ievent.Lat, ievent.Lng);
         }
 
         private void Handle(OfferingCreated ievent)
         {
-            NotifyAffected(ievent.Lat, ievent.Lng);
+            NotifyAffected("OfferingCreated", JsonConvert.SerializeObject(ievent), ievent.Lat, ievent.Lng);
         }
 
         private void Handle(OfferingUpdated ievent)
         {
-            NotifyAffected(ievent.Lat, ievent.Lng);
+            NotifyAffected("OfferingUpdated", JsonConvert.SerializeObject(ievent), ievent.Lat, ievent.Lng);
         }
 
         private void Handle(OfferingDeleted ievent)
         {
-            NotifyAffected(ievent.Lat, ievent.Lng);
+            NotifyAffected("OfferingDeleted", JsonConvert.SerializeObject(ievent), ievent.Lat, ievent.Lng);
         }
 
-        private void NotifyAffected(string lat, string lng)
+        private void NotifyAffected(string action, string message, string lat, string lng)
         {
-            IEnumerable<string> keys = ((IEventsHandler) this).ChpHandler.GetKeysAffected(Double.Parse(lat), Double.Parse(lng));
-            Push(keys);
+            IEnumerable<string> keys = ((IEventsHandler) this).ChpHandler
+                .GetKeysAffected(Double.Parse(lat), Double.Parse(lng));
+
+            Push(action, message, new List<string>() { "aa", "ee" });
         }
 
-        private void Push(IEnumerable<string> keys)
+        private readonly static int _MAX_KEYS_PER_PUSH = 1024;
+
+        private void Push(string action, string message, IEnumerable<string> keys)
         {
-            Log("pushed to " + keys.Count() + " apps");
+            string pushTemplate = string.Format(
+                "time_to_live=0&data.action={0}&data.message={1}&registration_ids=",
+                action, message);
+
+            for (int i = 0; i < keys.Count(); i += _MAX_KEYS_PER_PUSH)
+            {
+                var localKeys = keys.Skip(i).Take(_MAX_KEYS_PER_PUSH);
+
+                string localKeysJson = JsonConvert.SerializeObject(localKeys);
+
+                //send
+                WebRequest request;
+                request = WebRequest.Create("https://android.googleapis.com/gcm/send");
+                request.Method = "post";
+                request.ContentType = " application/x-www-form-urlencoded;charset=UTF-8";
+                request.Headers.Add(string.Format("Authorization: key={0}", _applicationId));
+                
+                Byte[] byteArray = Encoding.UTF8.GetBytes(string.Format("{0}{1}", pushTemplate, localKeysJson));
+                request.ContentLength = byteArray.Length;
+
+                using (Stream pushStream = request.GetRequestStream())
+                    pushStream.Write(byteArray, 0, byteArray.Length);
+
+                Log(string.Format("pushed {0} to {1} apps", action, keys.Count()));
+
+                //receive
+                try
+                {
+                    using (HttpWebResponse response = request.GetResponse() as HttpWebResponse) { /* Success */ }
+                }
+                catch (WebException wEx)
+                {
+                    using (HttpWebResponse response = wEx.Response as HttpWebResponse)
+                        using (StreamReader responseStreamReader = new StreamReader(response.GetResponseStream()))
+                            Log(string.Format("push error {{{0}}}: \n>>>>>>>>>>\n{1}<<<<<<<<<<",
+                                response.StatusCode.ToString(), responseStreamReader.ReadToEnd()));
+                }
+            }
         }
     }
 

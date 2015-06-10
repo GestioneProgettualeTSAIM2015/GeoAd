@@ -10,6 +10,7 @@ using Microsoft.Owin.Security.OAuth;
 using Owin;
 using GeoAdServer.WebApi.Providers;
 using GeoAdServer.WebApi.Models;
+using System.Configuration;
 
 namespace GeoAdServer.WebApi
 {
@@ -55,8 +56,8 @@ namespace GeoAdServer.WebApi
             //    consumerSecret: "");
 
             app.UseFacebookAuthentication(
-                appId: System.Configuration.ConfigurationManager.AppSettings["fb_appid"],
-                appSecret: System.Configuration.ConfigurationManager.AppSettings["fb_secretkey"]);
+                appId: ConfigurationManager.AppSettings["fb_appid"],
+                appSecret: ConfigurationManager.AppSettings["fb_secretkey"]);
 
             //app.UseGoogleAuthentication(new GoogleOAuth2AuthenticationOptions()
             //{

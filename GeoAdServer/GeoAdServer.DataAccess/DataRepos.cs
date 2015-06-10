@@ -27,7 +27,7 @@ namespace GeoAdServer.DataAccess
         public IOfferingsRepository Offerings { get; private set; }
 
         private readonly static string connectionString =
-            System.Configuration.ConfigurationManager.ConnectionStrings["PostgresqlCS"].ConnectionString;
+            ConfigurationManager.ConnectionStrings["PostgresqlCS"].ConnectionString;
 
         private DataRepos()
         {

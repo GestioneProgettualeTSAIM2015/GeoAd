@@ -54,7 +54,7 @@ namespace GeoAdServer.WebApi.Services
             }
         }
 
-        public void Handle(ChangedPosition chp)
+        public void HandleChangedPosition(ChangedPosition chp)
         {
             if (_chpHandler != null)
             {
