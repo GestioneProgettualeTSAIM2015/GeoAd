@@ -9,6 +9,8 @@ using System.Net.Http;
 using System.Web.Http;
 using GeoAdServer.WebApi.Support;
 using GeoAdServer.Domain.Contracts;
+using GeoAdServer.WebApi.Services;
+using GeoAdServer.Domain.Entities.Events;
 
 namespace GeoAdServer.WebApi.Controllers
 {
@@ -41,6 +43,16 @@ namespace GeoAdServer.WebApi.Controllers
                     return Request.CreateResponse(HttpStatusCode.Unauthorized);
 
                 int id = repos.Offerings.Insert(offering);
+
+                //event
+                var location = repos.Locations.GetById(offering.LocationId);
+                EventService.Instance.Enqueue(new OfferingCreated()
+                {
+                    Offering = offering.BuildDTO(id),
+                    Lat = location.Lat,
+                    Lng = location.Lng
+                });
+
                 return id != -1 ? Request.CreateResponse(HttpStatusCode.OK, id) :
                                   Request.CreateResponse(HttpStatusCode.InternalServerError);
             }
@@ -64,7 +76,21 @@ namespace GeoAdServer.WebApi.Controllers
                     result = repos.Offerings.Update(id, offering);
                 }
 
-                return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
+                if (result)
+                {
+                    //event
+                    var location = repos.Locations.GetById(offering.LocationId);
+                    EventService.Instance.Enqueue(new OfferingUpdated()
+                    {
+                        Offering = offering.BuildDTO(id),
+                        Lat = location.Lat,
+                        Lng = location.Lng
+                    });
+
+                    return Request.CreateResponse(HttpStatusCode.NoContent);
+                }
+
+                return Request.CreateResponse(HttpStatusCode.NotFound);
             }     
         }
 
@@ -84,7 +110,21 @@ namespace GeoAdServer.WebApi.Controllers
                     result = repos.Offerings.DeleteById(id);
                 }
 
-                return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
+                if (result)
+                {
+                    //event
+                    var location = repos.Locations.GetById(repos.Offerings.GetById(id).LocationId);
+                    EventService.Instance.Enqueue(new OfferingDeleted()
+                    {
+                        OfferingId = id,
+                        Lat = location.Lat,
+                        Lng = location.Lng
+                    });
+
+                    return Request.CreateResponse(HttpStatusCode.NoContent);
+                }
+
+                return Request.CreateResponse(HttpStatusCode.NotFound);
             }
         }
     }

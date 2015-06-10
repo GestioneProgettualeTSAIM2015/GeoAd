@@ -2,8 +2,10 @@
 
 namespace GeoAdServer.Domain.Contracts
 {
-    public interface IEventsQueue
+    public interface IEventsHandler
     {
         void Enqueue(IEvent command);
+
+        IChangedPositionHandler ChpHandler { get; set; }
     }
 }

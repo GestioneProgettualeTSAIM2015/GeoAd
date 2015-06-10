@@ -12,6 +12,7 @@ using System.Net.Http;
 using System.Web.Http;
 using GeoAdServer.WebApi.Support;
 using GeoAdServer.Domain.Entities.Events;
+using GeoAdServer.WebApi.Services;
 
 namespace GeoAdServer.WebApi.Controllers
 {
@@ -54,6 +55,13 @@ namespace GeoAdServer.WebApi.Controllers
 
                 var location = locationApiModel.CreateLocationFromModel(RequestContext.GetUserId(), repos.Locations, User.Identity);
                 int id = repos.Locations.Insert(location);
+
+                //event
+                EventService.Instance.Enqueue(new LocationCreated()
+                {
+                    Location = locationApiModel.BuildDTO(id, location.Type),
+                });
+
                 return id != -1 ? Request.CreateResponse(HttpStatusCode.OK, id) :
                                   Request.CreateResponse(HttpStatusCode.InternalServerError);
             }
@@ -71,7 +79,19 @@ namespace GeoAdServer.WebApi.Controllers
 
                 var location = locationApiModel.CreateLocationFromModel(RequestContext.GetUserId(), repos.Locations, User.Identity);
                 var result = repos.Locations.Update(id, location);
-                return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
+
+                if (result)
+                {
+                    //event
+                    EventService.Instance.Enqueue(new LocationUpdated()
+                    {
+                        Location = locationApiModel.BuildDTO(id, location.Type),
+                    });
+
+                    return Request.CreateResponse(HttpStatusCode.NoContent);
+                }
+
+                return Request.CreateResponse(HttpStatusCode.NotFound);
             }
         }
 
@@ -90,8 +110,23 @@ namespace GeoAdServer.WebApi.Controllers
 
                 foreach (PhotoDTO pho in repos.Photos.GetByLocationId(id)) repos.Photos.Delete(pho.Id);
 
+                var location = repos.Locations.GetById(id);
                 var result = repos.Locations.DeleteById(id);
-                return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
+
+                if (result)
+                {
+                    //event
+                    EventService.Instance.Enqueue(new LocationDeleted()
+                    {
+                        LocationId = id,
+                        Lat = location.Lat,
+                        Lng = location.Lng
+                    });
+
+                    return Request.CreateResponse(HttpStatusCode.NoContent);
+                }
+
+                return Request.CreateResponse(HttpStatusCode.NotFound);
             }
         }
     }

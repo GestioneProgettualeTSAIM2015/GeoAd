@@ -11,9 +11,11 @@ using System.Threading.Tasks;
 
 namespace GeoAdServer.EventsHandling
 {
-    public class AndroidEventPropagator : IEventsQueue
+    public class AndroidEventPropagator : IEventsHandler
     {
         private HttpClient _httpClient;
+
+        IChangedPositionHandler IEventsHandler.ChpHandler { get; set; }
 
         public bool IsWorking { get; private set; }
 
@@ -21,24 +23,15 @@ namespace GeoAdServer.EventsHandling
         private const int MAX_WAITING_TIME = 5000;
         private const int ATTEMPTS = 12;
 
-        private readonly static AndroidEventPropagator _instance = new AndroidEventPropagator();
-
         private static ConcurrentQueue<IEvent> _eventsQueue;
 
-        public static AndroidEventPropagator Instance {
-            get
-            {
-                return _instance;
-            }
-        }
-
-        private AndroidEventPropagator()
+        public AndroidEventPropagator()
         {
             if (_eventsQueue == null) _eventsQueue = new ConcurrentQueue<IEvent>();
             _httpClient = new HttpClient();
         }
 
-        void IEventsQueue.Enqueue(IEvent command)
+        void IEventsHandler.Enqueue(IEvent command)
         {
             _eventsQueue.Enqueue(command);
         }
@@ -169,7 +162,7 @@ namespace GeoAdServer.EventsHandling
 
         private void NotifyAffected(string lat, string lng)
         {
-            IEnumerable<string> keys = PositionsContainer.Instance.GetKeysAffected(Double.Parse(lat), Double.Parse(lng));
+            //IEnumerable<string> keys = PositionsContainer.Instance.GetKeysAffected(Double.Parse(lat), Double.Parse(lng));
             //push
         }
 
