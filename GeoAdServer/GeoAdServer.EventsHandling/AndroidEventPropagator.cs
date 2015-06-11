@@ -5,9 +5,11 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -102,64 +104,65 @@ namespace GeoAdServer.EventsHandling
 
         private void Handle(LocationCreated ievent)
         {
-            NotifyAffected("LocationCreated", JsonConvert.SerializeObject(ievent), ievent.Location.Lat, ievent.Location.Lng);
+            NotifyAffected("LocationCreated", ievent.Location, ievent.Location.Lat, ievent.Location.Lng);
         }
 
         private void Handle(LocationUpdated ievent)
         {
-            NotifyAffected("LocationUpdated", JsonConvert.SerializeObject(ievent), ievent.Location.Lat, ievent.Location.Lng);
+            NotifyAffected("LocationUpdated", ievent.Location, ievent.Location.Lat, ievent.Location.Lng);
         }
 
         private void Handle(LocationDeleted ievent)
         {
-            NotifyAffected("LocationDeleted", JsonConvert.SerializeObject(ievent), ievent.Lat, ievent.Lng);
+            NotifyAffected("LocationDeleted", ievent.LocationId, ievent.Lat, ievent.Lng);
         }
 
         private void Handle(OfferingCreated ievent)
         {
-            NotifyAffected("OfferingCreated", JsonConvert.SerializeObject(ievent), ievent.Lat, ievent.Lng);
+            var obj = ievent.Offering.AddProperty("LocationName", "aaee");
+            NotifyAffected("OfferingCreated", obj, ievent.Lat, ievent.Lng);
         }
 
         private void Handle(OfferingUpdated ievent)
         {
-            NotifyAffected("OfferingUpdated", JsonConvert.SerializeObject(ievent), ievent.Lat, ievent.Lng);
+            NotifyAffected("OfferingUpdated", ievent.Offering, ievent.Lat, ievent.Lng);
         }
 
         private void Handle(OfferingDeleted ievent)
         {
-            NotifyAffected("OfferingDeleted", JsonConvert.SerializeObject(ievent), ievent.Lat, ievent.Lng);
+            NotifyAffected("OfferingDeleted", ievent.OfferingId, ievent.Lat, ievent.Lng);
         }
 
-        private void NotifyAffected(string action, string message, string lat, string lng)
+        private void NotifyAffected(string action, object dataObject, string lat, string lng)
         {
             IEnumerable<string> keys = ((IEventsHandler) this).ChpHandler
                 .GetKeysAffected(Double.Parse(lat), Double.Parse(lng));
 
-            Push(action, message, new List<string>() { "aa", "ee" });
+            Push(action, dataObject, keys);
         }
 
-        private readonly static int _MAX_KEYS_PER_PUSH = 1024;
+        private readonly static int _MAX_KEYS_PER_PUSH = 1000;
 
-        private void Push(string action, string message, IEnumerable<string> keys)
+        private void Push(string action, dynamic dataObject, IEnumerable<string> keys)
         {
-            string pushTemplate = string.Format(
-                "time_to_live=0&data.action={0}&data.message={1}&registration_ids=",
-                action, message);
+            dynamic push = new ExpandoObject();
+            push.time_to_live = 600;
+            push.data = new ExpandoObject();
+            push.data.action = action;
+            push.data.message = dataObject;
 
             for (int i = 0; i < keys.Count(); i += _MAX_KEYS_PER_PUSH)
             {
-                var localKeys = keys.Skip(i).Take(_MAX_KEYS_PER_PUSH);
-
-                string localKeysJson = JsonConvert.SerializeObject(localKeys);
-
+                push.registration_ids = keys.Skip(i).Take(_MAX_KEYS_PER_PUSH);
+                
                 //send
                 WebRequest request;
                 request = WebRequest.Create("https://android.googleapis.com/gcm/send");
                 request.Method = "post";
-                request.ContentType = " application/x-www-form-urlencoded;charset=UTF-8";
+                request.ContentType = "application/json;charset=UTF-8";
                 request.Headers.Add(string.Format("Authorization: key={0}", _applicationId));
-                
-                Byte[] byteArray = Encoding.UTF8.GetBytes(string.Format("{0}{1}", pushTemplate, localKeysJson));
+
+                Byte[] byteArray = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(push));
                 request.ContentLength = byteArray.Length;
 
                 using (Stream pushStream = request.GetRequestStream())
@@ -170,7 +173,21 @@ namespace GeoAdServer.EventsHandling
                 //receive
                 try
                 {
-                    using (HttpWebResponse response = request.GetResponse() as HttpWebResponse) { /* Success */ }
+                    using (HttpWebResponse response = request.GetResponse() as HttpWebResponse) {
+                        using (StreamReader responseStreamReader = new StreamReader(response.GetResponseStream()))
+                        {
+                            string s = null;
+                            try
+                            {
+                                s = responseStreamReader.ReadToEnd();
+                                JsonConvert.DeserializeObject(s); //Success
+                            } catch (JsonSerializationException)
+                            {
+                                Log(string.Format("push bad response {{{0}}}: \n>>>>>>>>>>\n{1}<<<<<<<<<<",
+                                    response.StatusCode.ToString(), s));
+                            }
+                        }
+                    }
                 }
                 catch (WebException wEx)
                 {
@@ -218,7 +235,7 @@ namespace GeoAdServer.EventsHandling
         }
     }
 
-    internal class Utils
+    internal static class Utils
     {
         private static Random random = new Random((int)DateTime.Now.Ticks);
 
@@ -233,6 +250,19 @@ namespace GeoAdServer.EventsHandling
             }
 
             return builder.ToString();
+        }
+
+        public static dynamic AddProperty(this object obj, string newPropertyName, object newPropertyValue)
+        {
+            var type = obj.GetType();
+            var newObj = new ExpandoObject() as IDictionary<string, object>;
+
+            foreach (var propertyInfo in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+                newObj.Add(propertyInfo.Name, type.GetProperty(propertyInfo.Name).GetValue(obj));
+
+            newObj.Add(newPropertyName, newPropertyValue);
+
+            return newObj as ExpandoObject;
         }
     }
 }

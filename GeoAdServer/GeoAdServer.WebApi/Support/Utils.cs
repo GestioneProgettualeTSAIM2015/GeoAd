@@ -42,7 +42,7 @@ namespace GeoAdServer.WebApi.Support
 
         public static bool IsAdmin(this IIdentity identity)
         {
-            return identity.Name.CompareTo("admin@geoad.com") == 0;
+            return identity.Name.Equals("admin@geoad.com");
         }
 
         public static Location CreateLocationFromModel(this LocationApiModel model, string userId, ILocationsRepository repository, IIdentity identity)
@@ -50,8 +50,12 @@ namespace GeoAdServer.WebApi.Support
             int pCatId;
             int? sCatId = null;
 
-            if ((pCatId = repository.GetCategoryId(model.PCat).Value) == -1) pCatId = repository.InsertCategory(model.PCat, null);
-            if (model.SCat != null && (sCatId = repository.GetCategoryId(model.SCat).Value) == -1) repository.InsertCategory(model.SCat, pCatId);
+            int? tempPCatId = repository.GetCategoryId(model.PCat);
+            if (!tempPCatId.HasValue) return null;
+
+            pCatId = tempPCatId.Value;
+
+            if (model.SCat != null && !(sCatId = repository.GetCategoryId(model.SCat)).HasValue) sCatId = repository.InsertCategory(model.SCat, pCatId);
 
             var typeId = identity.IsAdmin() ? 1 : 0;
 

@@ -113,7 +113,7 @@ namespace GeoAdServer.WebApi.Controllers
                 if (result)
                 {
                     //event
-                    var location = repos.Locations.GetById(repos.Offerings.GetById(id).LocationId);
+                    var location = repos.Locations.GetById(dbOffering.LocationId);
                     EventService.Instance.Enqueue(new OfferingDeleted()
                     {
                         OfferingId = id,

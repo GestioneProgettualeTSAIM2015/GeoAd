@@ -56,6 +56,9 @@ namespace GeoAdServer.WebApi.Controllers
                 if (locationApiModel == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
 
                 var location = locationApiModel.CreateLocationFromModel(RequestContext.GetUserId(), repos.Locations, User.Identity);
+
+                if (location == null) return Request.CreateResponse((HttpStatusCode)422, "Unprocessable Entity");
+
                 int id = repos.Locations.Insert(location);
 
                 //event
@@ -77,9 +80,12 @@ namespace GeoAdServer.WebApi.Controllers
                 if (locationApiModel == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
 
                 if (!id.IsLocationOwner(RequestContext.GetUserId(), repos.Locations))
-                    return Request.CreateResponse(HttpStatusCode.Unauthorized);
+                    return Request.CreateResponse(HttpStatusCode.Unauthorized, RequestContext.GetUserId());
 
                 var location = locationApiModel.CreateLocationFromModel(RequestContext.GetUserId(), repos.Locations, User.Identity);
+
+                if (location == null) return Request.CreateResponse((HttpStatusCode)422, "Unprocessable Entity");
+
                 var result = repos.Locations.Update(id, location);
 
                 if (result)

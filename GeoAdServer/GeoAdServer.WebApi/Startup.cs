@@ -6,6 +6,7 @@ using Owin;
 using GeoAdServer.WebApi.Services;
 using GeoAdServer.EventsHandling;
 using GeoAdServer.Domain.Contracts;
+using System.Web;
 
 namespace GeoAdServer.WebApi
 {
@@ -18,7 +19,7 @@ namespace GeoAdServer.WebApi
             IChangedPositionHandler chpHandler = new PositionsContainer();
 
             EventService.Instance.Add(new AndroidEventPropagator(
-                System.Web.HttpContext.Current.Server.MapPath("~/App_Data/Logs")));
+                HttpContext.Current.Server.MapPath("~/App_Data/Logs")));
 
             EventService.Instance.SetPositionsContainer(chpHandler);
         }

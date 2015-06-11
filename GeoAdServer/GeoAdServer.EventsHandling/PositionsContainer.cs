@@ -27,13 +27,13 @@ namespace GeoAdServer.EventsHandling
 
         IEnumerable<string> IChangedPositionHandler.GetKeysAffected(double lat, double lng)
         {
-            return
-                from pair in _positions
+            return _positions.Select(x => x.Key);
+                /*from pair in _positions
                 where Double.Parse(pair.Value.NWCoord.Lat) > lat &&
                       Double.Parse(pair.Value.SECoord.Lat) < lat &&
                       Double.Parse(pair.Value.SECoord.Lng) > lng &&
                       Double.Parse(pair.Value.NWCoord.Lng) < lng
-                select pair.Key;
+                select pair.Key;*/
         }
     }
 }

@@ -41,7 +41,7 @@
                 beforeSend: function (xhr, settings) { xhr.setRequestHeader('Authorization', 'Bearer ' + getToken()); },
                 success: function (obj) {
                     localStorage.clear();
-                    window.location.replace("../Login/Login");
+                    window.location.replace("../Login/Index");
                 },
                 error: function (error) {
                     alert(error.responseText);
