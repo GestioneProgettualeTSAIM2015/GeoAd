@@ -4,8 +4,10 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Configuration;
 using System.Dynamic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -136,7 +138,7 @@ namespace GeoAdServer.EventsHandling
         private void NotifyAffected(string action, object dataObject, string lat, string lng)
         {
             IEnumerable<string> keys = ((IEventsHandler) this).ChpHandler
-                .GetKeysAffected(Double.Parse(lat), Double.Parse(lng));
+                .GetKeysAffected(double.Parse(lat, CultureInfo.InvariantCulture), double.Parse(lng, CultureInfo.InvariantCulture));
 
             Push(action, dataObject, keys);
         }
@@ -257,8 +259,8 @@ namespace GeoAdServer.EventsHandling
             var type = obj.GetType();
             var newObj = new ExpandoObject() as IDictionary<string, object>;
 
-            foreach (var propertyInfo in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
-                newObj.Add(propertyInfo.Name, type.GetProperty(propertyInfo.Name).GetValue(obj));
+            foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(obj.GetType()))
+                newObj.Add(property.Name, property.GetValue(obj));
 
             newObj.Add(newPropertyName, newPropertyValue);
 

@@ -3,6 +3,7 @@ using GeoAdServer.Domain.Entities.Events;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,13 +28,13 @@ namespace GeoAdServer.EventsHandling
 
         IEnumerable<string> IChangedPositionHandler.GetKeysAffected(double lat, double lng)
         {
-            return _positions.Select(x => x.Key);
-                /*from pair in _positions
-                where Double.Parse(pair.Value.NWCoord.Lat) > lat &&
-                      Double.Parse(pair.Value.SECoord.Lat) < lat &&
-                      Double.Parse(pair.Value.SECoord.Lng) > lng &&
-                      Double.Parse(pair.Value.NWCoord.Lng) < lng
-                select pair.Key;*/
+            return
+                from pair in _positions
+                where double.Parse(pair.Value.NWCoord.Lat, CultureInfo.InvariantCulture) > lat &&
+                      double.Parse(pair.Value.SECoord.Lat, CultureInfo.InvariantCulture) < lat &&
+                      double.Parse(pair.Value.SECoord.Lng, CultureInfo.InvariantCulture) > lng &&
+                      double.Parse(pair.Value.NWCoord.Lng, CultureInfo.InvariantCulture) < lng
+                select pair.Key;
         }
     }
 }

@@ -13,6 +13,7 @@ using System.Web.Http;
 using GeoAdServer.WebApi.Support;
 using GeoAdServer.Domain.Entities.Events;
 using GeoAdServer.WebApi.Services;
+using System.Globalization;
 
 namespace GeoAdServer.WebApi.Controllers
 {
@@ -33,10 +34,10 @@ namespace GeoAdServer.WebApi.Controllers
             using (var repos = DataRepos.Instance)
             {
                 return repos.Locations.GetAll().Where(x =>
-                    Double.Parse(x.Lat) < Double.Parse(chp.NWCoord.Lat) &&
-                    Double.Parse(x.Lat) > Double.Parse(chp.SECoord.Lat) &&
-                    Double.Parse(x.Lng) < Double.Parse(chp.SECoord.Lng) &&
-                    Double.Parse(x.Lng) > Double.Parse(chp.NWCoord.Lng)).AsQueryable();
+                    double.Parse(x.Lat, CultureInfo.InvariantCulture) < double.Parse(chp.NWCoord.Lat, CultureInfo.InvariantCulture) &&
+                    double.Parse(x.Lat, CultureInfo.InvariantCulture) > double.Parse(chp.SECoord.Lat, CultureInfo.InvariantCulture) &&
+                    double.Parse(x.Lng, CultureInfo.InvariantCulture) < double.Parse(chp.SECoord.Lng, CultureInfo.InvariantCulture) &&
+                    double.Parse(x.Lng, CultureInfo.InvariantCulture) > double.Parse(chp.NWCoord.Lng, CultureInfo.InvariantCulture)).AsQueryable();
             }
         }
 
