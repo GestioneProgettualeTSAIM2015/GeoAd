@@ -114,8 +114,8 @@ namespace GeoAdServer.Postgresql
         IEnumerable<LocationDTO> ILocationsRepository.GetByUserId(string userId)
         {
             string templateQuery = @"SELECT *
-                             FROM public.""Locations""
-                             WHERE ""UserId"" = '{0}'";
+                                     FROM public.""Locations""
+                                     WHERE ""UserId"" = '{0}'";
 
             return ExecQuery<LocationDTO>(string.Format(templateQuery, userId), (dr) =>
             {

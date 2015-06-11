@@ -12,6 +12,8 @@ using System.Net.Http;
 using System.Web.Http;
 using GeoAdServer.WebApi.Support;
 using GeoAdServer.Domain.Entities.Events;
+using GeoAdServer.WebApi.Services;
+using System.Globalization;
 
 namespace GeoAdServer.WebApi.Controllers
 {
@@ -27,13 +29,15 @@ namespace GeoAdServer.WebApi.Controllers
 
         public IQueryable<LocationDTO> GetWithKey([FromUri]ChangedPosition chp)
         {
+            EventService.Instance.HandleChangedPosition(chp);
+
             using (var repos = DataRepos.Instance)
             {
                 return repos.Locations.GetAll().Where(x =>
-                    Double.Parse(x.Lat) < Double.Parse(chp.NWCoord.Lat) &&
-                    Double.Parse(x.Lat) > Double.Parse(chp.SECoord.Lat) &&
-                    Double.Parse(x.Lng) < Double.Parse(chp.SECoord.Lng) &&
-                    Double.Parse(x.Lng) > Double.Parse(chp.NWCoord.Lng)).AsQueryable();
+                    double.Parse(x.Lat, CultureInfo.InvariantCulture) < double.Parse(chp.NWCoord.Lat, CultureInfo.InvariantCulture) &&
+                    double.Parse(x.Lat, CultureInfo.InvariantCulture) > double.Parse(chp.SECoord.Lat, CultureInfo.InvariantCulture) &&
+                    double.Parse(x.Lng, CultureInfo.InvariantCulture) < double.Parse(chp.SECoord.Lng, CultureInfo.InvariantCulture) &&
+                    double.Parse(x.Lng, CultureInfo.InvariantCulture) > double.Parse(chp.NWCoord.Lng, CultureInfo.InvariantCulture)).AsQueryable();
             }
         }
 
@@ -53,7 +57,17 @@ namespace GeoAdServer.WebApi.Controllers
                 if (locationApiModel == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
 
                 var location = locationApiModel.CreateLocationFromModel(RequestContext.GetUserId(), repos.Locations, User.Identity);
+
+                if (location == null) return Request.CreateResponse((HttpStatusCode)422, "Unprocessable Entity");
+
                 int id = repos.Locations.Insert(location);
+
+                //event
+                EventService.Instance.Enqueue(new LocationCreated()
+                {
+                    Location = locationApiModel.BuildDTO(id, location.Type),
+                });
+
                 return id != -1 ? Request.CreateResponse(HttpStatusCode.OK, id) :
                                   Request.CreateResponse(HttpStatusCode.InternalServerError);
             }
@@ -67,11 +81,26 @@ namespace GeoAdServer.WebApi.Controllers
                 if (locationApiModel == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
 
                 if (!id.IsLocationOwner(RequestContext.GetUserId(), repos.Locations))
-                    return Request.CreateResponse(HttpStatusCode.Unauthorized);
+                    return Request.CreateResponse(HttpStatusCode.Unauthorized, RequestContext.GetUserId());
 
                 var location = locationApiModel.CreateLocationFromModel(RequestContext.GetUserId(), repos.Locations, User.Identity);
+
+                if (location == null) return Request.CreateResponse((HttpStatusCode)422, "Unprocessable Entity");
+
                 var result = repos.Locations.Update(id, location);
-                return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
+
+                if (result)
+                {
+                    //event
+                    EventService.Instance.Enqueue(new LocationUpdated()
+                    {
+                        Location = locationApiModel.BuildDTO(id, location.Type),
+                    });
+
+                    return Request.CreateResponse(HttpStatusCode.NoContent);
+                }
+
+                return Request.CreateResponse(HttpStatusCode.NotFound);
             }
         }
 
@@ -90,8 +119,23 @@ namespace GeoAdServer.WebApi.Controllers
 
                 foreach (PhotoDTO pho in repos.Photos.GetByLocationId(id)) repos.Photos.Delete(pho.Id);
 
+                var location = repos.Locations.GetById(id);
                 var result = repos.Locations.DeleteById(id);
-                return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
+
+                if (result)
+                {
+                    //event
+                    EventService.Instance.Enqueue(new LocationDeleted()
+                    {
+                        LocationId = id,
+                        Lat = location.Lat,
+                        Lng = location.Lng
+                    });
+
+                    return Request.CreateResponse(HttpStatusCode.NoContent);
+                }
+
+                return Request.CreateResponse(HttpStatusCode.NotFound);
             }
         }
     }

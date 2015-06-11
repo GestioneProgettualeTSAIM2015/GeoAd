@@ -13,7 +13,6 @@ namespace GeoAdServer.WebApi.Models
 
         public string SCat { get; set; }
 
-        [Required]
         public string Name { get; set; }
 
         public string Lat { get; set; }

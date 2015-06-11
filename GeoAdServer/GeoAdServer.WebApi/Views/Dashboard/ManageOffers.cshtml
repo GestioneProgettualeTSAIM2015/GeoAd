@@ -74,22 +74,37 @@ else
     <div id="formNewOffer">
 
         <div class="form-group">
-            <p class="control-label col-md-2">Descrizione</p>
-            <div class="col-md-10">
-                <textarea id="offDesc" style="width:100%; resize:none;" rows="6"></textarea>
+            <div class="row">
+                <div class="col-md-2">
+                    <p class="control-label">Nome</p>
+                </div>
+                <div class="col-md-10">
+                    <input type="text" id="offName" />
+                </div>
             </div>
-        </div>
-        &nbsp;
-        <div class="form-group">
-            <p class="control-label col-md-2">Data Scadenza</p>
-            <div class="col-md-10">
-                <input type="date" id="offExpDate" />
+            <br />
+            <div class="row">
+                <div class="col-md-2">
+                    <p class="control-label">Descrizione</p>
+                </div>
+                <div class="col-md-10">
+                    <textarea id="offDesc" style="width:100%; resize:none;" rows="6"></textarea>
+                </div>
             </div>
-        </div>
-
-        <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
-                <button class="btn btn-default btn-sm" onclick="addOffer();">Inserisci offerta</button>
+            <br />
+            <div class="row">
+                <div class="col-md-2">
+                    <p class="control-label">Data Scadenza</p>
+                </div>
+                <div class="col-md-10">
+                    <input type="date" id="offExpDate" />
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-md-offset-2 col-md-10">
+                    <button class="btn btn-default btn-sm" onclick="addOffer();">Inserisci offerta</button>
+                </div>
             </div>
         </div>
     </div>
@@ -127,6 +142,7 @@ else
             var milliseconds = date.getTime();
 
             var offerObj = {
+                "Name": $("#offName").val(),
                 "LocationId": @ViewBag.LocId,
                 "Desc": $("#offDesc").val(),
                 "ExpDateMillis": milliseconds

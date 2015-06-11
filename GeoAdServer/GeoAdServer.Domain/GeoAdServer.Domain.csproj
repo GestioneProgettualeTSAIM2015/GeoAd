@@ -39,7 +39,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Contracts\IEventsQueue.cs" />
+    <Compile Include="Contracts\IChangedPositionHandler.cs" />
+    <Compile Include="Contracts\IEventsHandler.cs" />
     <Compile Include="Contracts\ILocationsRepository.cs" />
     <Compile Include="Contracts\IOfferingsRepository.cs" />
     <Compile Include="Contracts\IPhotosRepository.cs" />

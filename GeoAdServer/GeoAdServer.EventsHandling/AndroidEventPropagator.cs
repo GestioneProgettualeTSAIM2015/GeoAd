@@ -1,181 +1,271 @@
 ﻿using GeoAdServer.Domain.Contracts;
 using GeoAdServer.Domain.Entities.Events;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Configuration;
+using System.Dynamic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
-using System.Net.Http;
+using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace GeoAdServer.EventsHandling
 {
-    public class AndroidEventPropagator : IEventsQueue
+    public class AndroidEventPropagator : IEventsHandler
     {
-        private HttpClient _httpClient;
+        private readonly static string _applicationId =
+            ConfigurationManager.AppSettings["androidApplicationId"];
+
+        IChangedPositionHandler IEventsHandler.ChpHandler { get; set; }
 
         public bool IsWorking { get; private set; }
 
-        private const int DEFAULT_WAITING_TIME = 500;
-        private const int MAX_WAITING_TIME = 5000;
-        private const int ATTEMPTS = 12;
-
-        private readonly static AndroidEventPropagator _instance = new AndroidEventPropagator();
-
         private static ConcurrentQueue<IEvent> _eventsQueue;
 
-        public static AndroidEventPropagator Instance {
-            get
-            {
-                return _instance;
-            }
-        }
+        public string Id { get; private set; }
 
-        private AndroidEventPropagator()
+        private Logger _logger;
+
+        public AndroidEventPropagator(string logDirPath)
         {
             if (_eventsQueue == null) _eventsQueue = new ConcurrentQueue<IEvent>();
-            _httpClient = new HttpClient();
+
+            _logger = new Logger()
+            {
+                LogDirPath = logDirPath
+            };
+
+            Id = Utils.BuildRandomString(6);
+
+            Log("new AndroidEventPropagator");
         }
 
-        void IEventsQueue.Enqueue(IEvent command)
+        private void Log(string message)
+        {
+            _logger.Log(Id + " => " + message);
+        }
+
+        void IEventsHandler.Enqueue(IEvent command)
         {
             _eventsQueue.Enqueue(command);
-        }
-
-        public void StartWorking()
-        {
             if (!IsWorking)
             {
-                Log("~ starting perfomer");
                 IsWorking = true;
-                new Thread(Run).Start();
+                new Thread(Process).Start();
             }
         }
 
-        private void Run()
+        private void Process()
         {
-            Log("~ performer starts running");
-            int waitingTime = DEFAULT_WAITING_TIME;
-            int currentAttempt = -1;
+            Log("aep starts running");
             while (IsWorking)
             {
                 IEvent ievent;
                 _eventsQueue.TryDequeue(out ievent);
                 if (ievent != null)
                 {
-                    currentAttempt = 0;
-                    waitingTime = DEFAULT_WAITING_TIME;
-
-                    try
+                    if (ievent is LocationCreated)
                     {
-                        if (ievent is LocationCreated)
-                        {
-                            Handle(ievent as LocationCreated);
-                        }
-                        else if (ievent is LocationUpdated)
-                        {
-                            Handle(ievent as LocationUpdated);
-                        }
-                        else if (ievent is LocationDeleted)
-                        {
-                            Handle(ievent as LocationDeleted);
-                        }
-                        else if (ievent is OfferingCreated)
-                        {
-                            Handle(ievent as OfferingCreated);
-                        }
-                        else if (ievent is OfferingUpdated)
-                        {
-                            Handle(ievent as OfferingUpdated);
-                        }
-                        else if (ievent is OfferingDeleted)
-                        {
-                            Handle(ievent as OfferingDeleted);
-                        }
+                        Handle(ievent as LocationCreated);
                     }
-                    catch (Exception ex)
+                    else if (ievent is LocationUpdated)
                     {
-                        Log(String.Format("Exception occurred:\n{0}\n", ex.Message), ConsoleColor.Red);
+                        Handle(ievent as LocationUpdated);
+                    }
+                    else if (ievent is LocationDeleted)
+                    {
+                        Handle(ievent as LocationDeleted);
+                    }
+                    else if (ievent is OfferingCreated)
+                    {
+                        Handle(ievent as OfferingCreated);
+                    }
+                    else if (ievent is OfferingUpdated)
+                    {
+                        Handle(ievent as OfferingUpdated);
+                    }
+                    else if (ievent is OfferingDeleted)
+                    {
+                        Handle(ievent as OfferingDeleted);
                     }
                 }
                 else
                 {
-                    currentAttempt++;
+                    IsWorking = false;
+                    Log("aep stopped");
                 }
-
-                if (currentAttempt >= ATTEMPTS)
-                {
-                    currentAttempt = 0;
-                    if (waitingTime < MAX_WAITING_TIME)
-                        waitingTime += 250;
-                    Log("~ Increase waiting time to " + waitingTime, ConsoleColor.DarkYellow);
-                }
-
-                Thread.Sleep(waitingTime);
             }
-
-            Log("~ performer stopped");
-        }
-
-        public void StopWorking()
-        {
-            Log("~ stopping perfomer");
-            IsWorking = false;
-        }
-
-        private void Log(string message)
-        {
-            Log(message, ConsoleColor.DarkGray);
-        }
-
-        private void Log(string message, ConsoleColor color)
-        {
-            ConsoleColor oldColor = Console.ForegroundColor;
-            Console.ForegroundColor = color;
-            Console.WriteLine(message);
-            Console.ForegroundColor = oldColor;
         }
 
         private void Handle(LocationCreated ievent)
         {
-            NotifyAffected(ievent.Location.Lat, ievent.Location.Lng);
+            NotifyAffected("LocationCreated", ievent.Location, ievent.Location.Lat, ievent.Location.Lng);
         }
 
         private void Handle(LocationUpdated ievent)
         {
-            NotifyAffected(ievent.Location.Lat, ievent.Location.Lng);
+            NotifyAffected("LocationUpdated", ievent.Location, ievent.Location.Lat, ievent.Location.Lng);
         }
 
         private void Handle(LocationDeleted ievent)
         {
-            NotifyAffected(ievent.Lat, ievent.Lng);
+            NotifyAffected("LocationDeleted", ievent.LocationId, ievent.Lat, ievent.Lng);
         }
 
         private void Handle(OfferingCreated ievent)
         {
-            NotifyAffected(ievent.Lat, ievent.Lng);
+            NotifyAffected("OfferingCreated", ievent.Offering
+                .AddProperty("LocationName", ievent.LocationName), ievent.Lat, ievent.Lng);
         }
 
         private void Handle(OfferingUpdated ievent)
         {
-            NotifyAffected(ievent.Lat, ievent.Lng);
+            NotifyAffected("OfferingUpdated", ievent.Offering
+                .AddProperty("LocationName", ievent.LocationName), ievent.Lat, ievent.Lng);
         }
 
         private void Handle(OfferingDeleted ievent)
         {
-            NotifyAffected(ievent.Lat, ievent.Lng);
+            NotifyAffected("OfferingDeleted", ievent.OfferingId, ievent.Lat, ievent.Lng);
         }
 
-        private void NotifyAffected(string lat, string lng)
+        private void NotifyAffected(string action, object dataObject, string lat, string lng)
         {
-            IEnumerable<string> keys = PositionsContainer.Instance.GetKeysAffected(Double.Parse(lat), Double.Parse(lng));
-            //push
+            IEnumerable<string> keys = ((IEventsHandler) this).ChpHandler
+                .GetKeysAffected(double.Parse(lat, CultureInfo.InvariantCulture), double.Parse(lng, CultureInfo.InvariantCulture));
+
+            Push(action, dataObject, keys);
         }
 
-        private void Push(IEnumerable<string> keys)
-        {
+        private readonly static int _MAX_KEYS_PER_PUSH = 1000;
 
+        private void Push(string action, dynamic dataObject, IEnumerable<string> keys)
+        {
+            dynamic push = new ExpandoObject();
+            push.time_to_live = 600;
+            push.data = new ExpandoObject();
+            push.data.action = action;
+            push.data.message = dataObject;
+
+            for (int i = 0; i < keys.Count(); i += _MAX_KEYS_PER_PUSH)
+            {
+                push.registration_ids = keys.Skip(i).Take(_MAX_KEYS_PER_PUSH);
+                
+                //send
+                WebRequest request;
+                request = WebRequest.Create("https://android.googleapis.com/gcm/send");
+                request.Method = "post";
+                request.ContentType = "application/json;charset=UTF-8";
+                request.Headers.Add(string.Format("Authorization: key={0}", _applicationId));
+
+                Byte[] byteArray = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(push));
+                request.ContentLength = byteArray.Length;
+
+                using (Stream pushStream = request.GetRequestStream())
+                    pushStream.Write(byteArray, 0, byteArray.Length);
+
+                Log(string.Format("pushed {0} to {1} apps", action, keys.Count()));
+
+                //receive
+                try
+                {
+                    using (HttpWebResponse response = request.GetResponse() as HttpWebResponse) {
+                        using (StreamReader responseStreamReader = new StreamReader(response.GetResponseStream()))
+                        {
+                            string s = null;
+                            try
+                            {
+                                s = responseStreamReader.ReadToEnd();
+                                JsonConvert.DeserializeObject(s); //Success
+                            } catch (JsonSerializationException)
+                            {
+                                Log(string.Format("push bad response {{{0}}}: \n>>>>>>>>>>\n{1}<<<<<<<<<<",
+                                    response.StatusCode.ToString(), s));
+                            }
+                        }
+                    }
+                }
+                catch (WebException wEx)
+                {
+                    using (HttpWebResponse response = wEx.Response as HttpWebResponse)
+                        using (StreamReader responseStreamReader = new StreamReader(response.GetResponseStream()))
+                            Log(string.Format("push error {{{0}}}: \n>>>>>>>>>>\n{1}<<<<<<<<<<",
+                                response.StatusCode.ToString(), responseStreamReader.ReadToEnd()));
+                }
+            }
+        }
+    }
+
+    internal class Logger
+    {
+        private string _logDirPath;
+
+        public string LogDirPath {
+            get
+            {
+                return _logDirPath;
+            }
+
+            set
+            {
+                if (value == null) return;
+
+                if (!Directory.Exists(value))
+                    Directory.CreateDirectory(value);
+
+                _logDirPath = value;
+                _logFilePath = string.Format("{0}\\{1}.logs", value, DateTime.Now.ToString("yyyyMMdd"));
+            }
+        }
+
+        private string _logFilePath;
+
+        public async void Log(string log)
+        {
+            if (_logFilePath == null) return;
+
+            using (StreamWriter outfile = new StreamWriter(_logFilePath, true))
+            {
+                await outfile.WriteAsync(string.Format("[{0}] {1}\n", DateTime.Now.ToString(), log));
+            }
+        }
+    }
+
+    internal static class Utils
+    {
+        private static Random random = new Random((int)DateTime.Now.Ticks);
+
+        public static string BuildRandomString(int size)
+        {
+            StringBuilder builder = new StringBuilder();
+            char ch;
+            for (int i = 0; i < size; i++)
+            {
+                ch = Convert.ToChar(Convert.ToInt32(Math.Floor(26 * random.NextDouble() + 97)));
+                builder.Append(ch);
+            }
+
+            return builder.ToString();
+        }
+
+        public static dynamic AddProperty(this object obj, string newPropertyName, object newPropertyValue)
+        {
+            var type = obj.GetType();
+            var newObj = new ExpandoObject() as IDictionary<string, object>;
+
+            foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(obj.GetType()))
+                newObj.Add(property.Name, property.GetValue(obj));
+
+            newObj.Add(newPropertyName, newPropertyValue);
+
+            return newObj as ExpandoObject;
         }
     }
 }
