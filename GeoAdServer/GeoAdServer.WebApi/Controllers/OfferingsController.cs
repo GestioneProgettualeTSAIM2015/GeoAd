@@ -49,6 +49,7 @@ namespace GeoAdServer.WebApi.Controllers
                 EventService.Instance.Enqueue(new OfferingCreated()
                 {
                     Offering = offering.BuildDTO(id),
+                    LocationName = location.Name,
                     Lat = location.Lat,
                     Lng = location.Lng
                 });
@@ -83,6 +84,7 @@ namespace GeoAdServer.WebApi.Controllers
                     EventService.Instance.Enqueue(new OfferingUpdated()
                     {
                         Offering = offering.BuildDTO(id),
+                        LocationName = location.Name,
                         Lat = location.Lat,
                         Lng = location.Lng
                     });

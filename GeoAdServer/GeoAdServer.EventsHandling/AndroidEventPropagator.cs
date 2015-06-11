@@ -121,13 +121,14 @@ namespace GeoAdServer.EventsHandling
 
         private void Handle(OfferingCreated ievent)
         {
-            var obj = ievent.Offering.AddProperty("LocationName", "aaee");
-            NotifyAffected("OfferingCreated", obj, ievent.Lat, ievent.Lng);
+            NotifyAffected("OfferingCreated", ievent.Offering
+                .AddProperty("LocationName", ievent.LocationName), ievent.Lat, ievent.Lng);
         }
 
         private void Handle(OfferingUpdated ievent)
         {
-            NotifyAffected("OfferingUpdated", ievent.Offering, ievent.Lat, ievent.Lng);
+            NotifyAffected("OfferingUpdated", ievent.Offering
+                .AddProperty("LocationName", ievent.LocationName), ievent.Lat, ievent.Lng);
         }
 
         private void Handle(OfferingDeleted ievent)
