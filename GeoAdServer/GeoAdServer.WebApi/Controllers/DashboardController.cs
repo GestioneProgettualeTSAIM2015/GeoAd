@@ -36,7 +36,10 @@ namespace GeoAdServer.WebApi.Controllers
         public ActionResult NewLocation()
         {
             ViewBag.IsAdmin = User.Identity.IsAdmin();
-            return View();
+            using (var repos = DataRepos.Instance)
+            {
+                return View(repos.Locations.GetCategories());
+            }
         }
 
         public ActionResult ChangePassword()
