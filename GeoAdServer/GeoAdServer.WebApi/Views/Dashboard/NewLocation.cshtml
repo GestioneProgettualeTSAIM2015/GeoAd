@@ -127,10 +127,21 @@ else
             var map;
             var marker;
 
+            function tryCenter() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function (position) {
+                        map.panTo(new google.maps.LatLng(
+                            position.coords.latitude,
+                            position.coords.longitude
+                        ));
+                    });
+                }
+            }
+
             function initializeMap() {
-                var latlng = new google.maps.LatLng(45.9522249, 12.6791594);
                 var options = {
-                    zoom: 16, center: latlng,
+                    zoom: 15,
+                    center: new google.maps.LatLng(0, 0),
                     mapTypeId: google.maps.MapTypeId.ROADMAP
                 };
                 map = new google.maps.Map(document.getElementById("map_container"), options);
@@ -143,6 +154,9 @@ else
                     map.setOptions({ draggableCursor: 'pointer' });
                 });
             }
+
+            initializeMap();
+            tryCenter();
 
             function placeMarker(location) {
                 document.getElementById('lat').value = location.A;
@@ -157,8 +171,6 @@ else
                     map: map
                 });
             }
-
-            initializeMap();
 
             var location;
 
@@ -192,7 +204,6 @@ else
                 console.log("location is valid");
 
                 $("#btnConfirmAndCreate").prop("disabled", false);
-                $("#cancelModal").prop("disabled", false);
                 $('#modalConferma').modal({
                     keyboard: true,
                     show: true
@@ -202,12 +213,18 @@ else
             });
 
             function checkAndConfirm(propName, alias) {
-                if (propName !== "SCat" && (location[propName] == "null" || location[propName].length === 0)) {
-                    errorAlert.text("Errore di compilazione del form: alcuni campi sono manganti o errati").fadeIn();
-                    return false;
+                if (location[propName] == "null" || location[propName].length === 0) {
+                    if (propName !== "SCat") {
+                        errorAlert.text("Errore di compilazione del form: alcuni campi sono manganti o errati").fadeIn();
+                        return false;
+                    } else {
+                        delete location.SCat;
+                        return true;
+                    }
                 } else {
-                    if (propName !== "SCat" || (location[propName] != "null" && location[propName].length > 0))
+                    if (propName !== "SCat" || (location[propName].length > 0 && location[propName] != "null")) {
                         confirmData.append("<tr><td><i>" + (!alias ? propName : alias) + "</i></td><td>" + location[propName] + "</td></tr>");
+                    }
 
                     return true;
                 }
@@ -215,6 +232,7 @@ else
 
             $("#btnConfirmAndCreate").click(function () {
 
+                $("#cancelModal").prop("disabled", false);
                 $("#btnConfirmAndCreate").prop("disabled", true);
                 $("#cancelModal").prop("disabled", true);
                 $('#modalConferma').modal({

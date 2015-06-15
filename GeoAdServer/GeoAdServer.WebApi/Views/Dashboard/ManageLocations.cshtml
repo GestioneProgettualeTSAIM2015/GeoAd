@@ -14,9 +14,6 @@ else
     <table class="table-bordered table-striped">
         <tr>
             <th class="text-center">
-                ID
-            </th>
-            <th class="text-center">
                 Nome
             </th>
             <th class="text-center">
@@ -45,9 +42,6 @@ else
         @foreach (var item in Model)
         {
             <tr>
-                <td class="col-md-1">
-                    @Html.DisplayFor(modelItem => item.Id)
-                </td>
                 <td class="col-md-2">
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>
@@ -90,9 +84,11 @@ else
         <h5>Non hai registrato attività commerciali</h5>
     }
 }
-
-<hr />
-@Html.ActionLink("Home", "Home", "Dashboard")
+<br />
+@Html.ActionLink("Home", "Home", "Dashboard", null, new
+{
+    @class = "btn btn-default"
+})
 
 @section scripts {
     <script type="text/javascript" src="~/Scripts/loginScript.js"></script>

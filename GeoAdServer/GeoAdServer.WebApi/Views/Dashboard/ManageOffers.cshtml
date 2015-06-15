@@ -8,9 +8,6 @@
     <table class="table-bordered table-striped">
         <tr>
             <th class="text-center">
-                ID Offerta
-            </th>
-            <th class="text-center">
                 Descrizione
             </th>
             <th class="text-center">
@@ -29,9 +26,6 @@
         @foreach (var item in Model)
         {
             <tr>
-                <td class="col-md-1">
-                    @Html.DisplayFor(modelItem => item.Id)
-                </td>
                 <td class="col-md-2">
                     @Html.DisplayFor(modelItem => item.Desc)
                 </td>

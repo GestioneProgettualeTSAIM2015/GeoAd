@@ -10,6 +10,7 @@ using GeoAdServer.WebApi.Support;
 using GeoAdServer.Domain.Entities;
 using GeoAdServer.WebApi.Models;
 using GeoAdServer.Domain.Contracts;
+using System.Dynamic;
 
 namespace GeoAdServer.WebApi.Controllers
 {
@@ -61,9 +62,9 @@ namespace GeoAdServer.WebApi.Controllers
                 var UserId = User.Identity.GetUserId();
                 ViewBag.UserId = UserId;
 
-                IEnumerable<LocationDTO> vData = repos.Locations.GetByUserId(UserId);
+                IEnumerable<LocationDTO> locations = repos.Locations.GetByUserId(UserId);
 
-                return View(vData);
+                return View(locations);
             }
         }
 
@@ -76,12 +77,12 @@ namespace GeoAdServer.WebApi.Controllers
 
             using (var repos = DataRepos.Instance)
             {
-                IEnumerable<OfferingDTO> vData = repos.Offerings.GetByLocationId(Id);
+                IEnumerable<OfferingDTO> offerings = repos.Offerings.GetByLocationId(Id);
 
                 ViewBag.LocId = Id;
                 ViewBag.LocName = repos.Locations.GetById(Id).Name;
 
-                return View(vData);
+                return View(offerings);
             }
         }
 
@@ -89,12 +90,12 @@ namespace GeoAdServer.WebApi.Controllers
         {
             using (var repos = DataRepos.Instance)
             {
-                IEnumerable<PhotoDTO> vData = repos.Photos.GetByLocationId(Id);
+                IEnumerable<PhotoDTO> photos = repos.Photos.GetByLocationId(Id);
 
                 ViewBag.LocId = Id;
                 ViewBag.LocName = repos.Locations.GetById(Id).Name;
 
-                return View(vData);
+                return View(photos);
             }
         }
 
@@ -104,8 +105,11 @@ namespace GeoAdServer.WebApi.Controllers
             {
                 ViewBag.IsAdmin = User.Identity.IsAdmin();
 
-                LocationDTO vData = repos.Locations.GetById(Id);
-                return View(vData);
+                dynamic models = new ExpandoObject();
+                models.CategoriesMap = repos.Locations.GetCategories();
+                models.Location = repos.Locations.GetById(Id);
+
+                return View(models);
             }
         }
 
