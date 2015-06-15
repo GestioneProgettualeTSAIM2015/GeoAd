@@ -123,8 +123,8 @@ namespace GeoAdServer.Postgresql
 
                 int? sCatId = dr.Field<int?>("SCatId");
 
-                pCat = CategoriesDataTable.Rows.Find(dr.Field<int>("PCatId")).Field<string>("Name");
-                if (sCatId.HasValue) sCat = CategoriesDataTable.Rows.Find(sCatId.Value).Field<string>("Name");
+                pCat = CategoriesDataTable.Rows.Find(dr.Field<int>("PCatId")).Field<string>("Name").Capitalized();
+                if (sCatId.HasValue) sCat = CategoriesDataTable.Rows.Find(sCatId.Value).Field<string>("Name").Capitalized();
 
                 return new LocationDTO
                 {
@@ -152,8 +152,8 @@ namespace GeoAdServer.Postgresql
 
                 int? sCatId = dr.Field<int?>("SCatId");
 
-                pCat = CategoriesDataTable.Rows.Find(dr.Field<int>("PCatId")).Field<string>("Name");
-                if (sCatId.HasValue) sCat = CategoriesDataTable.Rows.Find(sCatId.Value).Field<string>("Name");
+                pCat = CategoriesDataTable.Rows.Find(dr.Field<int>("PCatId")).Field<string>("Name").Capitalized();
+                if (sCatId.HasValue) sCat = CategoriesDataTable.Rows.Find(sCatId.Value).Field<string>("Name").Capitalized();
 
                 return new LocationDTO
                 {
@@ -226,6 +226,8 @@ namespace GeoAdServer.Postgresql
 
         int ILocationsRepository.InsertCategory(string name, int? aggregate)
         {
+            name = name.ToLower();
+
             if (CategoriesDataTable.Select("Name = '" + name + "'").Length > 0) return -1;
 
             var templateCommand = @"INSERT INTO
@@ -238,16 +240,16 @@ namespace GeoAdServer.Postgresql
             CategoriesDataTable.Rows.Add((int)row, name, aggregate);
 
             if (!aggregate.HasValue)
-                Categories.Add(name, new List<string>());
+                Categories.Add(name.Capitalized(), new List<string>());
             else
             {
-                string primaryCategoryName = CategoriesDataTable.Rows.Find(aggregate.Value).Field<string>("Name");
+                string primaryCategoryName = CategoriesDataTable.Rows.Find(aggregate.Value).Field<string>("Name").Capitalized();
 
                 IList<string> secondaryCategories;
 
                 if (Categories.TryGetValue(primaryCategoryName, out secondaryCategories))
                 {
-                    secondaryCategories.Add(name);
+                    secondaryCategories.Add(name.Capitalized());
                 }
             }
 
@@ -256,6 +258,8 @@ namespace GeoAdServer.Postgresql
 
         bool ILocationsRepository.DeleteCategory(string name)
         {
+            name = name.ToLower();
+
             DataRow[] rows;
             if ((rows = CategoriesDataTable.Select("Name = '" + name + "'")).Length == 0) return false;
 
@@ -317,18 +321,27 @@ namespace GeoAdServer.Postgresql
 
             foreach (DataRow row in CategoriesDataTable.Rows)
             {
+                var name = row.Field<string>("Name").Capitalized();
+                
                 if (!row.Field<int?>("Aggregate").HasValue)
-                    dictionary.Add(row.Field<string>("Name"), new List<string>());
+                {
+                    if (!dictionary.ContainsKey(name))
+                        dictionary.Add(name, new List<string>());
+                }
                 else
                 {
                     string primaryCategoryName = CategoriesDataTable.Rows.Find(
-                        row.Field<int?>("Aggregate").Value).Field<string>("Name");
+                        row.Field<int?>("Aggregate").Value).Field<string>("Name").Capitalized();
+
+                    //in case the secondary categories row occurs before its primary category row
+                    if (!dictionary.ContainsKey(primaryCategoryName))
+                        dictionary.Add(primaryCategoryName, new List<string>());
 
                     IList<string> secondaryCategories;
 
                     if (dictionary.TryGetValue(primaryCategoryName, out secondaryCategories))
                     {
-                        secondaryCategories.Add(row.Field<string>("Name"));
+                        secondaryCategories.Add(name);
                     }
                 }
             }
@@ -338,6 +351,8 @@ namespace GeoAdServer.Postgresql
 
         int? ILocationsRepository.GetCategoryId(string name)
         {
+            name = name.ToLower();
+
             var row = CategoriesDataTable.Select("Name = '" + name + "'").FirstOrDefault();
             if (row == null) return null;
 
@@ -356,6 +371,14 @@ namespace GeoAdServer.Postgresql
             CategoriesDataTable.Columns.Add(aggregateColumn);
 
             CategoriesDataTable.PrimaryKey = new DataColumn[] { CategoriesDataTable.Columns["Id"] };
+        }
+    }
+
+    internal static class Utils
+    {
+        public static string Capitalized(this string s)
+        {
+            return char.ToUpper(s[0]) + s.Substring(1);
         }
     }
 }
