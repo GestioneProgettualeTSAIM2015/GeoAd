@@ -1,6 +1,9 @@
 package it.itskennedy.tsaim.geoad.core;
 
+import it.itskennedy.tsaim.geoad.widgets.WidgetProvider;
+import android.appwidget.AppWidgetManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
@@ -16,6 +19,7 @@ public class SettingsManager
 
     private SharedPreferences mPref;
     private Editor mEditor;
+    private Context mContext;
 
     public static SettingsManager get(Context aContext)
     {
@@ -24,6 +28,7 @@ public class SettingsManager
 
     private SettingsManager(Context aContext)
     {
+    	mContext = aContext;
         mPref = PreferenceManager.getDefaultSharedPreferences(aContext);
         mEditor = mPref.edit();
     }
@@ -54,6 +59,10 @@ public class SettingsManager
 	{
 		mEditor.putString(PREF_TOKEN, aToken);
 		mEditor.commit();
+		
+		Intent vIntent = new Intent(mContext, WidgetProvider.class);
+		vIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+		mContext.sendBroadcast(vIntent);
 	}
 
 	public String getToken()

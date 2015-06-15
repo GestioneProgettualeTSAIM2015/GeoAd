@@ -1,6 +1,8 @@
 package it.itskennedy.tsaim.geoad.services;
 
+import it.itskennedy.tsaim.geoad.R;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager;
+import it.itskennedy.tsaim.geoad.core.Engine;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager.JsonResponse;
 import it.itskennedy.tsaim.geoad.core.LocationManager;
 import it.itskennedy.tsaim.geoad.core.LocationManager.LocationListener;
@@ -9,7 +11,7 @@ import it.itskennedy.tsaim.geoad.entity.LocationModel;
 import it.itskennedy.tsaim.geoad.entity.Offer;
 import it.itskennedy.tsaim.geoad.localdb.DataOffersContentProvider;
 import it.itskennedy.tsaim.geoad.localdb.OffersHelper;
-import it.itskennedy.tsaim.geoad.widgets.OffersWidgetProvider;
+import it.itskennedy.tsaim.geoad.widgets.WidgetProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,16 +19,19 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.app.Notification;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.provider.BaseColumns;
+import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import com.loopj.android.http.RequestParams;
 
@@ -49,6 +54,8 @@ public class GeoAdService extends Service implements LocationListener
 	private static final int DISTANCE_THRESHOLD = 0; //0 ONLY FOR TEST
 	private double LNG_SPLIT;
 	
+	private static final int NOTIFICATION = 12345;
+	
 	private Location mPosition;
 	private List<LocationModel> mNearLocations;
 
@@ -61,6 +68,10 @@ public class GeoAdService extends Service implements LocationListener
 	public void onCreate() 
 	{
 	  	LocationManager.get(this).addListener(this);
+	  	
+	  	Log.w(Engine.APP_NAME, "Service Created!");
+	  	
+	  	startForeground(NOTIFICATION, getNotify());
 	  	
 		mNearLocations = new ArrayList<LocationModel>();
 	}
@@ -81,13 +92,12 @@ public class GeoAdService extends Service implements LocationListener
 					{
 						String vJson = intent.getExtras().getString(DATA);
 						manageOffer(Offer.fromJSON(vJson));
-						sendWidgetBroadcast();
 					}
 				}
 				else if(vAction.equals(DELETE_OFFER))
 				{
 					int vToRemove = intent.getIntExtra(DELETE_ID, 0);
-					getContentResolver().delete(DataOffersContentProvider.OFFERS_URI, BaseColumns._ID + " = " + vToRemove, null);
+					getContentResolver().delete(DataOffersContentProvider.OFFERS_URI, OffersHelper.OFF_ID + " = " + vToRemove, null);
 					sendWidgetBroadcast();
 				}
 				else if(vAction.equals(NEW_LOCATION))
@@ -101,12 +111,32 @@ public class GeoAdService extends Service implements LocationListener
 				}
 				else if(vAction.equals(DELETE_LOCATION))
 				{
-					removeIfExist(intent.getIntExtra(DELETE_ID, 0));
+					int vToRemove = intent.getIntExtra(DELETE_ID, 0);
+					getContentResolver().delete(DataOffersContentProvider.OFFERS_URI, OffersHelper.LOCATION_ID + " = " + vToRemove, null);
+					removeIfExist(vToRemove);
+					sendWidgetBroadcast();
 				}
 			}
 		}
 		
 	    return START_STICKY;
+	}
+	
+	private Notification getNotify()
+	{
+		NotificationCompat.Builder vBuilder =
+				new NotificationCompat.Builder(this)
+				.setSmallIcon(R.drawable.ic_launcher)
+				.setContentTitle("GeoAd Service")
+				.setContentText("Running...")
+				.setOngoing(true);
+		
+		if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT)
+		{
+			vBuilder.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher));
+		}
+		
+		return vBuilder.build();
 	}
 	
 	private void addOrReplace(LocationModel aLocation)
@@ -137,30 +167,19 @@ public class GeoAdService extends Service implements LocationListener
 
 	private void manageOffer(final Offer vOffer)
 	{
-		getLocationById(vOffer.getLocationId(), new GetLocationListener()
-		{	
-			@Override
-			public void onLoad(LocationModel aLocation)
-			{
-				if(aLocation != null)
-				{
-					NotificationManager.showOffer(GeoAdService.this, vOffer);
-					
-					Cursor vCur = getContentResolver().query(DataOffersContentProvider.OFFERS_URI, null, OffersHelper.LOCATION_ID + " = " + vOffer.getId(), null, null);
-					
-					if(vCur.getCount() == 0)
-					{
-						getContentResolver().insert(DataOffersContentProvider.OFFERS_URI, vOffer.getContentValues());
-					}
-					else
-					{
-						getContentResolver().update(DataOffersContentProvider.OFFERS_URI, vOffer.getContentValues(), OffersHelper.LOCATION_ID + " = " + vOffer.getId(), null);
-					}
-					
-					
-				}
-			}
-		});
+		Cursor vCur = getContentResolver().query(DataOffersContentProvider.OFFERS_URI, null, OffersHelper.OFF_ID + " = " + vOffer.getId(), null, null);
+		
+		if(vCur.getCount() == 0)
+		{
+			getContentResolver().insert(DataOffersContentProvider.OFFERS_URI, vOffer.getContentValues());
+			NotificationManager.showOffer(GeoAdService.this, vOffer);
+		}
+		else
+		{
+			getContentResolver().update(DataOffersContentProvider.OFFERS_URI, vOffer.getContentValues(), OffersHelper.OFF_ID + " = " + vOffer.getId(), null);
+		}
+		
+		sendWidgetBroadcast();		
 	}
 	
 	@Override
@@ -179,12 +198,6 @@ public class GeoAdService extends Service implements LocationListener
 	@Override
 	public void onLocationUpdated(Location aLocation) 
 	{
-		Offer vTest = new Offer(1, "Offerta Prova", 559, "NOME", "Venite qua blabla", 123456, 789101);
-		ContentValues vV = vTest.getContentValues();
-		getContentResolver().insert(DataOffersContentProvider.OFFERS_URI, vV);
-		
-		sendWidgetBroadcast();
-		
 		if(mPosition != null)
 		{
 			float[] vResult = new float[1];
@@ -293,7 +306,7 @@ public class GeoAdService extends Service implements LocationListener
 	
 	public void sendWidgetBroadcast()
 	{
-		Intent vIntent = new Intent(this, OffersWidgetProvider.class);
+		Intent vIntent = new Intent(this, WidgetProvider.class);
 		vIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
 		sendBroadcast(vIntent);
 	}

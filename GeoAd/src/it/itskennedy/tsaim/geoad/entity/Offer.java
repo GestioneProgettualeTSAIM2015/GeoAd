@@ -6,7 +6,6 @@ import java.util.Calendar;
 
 import android.content.ContentValues;
 import android.os.Bundle;
-import android.provider.BaseColumns;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -22,13 +21,13 @@ public class Offer
 {
     public static final String BUNDLE_KEY = "offer_bundle";
 
-    public static final String ID = "id";
-    public static final String NAME = "name";
-    public static final String LOC_NAME = "loc_name";
-    public static final String LOC_ID = "loc_id";
-    public static final String DESC = "desc";
-    public static final String INS_DATE = "ins_date";
-    public static final String EXP_DATE = "exp_date";
+    public static final String ID = "Id";
+    public static final String NAME = "Name";
+    public static final String LOC_NAME = "LocationName";
+    public static final String LOC_ID = "LocationId";
+    public static final String DESC = "Desc";
+    public static final String INS_DATE = "InsDateMillis";
+    public static final String EXP_DATE = "ExpDateMillis";
 
     private int mId;
     private String mName;

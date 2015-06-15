@@ -34,17 +34,17 @@
         
         <service android:name=".services.GeoAdService" />
 
-        <service android:name=".widgets.OffersWidgetService"
+        <service android:name=".widgets.RemoteViewWidgetService"
              android:permission="android.permission.BIND_REMOTEVIEWS" />
         
-        <receiver android:name=".widgets.OffersWidgetProvider" >
+        <receiver android:name=".widgets.WidgetProvider" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
 
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/offers_widget" />
+                android:resource="@xml/widget" />
         </receiver>
         
         <receiver

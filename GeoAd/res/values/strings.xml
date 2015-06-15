@@ -16,6 +16,8 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     
-    <string name="widget_title">Offerte</string>
+    <string name="widget_title">Offerte GeoAd</string>
+    <string name="widget_button">Gestisci le tue attività</string>
+    <string name="widget_no_offer">Non sono presenti offerte</string>
 
 </resources>

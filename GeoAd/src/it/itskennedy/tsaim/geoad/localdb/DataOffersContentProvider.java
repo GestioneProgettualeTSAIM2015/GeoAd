@@ -1,6 +1,9 @@
 package it.itskennedy.tsaim.geoad.localdb;
 
 import it.itskennedy.tsaim.geoad.core.Engine;
+
+import java.util.Date;
+
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -9,6 +12,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.os.Bundle;
 import android.util.Log;
 
 /**
@@ -18,6 +22,7 @@ public class DataOffersContentProvider extends ContentProvider {
     public static final String AUTHORITY = "it.itskennedy.tsaim.geoad.localdb.dataofferscontentprovider";
 
     public static final String OFFERS_PATH = "offers";
+    public static final String DELETE_EXPIRED = "delete_expired";
 
     public static final Uri OFFERS_URI =
             Uri.parse(ContentResolver.SCHEME_CONTENT + "://" + AUTHORITY + "/" + OFFERS_PATH);
@@ -127,4 +132,22 @@ public class DataOffersContentProvider extends ContentProvider {
         }
         return updatedLines;
     }
+
+	@Override
+	public Bundle call(String method, String arg, Bundle extras)
+	{
+		int vDeleteLine = 0;
+		
+		long vExpTime = new Date().getTime() - 24 * 3600000;
+		
+		SQLiteDatabase vDb = dbHelper.getWritableDatabase();
+		vDeleteLine = vDb.delete(OffersHelper.TABLE_NAME, OffersHelper.EXP_DATE + " < " + String.valueOf(vExpTime), null);
+		
+		if(vDeleteLine > 0)
+		{
+			getContext().getContentResolver().notifyChange(OFFERS_URI, null);
+		}
+		
+		return null;
+	}
 }

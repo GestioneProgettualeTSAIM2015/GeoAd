@@ -5,6 +5,8 @@ import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 
 import it.itskennedy.tsaim.geoad.R;
@@ -24,20 +26,25 @@ public class NotificationManager
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(aContext);
         stackBuilder.addParentStack(NewOfferActivity.class);
         stackBuilder.addNextIntent(resultIntent);
-        PendingIntent vPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent vPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_ONE_SHOT);
 
         String vName = aOffer.getLocationName();
         String vTitle = aContext.getString(R.string.new_offer) + " " + vName;
 
         NotificationCompat.Builder vBuilder =
                 new NotificationCompat.Builder(aContext)
-                        .setSmallIcon(R.drawable.ic_launcher)
-                        //.setLargeIcon()
+                        .setSmallIcon(R.drawable.offer_small)
                         .setContentTitle(vTitle)
                         .setContentText(aOffer.getDesc())
                         .setTicker(vTitle)
-                        .setContentIntent(vPendingIntent);
+                        .setContentIntent(vPendingIntent)
+                        .setAutoCancel(true);
 
+        if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT)
+		{
+			vBuilder.setLargeIcon(BitmapFactory.decodeResource(aContext.getResources(), R.drawable.offer));
+		}
+        
         Notification vNotification = vBuilder.build();
 
         android.app.NotificationManager vNotificationManager = (android.app.NotificationManager) aContext.getSystemService(Context.NOTIFICATION_SERVICE);

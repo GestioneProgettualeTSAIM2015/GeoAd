@@ -1,7 +1,6 @@
 package it.itskennedy.tsaim.geoad.widgets;
 
 import it.itskennedy.tsaim.geoad.R;
-import it.itskennedy.tsaim.geoad.core.Engine;
 import it.itskennedy.tsaim.geoad.entity.Offer;
 import it.itskennedy.tsaim.geoad.localdb.DataOffersContentProvider;
 import it.itskennedy.tsaim.geoad.localdb.OffersHelper;
@@ -9,11 +8,9 @@ import it.itskennedy.tsaim.geoad.localdb.OffersHelper;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
@@ -22,20 +19,14 @@ public class OffersViewsFactory implements RemoteViewsService.RemoteViewsFactory
 	private Context mContext;
 	private List<Offer> mOffersList;
 
-	private int mCount = 0;
-	private int mAppWidgetId;
-	
 	public OffersViewsFactory(Context aContext, Intent aIntent)
 	{
-		mAppWidgetId = aIntent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID) - 1;
 		mContext = aContext;
 	}
   
 	@Override
 	public void onCreate()
-	{
-		mCount = 0;
-		
+	{		
 		mOffersList = new ArrayList<Offer>();
 		Cursor vCursorOffers = mContext.getContentResolver().query(DataOffersContentProvider.OFFERS_URI, null, null, null, null);
 		
@@ -49,10 +40,10 @@ public class OffersViewsFactory implements RemoteViewsService.RemoteViewsFactory
 		
 		while(vCursorOffers.moveToNext())
 		{
+			long vExpTime = vCursorOffers.getLong(vExpIndex);
 			int vId = vCursorOffers.getInt(vIdIndex);
 			int vLocId = vCursorOffers.getInt(vLocIdIndex);
 			String vDesc = vCursorOffers.getString(vDescIndex);
-			long vExpTime = vCursorOffers.getLong(vExpIndex);
 			long vInsTime = vCursorOffers.getLong(vInsIndex);
 			String vLocationName = vCursorOffers.getString(vLocNameIndex);
 			String vName = vCursorOffers.getString(vNameIndex);
@@ -60,7 +51,6 @@ public class OffersViewsFactory implements RemoteViewsService.RemoteViewsFactory
 			Offer vTemp = new Offer(vId, vName, vLocId, vLocationName, vDesc, vInsTime, vExpTime);
 			
 			mOffersList.add(vTemp);
-			Log.d(Engine.APP_NAME, mCount++ + "");
 		}
 		
 		vCursorOffers.close();
@@ -82,7 +72,7 @@ public class OffersViewsFactory implements RemoteViewsService.RemoteViewsFactory
 	public RemoteViews getViewAt(int position)
 	{
 		RemoteViews vRow = new RemoteViews(mContext.getPackageName(), R.layout.offer_row);
-    
+		
 		vRow.setTextViewText(R.id.textViewOffDesc, mOffersList.get(position).getDesc());
 		vRow.setTextViewText(R.id.textViewOffExp, mOffersList.get(position).getExpTime());
 		vRow.setTextViewText(R.id.textViewOffLocName, mOffersList.get(position).getLocationName());

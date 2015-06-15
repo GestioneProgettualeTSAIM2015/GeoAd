@@ -3,37 +3,44 @@
     android:id="@+id/widget_complete_row"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:background="#AAFFFFFF"
+    android:orientation="vertical"
+    android:padding="5dp" >
 
-    <LinearLayout
+    <RelativeLayout
+        android:id="@+id/RelativeLayout1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal" >
 
         <TextView
             android:id="@+id/textViewOffDesc"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Large Text"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_toLeftOf="@+id/textViewOffExp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="#0088FF" />
 
         <TextView
             android:id="@+id/textViewOffExp"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_alignBaseline="@+id/textViewOffDesc"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
             android:gravity="right"
-            android:text="Medium Text"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="#444444" />
 
-    </LinearLayout>
-    
+    </RelativeLayout>
+
     <TextView
         android:id="@+id/textViewOffLocName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Medium Text"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="#777777" />
 
 </LinearLayout>

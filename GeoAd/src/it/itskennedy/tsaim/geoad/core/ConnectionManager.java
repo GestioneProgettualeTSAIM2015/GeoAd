@@ -95,7 +95,7 @@ public class ConnectionManager extends BroadcastReceiver
     	if(mIsConnection)
     	{
 	    	String vKey = Engine.get().getKey();
-    	setAuthHeader();
+	    	setAuthHeader();
 	    	
 	    	if(vKey != null)
 	    	{
