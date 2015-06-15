@@ -138,10 +138,14 @@ namespace GeoAdServer.EventsHandling
 
         private void NotifyAffected(string action, object dataObject, string lat, string lng)
         {
-            IEnumerable<string> keys = ((IEventsHandler) this).ChpHandler
-                .GetKeysAffected(double.Parse(lat, CultureInfo.InvariantCulture), double.Parse(lng, CultureInfo.InvariantCulture));
+            IChangedPositionHandler chpHandler = ((IEventsHandler)this).ChpHandler;
+            if (chpHandler != null)
+            {
+                IEnumerable<string> keys = chpHandler.GetKeysAffected(
+                    double.Parse(lat, CultureInfo.InvariantCulture), double.Parse(lng, CultureInfo.InvariantCulture));
 
-            Push(action, dataObject, keys);
+                Push(action, dataObject, keys);
+            }
         }
 
         private readonly static int _MAX_KEYS_PER_PUSH = 1000;
