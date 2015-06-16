@@ -99,7 +99,7 @@ namespace GeoAdServer.WebApi.Controllers
             }
         }
 
-        public ActionResult EditLocation(int Id)
+        public ActionResult EditLocation(int id)
         {
             using (var repos = DataRepos.Instance)
             {
@@ -107,21 +107,25 @@ namespace GeoAdServer.WebApi.Controllers
 
                 dynamic models = new ExpandoObject();
                 models.CategoriesMap = repos.Locations.GetCategories();
-                models.Location = repos.Locations.GetById(Id);
+                models.Location = repos.Locations.GetById(id);
 
                 return View(models);
             }
         }
 
-        public ActionResult EditOffer([Bind] OfferingDTO offer)
+        public ActionResult EditOffer(int id)
         {
             if (User.Identity.IsAdmin())
             {
                 return NewErrorView();
             }
 
-            ViewBag.Title = truncDesc(offer.Desc);
-            return View(offer);
+            using (var repos = DataRepos.Instance)
+            {
+                var offer = repos.Offerings.GetById(id);
+                ViewBag.Title = truncDesc(offer.Desc);
+                return View(offer);
+            }
         }
 
         private string truncDesc(string aDesc)

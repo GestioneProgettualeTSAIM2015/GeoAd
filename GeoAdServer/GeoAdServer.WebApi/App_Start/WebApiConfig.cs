@@ -30,10 +30,17 @@ namespace GeoAdServer.WebApi
             );
 
             config.Routes.MapHttpRoute(
-                name: "MapKey",
-                routeTemplate: "api/{controller}/{chp}",
-                defaults: new { controller = "locations" },
+                name: "GetAllWithPosition",
+                routeTemplate: "api/{controller}/{pos}",
+                defaults: new { controller = "positions" },
                 constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) }
+            );
+
+            config.Routes.MapHttpRoute(
+                name: "MapKey",
+                routeTemplate: "api/{controller}/{action}",
+                defaults: new { controller = "locations" },
+                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Post) }
             );
 
             config.Routes.MapHttpRoute(

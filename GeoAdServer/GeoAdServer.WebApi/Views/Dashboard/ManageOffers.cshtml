@@ -8,6 +8,9 @@
     <table class="table-bordered table-striped">
         <tr>
             <th class="text-center">
+                Nome
+            </th>
+            <th class="text-center">
                 Descrizione
             </th>
             <th class="text-center">
@@ -26,6 +29,9 @@
         @foreach (var item in Model)
         {
             <tr>
+                <td class="col-md-2">
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
                 <td class="col-md-2">
                     @Html.DisplayFor(modelItem => item.Desc)
                 </td>
@@ -46,10 +52,8 @@
                 </td>
                 <td class="col-md-1 text-center">
                     @Html.ActionLink(" ", "EditOffer", "Dashboard",
-                        new { Id = item.Id, Desc = item.Desc, 
-                            ExpDateMillis = item.ExpDateMillis, 
-                            LocationId = item.LocationId},
-                         new { @class = "glyphicon glyphicon-pencil", @style = "color:black; text-decoration:none;" })
+                        new { Id = item.Id },
+                        new { @class = "glyphicon glyphicon-pencil", @style = "color:black; text-decoration:none;" })
                 </td>
                 <td class="col-md-1 text-center">
                     <span class="glyphicon glyphicon-trash delete" data-id="@item.Id" style="cursor:pointer;"></span>
@@ -64,48 +68,49 @@ else
 }
 
 <hr />
-<div>
-    <div id="formNewOffer">
+<div id="formNewOffer">
 
-        <div class="form-group">
-            <div class="row">
-                <div class="col-md-2">
-                    <p class="control-label">Nome</p>
-                </div>
-                <div class="col-md-10">
-                    <input type="text" id="offName" />
-                </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2">
+                <p class="control-label">Nome</p>
             </div>
-            <br />
-            <div class="row">
-                <div class="col-md-2">
-                    <p class="control-label">Descrizione</p>
-                </div>
-                <div class="col-md-10">
-                    <textarea id="offDesc" style="width:100%; resize:none;" rows="6"></textarea>
-                </div>
+            <div class="col-md-10">
+                <input type="text" id="offName" />
             </div>
-            <br />
-            <div class="row">
-                <div class="col-md-2">
-                    <p class="control-label">Data Scadenza</p>
-                </div>
-                <div class="col-md-10">
-                    <input type="date" id="offExpDate" />
-                </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-md-2">
+                <p class="control-label">Descrizione</p>
             </div>
-            <br />
-            <div class="row">
-                <div class="col-md-offset-2 col-md-10">
-                    <button class="btn btn-default btn-sm" onclick="addOffer();">Inserisci offerta</button>
-                </div>
+            <div class="col-md-10">
+                <textarea id="offDesc" style="width:100%; resize:none;" rows="6"></textarea>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-md-2">
+                <p class="control-label">Data Scadenza</p>
+            </div>
+            <div class="col-md-10">
+                <input type="date" id="offExpDate" min="@(DateTime.Today.ToString("yyyy-MM-dd"))" />
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-md-offset-2 col-md-10">
+                <button class="btn btn-default btn-sm" onclick="addOffer();">Inserisci offerta</button>
             </div>
         </div>
     </div>
 </div>
 
 <hr />
-@Html.ActionLink("Le mie attività", "ManageLocations", "Dashboard")
+@Html.ActionLink("Le mie attività", "ManageLocations", "Dashboard", null, new
+{
+    @class = "btn btn-default"
+})
 
 @section scripts {
     <script type="text/javascript" src="~/Scripts/loginScript.js"></script>

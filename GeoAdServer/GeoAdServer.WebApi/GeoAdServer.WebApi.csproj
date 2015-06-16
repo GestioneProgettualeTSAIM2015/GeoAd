@@ -229,6 +229,7 @@
     <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\OfferingsController.cs" />
     <Compile Include="Controllers\PhotosController.cs" />
+    <Compile Include="Controllers\PositionsController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -375,6 +376,10 @@
     <ProjectReference Include="..\GeoAdServer.EventsHandling\GeoAdServer.EventsHandling.csproj">
       <Project>{96705535-97e5-4a9d-8126-47d78b8ec0be}</Project>
       <Name>GeoAdServer.EventsHandling</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GeoAdServer.GeneralUtilities\GeoAdServer.GeneralUtilities.csproj">
+      <Project>{6eb6a5b7-ea5c-430b-8aeb-1a28f75335b6}</Project>
+      <Name>GeoAdServer.GeneralUtilities</Name>
     </ProjectReference>
     <ProjectReference Include="..\GeoAdServer.Postgresql\GeoAdServer.Postgresql.csproj">
       <Project>{23d0be42-ea46-4f6f-9a45-bf743a8df3c7}</Project>

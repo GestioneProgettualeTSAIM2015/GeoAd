@@ -42,6 +42,9 @@ namespace GeoAdServer.WebApi.Controllers
                 if (!offering.LocationId.IsLocationOwner(RequestContext.GetUserId()))
                     return Request.CreateResponse(HttpStatusCode.Unauthorized);
 
+                if (offering.ExpDateMillis < (DateTime.Today).Millisecond)
+                    return Request.CreateResponse((HttpStatusCode)422, "Unprocessable Entity");
+
                 int id = repos.Offerings.Insert(offering);
 
                 //event
@@ -63,6 +66,9 @@ namespace GeoAdServer.WebApi.Controllers
         public HttpResponseMessage Put(int id, [FromBody]Offering offering)
         {
             if (offering == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
+
+            if (offering.ExpDateMillis < (DateTime.Today).Millisecond)
+                return Request.CreateResponse((HttpStatusCode)422, "Unprocessable Entity");
 
             using (var repos = DataRepos.Instance)
             {

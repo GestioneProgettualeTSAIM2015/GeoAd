@@ -1,43 +1,31 @@
 ﻿using GeoAdServer.DataAccess;
-using GeoAdServer.Domain.Contracts;
-using GeoAdServer.Domain.Entities;
 using GeoAdServer.Domain.Entities.DTOs;
-using GeoAdServer.Postgresql;
+using GeoAdServer.Domain.Entities.Events;
 using GeoAdServer.WebApi.Models;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using GeoAdServer.WebApi.Support;
-using GeoAdServer.Domain.Entities.Events;
 using GeoAdServer.WebApi.Services;
-using System.Globalization;
 
 namespace GeoAdServer.WebApi.Controllers
 {
     public class LocationsController : ApiController
     {
+        public IQueryable<LocationDTO> GetAll([FromUri]Position pos)
+        {
+            using (var repos = DataRepos.Instance)
+            {
+                return repos.Locations.GetAll().AsQueryable();
+            }
+        }
+
         public LocationDTO Get(int id)
         {
             using (var repos = DataRepos.Instance)
             {
                 return repos.Locations.GetById(id);
-            }
-        }
-
-        public IQueryable<LocationDTO> GetWithKey([FromUri]ChangedPosition chp)
-        {
-            EventService.Instance.HandleChangedPosition(chp);
-
-            using (var repos = DataRepos.Instance)
-            {
-                return repos.Locations.GetAll().Where(x =>
-                    double.Parse(x.Lat, CultureInfo.InvariantCulture) < double.Parse(chp.NWCoord.Lat, CultureInfo.InvariantCulture) &&
-                    double.Parse(x.Lat, CultureInfo.InvariantCulture) > double.Parse(chp.SECoord.Lat, CultureInfo.InvariantCulture) &&
-                    double.Parse(x.Lng, CultureInfo.InvariantCulture) < double.Parse(chp.SECoord.Lng, CultureInfo.InvariantCulture) &&
-                    double.Parse(x.Lng, CultureInfo.InvariantCulture) > double.Parse(chp.NWCoord.Lng, CultureInfo.InvariantCulture)).AsQueryable();
             }
         }
 
