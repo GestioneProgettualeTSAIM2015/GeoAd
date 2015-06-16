@@ -8,7 +8,8 @@ import it.itskennedy.tsaim.geoad.core.Engine;
 import it.itskennedy.tsaim.geoad.core.SettingsManager;
 import it.itskennedy.tsaim.geoad.fragment.ActivitiesFragment;
 import it.itskennedy.tsaim.geoad.fragment.AugmentedRealityFragment;
-import it.itskennedy.tsaim.geoad.fragment.LoginDialogFragment;
+import it.itskennedy.tsaim.geoad.fragment.dialog.FilterDialogFragment;
+import it.itskennedy.tsaim.geoad.fragment.dialog.LoginDialogFragment;
 import it.itskennedy.tsaim.geoad.fragment.PreferenceFragment;
 import it.itskennedy.tsaim.geoad.fragment.SearchListFragment;
 import it.itskennedy.tsaim.geoad.fragment.SearchMapFragment;
@@ -145,6 +146,9 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
         		}
             return true;
         	case R.id.action_filter: 
+        		FilterDialogFragment filter = new FilterDialogFragment();
+        		filter.setCancelable(false);
+        		filter.show(getFragmentManager(), "FilterDialog");
             return true;
         default:
             return super.onOptionsItemSelected(item);
