@@ -9,7 +9,7 @@ import it.itskennedy.tsaim.geoad.core.SettingsManager;
 import it.itskennedy.tsaim.geoad.fragment.ActivitiesFragment;
 import it.itskennedy.tsaim.geoad.fragment.AugmentedRealityFragment;
 import it.itskennedy.tsaim.geoad.fragment.LoginDialogFragment;
-import it.itskennedy.tsaim.geoad.fragment.PreferenceFragment;
+import it.itskennedy.tsaim.geoad.fragment.MarkedLocationFragment;
 import it.itskennedy.tsaim.geoad.fragment.SearchListFragment;
 import it.itskennedy.tsaim.geoad.fragment.SearchMapFragment;
 import it.itskennedy.tsaim.geoad.interfaces.IFragment;
@@ -219,7 +219,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 				vFragment = AugmentedRealityFragment.getInstance(bundle);
 				break;
 			case Utils.TYPE_PREFERENCE:
-				vFragment = PreferenceFragment.getInstance(bundle);
+				vFragment = MarkedLocationFragment.getInstance(bundle);
 				break;
 			case Utils.TYPE_ACTIVITIES:
 				if(isLogged)

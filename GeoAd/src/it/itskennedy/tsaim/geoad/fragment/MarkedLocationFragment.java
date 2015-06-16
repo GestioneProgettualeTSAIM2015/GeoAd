@@ -7,12 +7,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class PreferenceFragment extends Fragment
+public class MarkedLocationFragment extends Fragment
 {
 
-	public static PreferenceFragment getInstance(Bundle aBundle)
+	public static MarkedLocationFragment getInstance(Bundle aBundle)
 	{
-		PreferenceFragment vFragment = new PreferenceFragment();
+		MarkedLocationFragment vFragment = new MarkedLocationFragment();
 		if(aBundle != null)
 		{
 			vFragment.setArguments(aBundle);
