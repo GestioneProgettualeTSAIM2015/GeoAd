@@ -52,7 +52,23 @@ public class MyJsonHttpResponseHandler extends JsonHttpResponseHandler
     	mManager.executeQueue();
     }
     
+    @Override
     public void onFailure(int statusCode, Header[] headers,	String responseString, Throwable throwable)
+	{
+		if(mListener != null && statusCode == 200)
+		{
+			mListener.onResponse(true, null);
+		}
+		else if(mListener != null)
+		{
+			mListener.onResponse(false, null);
+		}
+		
+		mManager.executeQueue();
+	}
+
+	@Override
+	public void onFailure(int statusCode, Header[] headers,	Throwable throwable, JSONArray errorResponse) 
 	{
 		if(mListener != null && statusCode == 200)
 		{

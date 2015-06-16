@@ -2,6 +2,12 @@ package it.itskennedy.tsaim.geoad.core;
 
 import java.util.ArrayList;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 
 import com.loopj.android.http.AsyncHttpClient;
@@ -11,8 +17,7 @@ import com.loopj.android.http.RequestParams;
 /**
  * Created by Marco Zeni on 13/05/2015.
  */
-
-public class ConnectionManager
+public class ConnectionManager extends BroadcastReceiver
 {
     private static ConnectionManager mInstance;
     private static AsyncHttpClient mClient;
@@ -23,6 +28,7 @@ public class ConnectionManager
     private ArrayList<JsonResponse> mListeners;
 
     private boolean mIsPending = false;
+    private boolean mIsConnection = true;
 
     private enum HttpMethod { GET, POST, PUT, DELETE };
     
@@ -49,9 +55,22 @@ public class ConnectionManager
         mUrls = new ArrayList<String>();
         mRequests = new ArrayList<RequestParams>();
         mListeners = new ArrayList<JsonResponse>();
+        
+        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);        
+        Engine.get().registerReceiver(this, filter);
     }
-    
-    public void get(String aUrl, RequestParams vParams, JsonResponse jsonResponse)
+
+	private void updateConnectionState() 
+	{
+		ConnectivityManager connectivityManager = (ConnectivityManager) 
+        		Engine.get().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        mIsConnection = activeNetworkInfo != null && activeNetworkInfo.isConnected();
+        
+        Log.d(Engine.APP_NAME, "Connection State Change: " + mIsConnection);
+	}
+
+	public void get(String aUrl, RequestParams vParams, JsonResponse jsonResponse)
     {
     	send(HttpMethod.GET, aUrl, vParams, jsonResponse);
     }
@@ -73,54 +92,64 @@ public class ConnectionManager
 
     private void send(HttpMethod aType, String aUrl, RequestParams aParams, final JsonResponse aListener)
     {
-    	String vKey = Engine.get().getKey();
-    	setAuthHeader();
-    	
-    	if(vKey != null)
+    	if(mIsConnection)
     	{
-    		if(!mIsPending)
-            {	
-                mIsPending = true;
-                
-                if(aParams == null)
-                {
-                	aParams = new RequestParams();
-                }
-                
-                aParams.add("Key", vKey);
-
-                Log.d(Engine.APP_NAME, "URL: " + Engine.SERVER_URL + aUrl);
-
-                JsonHttpResponseHandler vResponseHandler = new MyJsonHttpResponseHandler(aListener, this);
-                
-                switch(aType)
-                {
-					case DELETE:
-					{
-						mClient.delete(Engine.SERVER_URL + aUrl, vResponseHandler);
-						break;
-					}
-					case GET:
-					{
-						mClient.get(Engine.SERVER_URL + aUrl, aParams, vResponseHandler);
-						break;
-					}
-					case POST:
-					{
-						mClient.post(Engine.SERVER_URL + aUrl, aParams, vResponseHandler);
-						break;
-					}
-					case PUT:
-					{
-						mClient.put(Engine.SERVER_URL + aUrl, aParams, vResponseHandler);
-						break;
-					}
-                }
-            }
-            else
-            {
-                enqueue(aType, aUrl, aParams, aListener);
-            }
+	    	String vKey = Engine.get().getKey();
+	    	setAuthHeader();
+	    	
+	    	if(vKey != null)
+	    	{
+	    		if(!mIsPending)
+	            {	
+	                mIsPending = true;
+	                
+	                if(aParams == null)
+	                {
+	                	aParams = new RequestParams();
+	                }
+	                
+	                aParams.add("key", vKey);
+	
+	                Log.d(Engine.APP_NAME, "URL: " + Engine.SERVER_URL + aUrl);
+	
+	                JsonHttpResponseHandler vResponseHandler = new MyJsonHttpResponseHandler(aListener, this);
+	                      
+	                switch(aType)
+	                {
+						case DELETE:
+						{
+							mClient.delete(Engine.SERVER_URL + aUrl, vResponseHandler);
+							break;
+						}
+						case GET:
+						{
+							mClient.get(Engine.SERVER_URL + aUrl, aParams, vResponseHandler);
+							break;
+						}
+						case POST:
+						{
+							mClient.post(Engine.SERVER_URL + aUrl, aParams, vResponseHandler);
+							break;
+						}
+						case PUT:
+						{
+							mClient.put(Engine.SERVER_URL + aUrl, aParams, vResponseHandler);
+							break;
+						}
+	                }
+	            }
+	            else
+	            {
+	                enqueue(aType, aUrl, aParams, aListener);
+	            }
+	    	}
+	    	else
+	    	{
+	    		if(aListener != null)
+	    		{
+	    			aListener.onResponse(false, null);
+	    		}
+	    	}
     	}
     }
 
@@ -156,4 +185,10 @@ public class ConnectionManager
         mRequests.add(aParams);
         mListeners.add(aListener);
     }
+
+	@Override
+	public void onReceive(Context context, Intent intent)
+	{
+		updateConnectionState();
+	}
 }

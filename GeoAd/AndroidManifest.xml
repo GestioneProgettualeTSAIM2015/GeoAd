@@ -31,8 +31,22 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+        
         <service android:name=".services.GeoAdService" />
 
+        <service android:name=".widgets.RemoteViewWidgetService"
+             android:permission="android.permission.BIND_REMOTEVIEWS" />
+        
+        <receiver android:name=".widgets.WidgetProvider" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget" />
+        </receiver>
+        
         <receiver
             android:name=".push.PushReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
@@ -81,7 +95,7 @@
         <provider
             android:name=".localdb.DataOffersContentProvider"
             android:authorities="it.itskennedy.tsaim.geoad.localdb.dataofferscontentprovider"
-            android:exported="false">
+            android:exported="true">
         </provider>
     </application>
 

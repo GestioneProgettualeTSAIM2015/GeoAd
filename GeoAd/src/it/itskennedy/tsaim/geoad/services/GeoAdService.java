@@ -1,61 +1,79 @@
 package it.itskennedy.tsaim.geoad.services;
 
+import it.itskennedy.tsaim.geoad.R;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager;
+import it.itskennedy.tsaim.geoad.core.Engine;
+import it.itskennedy.tsaim.geoad.core.ConnectionManager.JsonResponse;
 import it.itskennedy.tsaim.geoad.core.LocationManager;
 import it.itskennedy.tsaim.geoad.core.LocationManager.LocationListener;
 import it.itskennedy.tsaim.geoad.core.NotificationManager;
 import it.itskennedy.tsaim.geoad.entity.LocationModel;
 import it.itskennedy.tsaim.geoad.entity.Offer;
+import it.itskennedy.tsaim.geoad.localdb.DataOffersContentProvider;
+import it.itskennedy.tsaim.geoad.localdb.OffersHelper;
+import it.itskennedy.tsaim.geoad.widgets.WidgetProvider;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 
+import android.app.Notification;
 import android.app.Service;
+import android.appwidget.AppWidgetManager;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.HandlerThread;
 import android.os.IBinder;
-import android.os.Process;
+import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import com.loopj.android.http.RequestParams;
 
 public class GeoAdService extends Service implements LocationListener
 {
-	public static final String OFFER_ACTION = "offer_action";
-	public static final String OFFER_DATA = "offer_data";
-	public static final String NEAR_ACTION = "near_action";
-	public static final String NEAR_DATA = "near_data";
-	public static final String ASK_NEAR = "ask_near";
+	public static final String NEW_OFFER = "new_offer_action";
+	public static final String DELETE_OFFER = "delete_offer";
+	
+	public static final String NEW_LOCATION = "new_location_action";
+	public static final String DELETE_LOCATION = "delete_location";
+	
+	public static final String DATA = "new_data";
+	public static final String DELETE_ID = "delete_id";
 	
 	public static final String NAME = "GeoAd Service";
 
 	private static final int EARTH_RADIUS = 6371;
-	private static final double LAT_SPLIT = 0.006;
+	private static final double LAT_SPLIT = 0.007;
 	private static final float SPEED_THRESHOLD = 5; //m/s
-	private static final int DISTANCE_THRESHOLD = 0; //ONLY FOR TEST
+	private static final int DISTANCE_THRESHOLD = 0; //0 ONLY FOR TEST
 	private double LNG_SPLIT;
-
+	
+	private static final int NOTIFICATION = 12345;
+	
 	private Location mPosition;
 	private List<LocationModel> mNearLocations;
-	private String mNearString;
-	private Queue<Offer> mPendingOffer;
 
+	public interface GetLocationListener
+	{
+		public void onLoad(LocationModel aLocation);
+	}
+	
 	@Override
 	public void onCreate() 
 	{
-		HandlerThread thread = new HandlerThread(NAME, Process.THREAD_PRIORITY_BACKGROUND);
-	  	thread.start();
-	  
 	  	LocationManager.get(this).addListener(this);
-
-	  	mPendingOffer = new LinkedList<Offer>();
+	  	
+	  	Log.w(Engine.APP_NAME, "Service Created!");
+	  	
+	  	startForeground(NOTIFICATION, getNotify());
+	  	
 		mNearLocations = new ArrayList<LocationModel>();
-
 	}
 	
 	@Override
@@ -67,67 +85,108 @@ public class GeoAdService extends Service implements LocationListener
 			
 			if(vAction != null)
 			{
-				if(vAction.equals(OFFER_ACTION))
+				if(vAction.equals(NEW_OFFER))
 				{
 					Bundle vExtra = intent.getExtras();
-
 					if(!vExtra.isEmpty())
 					{
-						String vJson = intent.getExtras().getString(OFFER_DATA);
-						Offer vOffer = Offer.fromJSON(vJson);
-
-						manageOffer(vOffer, true);
+						String vJson = intent.getExtras().getString(DATA);
+						manageOffer(Offer.fromJSON(vJson));
 					}
 				}
-				else if(vAction.equals(ASK_NEAR))
+				else if(vAction.equals(DELETE_OFFER))
 				{
-					broadcastNearLocation();
+					int vToRemove = intent.getIntExtra(DELETE_ID, 0);
+					getContentResolver().delete(DataOffersContentProvider.OFFERS_URI, OffersHelper.OFF_ID + " = " + vToRemove, null);
+					sendWidgetBroadcast();
+				}
+				else if(vAction.equals(NEW_LOCATION))
+				{
+					Bundle vExtra = intent.getExtras();
+					if(!vExtra.isEmpty())
+					{
+						String vJson = intent.getExtras().getString(DATA);
+						addOrReplace(LocationModel.fromJSON(vJson));
+					}
+				}
+				else if(vAction.equals(DELETE_LOCATION))
+				{
+					int vToRemove = intent.getIntExtra(DELETE_ID, 0);
+					getContentResolver().delete(DataOffersContentProvider.OFFERS_URI, OffersHelper.LOCATION_ID + " = " + vToRemove, null);
+					removeIfExist(vToRemove);
+					sendWidgetBroadcast();
 				}
 			}
 		}
 		
 	    return START_STICKY;
 	}
-
-	private void manageOffer(Offer vOffer, boolean aCanEnqueue)
+	
+	private Notification getNotify()
 	{
-		LocationModel vSearch = findLocation(vOffer.getLocationId());
+		NotificationCompat.Builder vBuilder =
+				new NotificationCompat.Builder(this)
+				.setSmallIcon(R.drawable.ic_launcher)
+				.setContentTitle("GeoAd Service")
+				.setContentText("Running...")
+				.setOngoing(true);
 		
-		if(vSearch != null)
+		if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT)
 		{
-			NotificationManager.showOffer(GeoAdService.this, vOffer, vSearch);
-			//TODO cadorin
-			//getContentResolver().insert(URI, vOffer.getContentValues());
+			vBuilder.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher));
 		}
-		else
+		
+		return vBuilder.build();
+	}
+	
+	private void addOrReplace(LocationModel aLocation)
+	{
+		for(int i = 0; i < mNearLocations.size(); ++i)
 		{
-			if(aCanEnqueue)
+			if(mNearLocations.get(i).getId() == aLocation.getId())
 			{
-				enqueueOffer(vOffer);
+				mNearLocations.add(i, aLocation);
+				return;
+			}
+		}
+		
+		mNearLocations.add(aLocation);
+	}
+	
+	private void removeIfExist(int aId)
+	{
+		for(int i = 0; i < mNearLocations.size(); ++i)
+		{
+			if(mNearLocations.get(i).getId() == aId)
+			{
+				mNearLocations.remove(i);
+				return;
 			}
 		}
 	}
-	
-	private void enqueueOffer(Offer aOffer)
+
+	private void manageOffer(Offer vOffer)
 	{
-		mPendingOffer.add(aOffer);
-	}
-	
-	private void manageOfferIfExist()
-	{
-		if(mPendingOffer.size() > 0)
+		Cursor vCur = getContentResolver().query(DataOffersContentProvider.OFFERS_URI, null, OffersHelper.OFF_ID + " = " + vOffer.getId(), null, null);
+		
+		if(vCur.getCount() == 0)
 		{
-			while(!mPendingOffer.isEmpty())
-			{
-				manageOffer(mPendingOffer.remove(), false);
-			}	
+			getContentResolver().insert(DataOffersContentProvider.OFFERS_URI, vOffer.getContentValues());
+			NotificationManager.showOffer(GeoAdService.this, vOffer);
 		}
+		else
+		{
+			getContentResolver().update(DataOffersContentProvider.OFFERS_URI, vOffer.getContentValues(), OffersHelper.OFF_ID + " = " + vOffer.getId(), null);
+		}
+		
+		vCur.close();
+		sendWidgetBroadcast();		
 	}
 	
 	@Override
 	public IBinder onBind(Intent intent) 
 	{
-	    return null;
+	    return new GeoAdBinder();
 	}
 
 	@Override
@@ -150,30 +209,18 @@ public class GeoAdService extends Service implements LocationListener
 			if(vResult[0] > DISTANCE_THRESHOLD)
 			{
 				mPosition = aLocation;
-				updateServer(aLocation);	
+				updateFromServer();	
 			}
 		}
 		else
 		{
 			updateLngSplit(aLocation);
 			mPosition = aLocation;
+			updateFromServer();
 		}
 	}
 
-	private LocationModel findLocation(int aLocationId)
-	{
-		for(int i = 0; i < mNearLocations.size(); ++i)
-		{
-			if(mNearLocations.get(i).getId() == aLocationId)
-			{
-				return mNearLocations.get(i);
-			}
-		}
-
-		return null;
-	}
-
-	private void  updateLngSplit(Location aLocation)
+	private void updateLngSplit(Location aLocation)
 	{
 		double vParallelRadius = Math.cos(Math.toRadians(aLocation.getLatitude())) * EARTH_RADIUS;
 		double vParallelLength = vParallelRadius * 2 * Math.PI;
@@ -182,9 +229,9 @@ public class GeoAdService extends Service implements LocationListener
 		LNG_SPLIT = 360 * vMeter / vParallelLength;
 	}
 
-	private void updateServer(Location aLocation)
+	private void updateFromServer()
 	{
-		float vSpeed = aLocation.getSpeed();
+		float vSpeed = mPosition.getSpeed();
 
 		RequestParams vParams = new RequestParams();
 
@@ -196,34 +243,81 @@ public class GeoAdService extends Service implements LocationListener
 			vLng = LNG_SPLIT * 2;
 		}
 
-		vParams.add("north_lat", (aLocation.getLatitude() + vLat) + "");
-		vParams.add("west_lng", (aLocation.getLongitude() + vLng) + "");
-		vParams.add("south_lat", (aLocation.getLatitude() - vLat) + "");
-		vParams.add("east_lng", (aLocation.getLongitude() - vLng) + "");
+		vParams.add("nwcoord.lat", (mPosition.getLatitude() + vLat) + "");
+		vParams.add("nwcoord.lng", (mPosition.getLongitude() - vLng) + "");
+		vParams.add("secoord.lat", (mPosition.getLatitude() - vLat) + "");
+		vParams.add("secoord.lng", (mPosition.getLongitude() + vLng) + "");
 
-		ConnectionManager.obtain().get("api/Locations", vParams, new ConnectionManager.JsonResponse()
+		ConnectionManager.obtain().post("api/positions", vParams, new ConnectionManager.JsonResponse()
 		{
 			@Override
 			public void onResponse(boolean aResult, Object aResponse)
 			{
-				if(aResult && aResponse != null && aResponse instanceof JSONArray)
+				if(aResult && aResponse != null && aResponse instanceof JSONObject)
 				{
-					mNearLocations = LocationModel.getListFromJsonArray((JSONArray)aResponse);
-					mNearString = aResponse.toString();
+					JSONArray vLocations = ((JSONObject)aResponse).optJSONArray("Locations");
+					JSONArray vOffers = ((JSONObject)aResponse).optJSONArray("Offerings");
 					
-					broadcastNearLocation();
+					mNearLocations = LocationModel.getListFromJsonArray(vLocations);
 					
-					manageOfferIfExist();	
+					List<Offer> vOffersList = Offer.getListFromJsonArray(vOffers);
+					for(int i = 0; i < vOffersList.size(); ++i)
+					{
+						manageOffer(vOffersList.get(i));
+					}
+				}
+			}
+		});
+	}
+
+	public List<LocationModel> getNears() 
+	{
+		return mNearLocations;
+	}
+	
+	public void getLocationById(long aId, final GetLocationListener aListener)
+	{
+		for(int i = 0; i < mNearLocations.size(); ++i)
+		{
+			if(mNearLocations.get(i).getId() == aId)
+			{
+				if(aListener != null)
+				{
+					aListener.onLoad(mNearLocations.get(i));
+					return;
+				}
+			}
+		}
+		
+		RequestParams vParams = new RequestParams();
+		vParams.put("id", aId);
+		
+		ConnectionManager.obtain().get("api/locations", vParams, new JsonResponse()
+		{	
+			@Override
+			public void onResponse(boolean aResult, Object aResponse)
+			{
+				if(aListener != null && aResult && aResponse != null && aResponse instanceof JSONObject)
+				{
+					aListener.onLoad(LocationModel.fromJSON((JSONObject)aResponse));	
+					return;
 				}
 			}
 		});
 	}
 	
-	private void broadcastNearLocation() 
+	public class GeoAdBinder extends Binder
 	{
-		Intent vDispatchNear = new Intent();
-		vDispatchNear.setAction(GeoAdService.NEAR_ACTION);
-		vDispatchNear.putExtra(GeoAdService.NEAR_DATA, mNearString);
-		sendBroadcast(vDispatchNear);
+		public GeoAdService getService()
+		{
+			return GeoAdService.this;
+		}
+	}
+	
+	public void sendWidgetBroadcast()
+	{
+		Intent vIntent = new Intent(this, WidgetProvider.class);
+		vIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+		sendBroadcast(vIntent);
 	}
 }
