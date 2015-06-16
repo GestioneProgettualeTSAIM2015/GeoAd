@@ -6,7 +6,7 @@
     android:padding="16dp">
 
     <TextView
-        android:id="@+id/textView1"
+        android:id="@+id/textViewGroupRowTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Email"

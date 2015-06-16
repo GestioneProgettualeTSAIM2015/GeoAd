@@ -19,5 +19,11 @@
     <string name="widget_title">Offerte GeoAd</string>
     <string name="widget_button">Gestisci le tue attività</string>
     <string name="widget_no_offer">Non sono presenti offerte</string>
+    
+    <string name="favourite">Luoghi preferiti</string>
+    <string name="ignored">Luoghi ignorati</string>
+    
+    <string name="remove_marked_fav">Rimuovere il luogo dai preferiti?</string>
+    <string name="remove_marked_ign">Rimuovere il luogo dagli ignorati?</string>
 
 </resources>
