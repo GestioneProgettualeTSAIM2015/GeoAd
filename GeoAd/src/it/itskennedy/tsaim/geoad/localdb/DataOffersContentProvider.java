@@ -86,11 +86,11 @@ public class DataOffersContentProvider extends ContentProvider {
         switch (uriMatcher.match(uri)) {
             case FULL_OFFERS_TABLE:
                 result = db.insert(OffersHelper.TABLE_NAME, null, values);
-                getContext().getContentResolver().notifyChange(uri, null);
+                Log.d(Engine.APP_NAME, "ROW INSERTED ID: " + result);
+                getContext().getContentResolver().notifyChange(OFFERS_URI, null);
                 return Uri.parse(OFFERS_URI.toString() + "/" + result);
         }
-        
-        Log.d(Engine.APP_NAME, "ROW INSERTED ID: " + result);
+
         return null;
     }
 
@@ -136,16 +136,19 @@ public class DataOffersContentProvider extends ContentProvider {
 	@Override
 	public Bundle call(String method, String arg, Bundle extras)
 	{
-		int vDeleteLine = 0;
-		
-		long vExpTime = new Date().getTime() - 24 * 3600000;
-		
-		SQLiteDatabase vDb = dbHelper.getWritableDatabase();
-		vDeleteLine = vDb.delete(OffersHelper.TABLE_NAME, OffersHelper.EXP_DATE + " < " + String.valueOf(vExpTime), null);
-		
-		if(vDeleteLine > 0)
+		if(method.equals(DELETE_EXPIRED))
 		{
-			getContext().getContentResolver().notifyChange(OFFERS_URI, null);
+			int vDeleteLine = 0;
+			
+			long vExpTime = new Date().getTime() - 24 * 3600000;
+			
+			SQLiteDatabase vDb = dbHelper.getWritableDatabase();
+			vDeleteLine = vDb.delete(OffersHelper.TABLE_NAME, OffersHelper.EXP_DATE + " < " + String.valueOf(vExpTime), null);
+			
+			if(vDeleteLine > 0)
+			{
+				getContext().getContentResolver().notifyChange(OFFERS_URI, null);
+			}
 		}
 		
 		return null;

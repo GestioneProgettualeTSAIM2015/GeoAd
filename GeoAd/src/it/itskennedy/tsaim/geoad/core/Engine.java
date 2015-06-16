@@ -1,19 +1,19 @@
 package it.itskennedy.tsaim.geoad.core;
 
-import android.app.Application;
-import android.content.Intent;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import it.itskennedy.tsaim.geoad.R;
+import it.itskennedy.tsaim.geoad.push.PushSignIn;
+import it.itskennedy.tsaim.geoad.push.PushSignIn.PushKeyReceiver;
+import it.itskennedy.tsaim.geoad.services.GeoAdService;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import it.itskennedy.tsaim.geoad.R;
-import it.itskennedy.tsaim.geoad.push.PushSignIn;
-import it.itskennedy.tsaim.geoad.push.PushSignIn.PushKeyReceiver;
-import it.itskennedy.tsaim.geoad.services.GeoAdService;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.app.Application;
+import android.content.Intent;
 
 /**
  * Created by Marco Zeni on 13/05/2015.
@@ -43,6 +43,7 @@ public class Engine extends Application implements PushKeyReceiver
         new PushSignIn(this, this);
 
         mInstance = this;
+        
     }
 
     public static Engine get()

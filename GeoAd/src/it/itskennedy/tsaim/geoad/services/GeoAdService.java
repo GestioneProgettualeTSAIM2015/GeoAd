@@ -165,7 +165,7 @@ public class GeoAdService extends Service implements LocationListener
 		}
 	}
 
-	private void manageOffer(final Offer vOffer)
+	private void manageOffer(Offer vOffer)
 	{
 		Cursor vCur = getContentResolver().query(DataOffersContentProvider.OFFERS_URI, null, OffersHelper.OFF_ID + " = " + vOffer.getId(), null, null);
 		
@@ -179,6 +179,7 @@ public class GeoAdService extends Service implements LocationListener
 			getContentResolver().update(DataOffersContentProvider.OFFERS_URI, vOffer.getContentValues(), OffersHelper.OFF_ID + " = " + vOffer.getId(), null);
 		}
 		
+		vCur.close();
 		sendWidgetBroadcast();		
 	}
 	
@@ -208,14 +209,14 @@ public class GeoAdService extends Service implements LocationListener
 			if(vResult[0] > DISTANCE_THRESHOLD)
 			{
 				mPosition = aLocation;
-				updateServer();	
+				updateFromServer();	
 			}
 		}
 		else
 		{
 			updateLngSplit(aLocation);
 			mPosition = aLocation;
-			updateServer();
+			updateFromServer();
 		}
 	}
 
@@ -228,7 +229,7 @@ public class GeoAdService extends Service implements LocationListener
 		LNG_SPLIT = 360 * vMeter / vParallelLength;
 	}
 
-	private void updateServer()
+	private void updateFromServer()
 	{
 		float vSpeed = mPosition.getSpeed();
 
@@ -247,14 +248,23 @@ public class GeoAdService extends Service implements LocationListener
 		vParams.add("secoord.lat", (mPosition.getLatitude() - vLat) + "");
 		vParams.add("secoord.lng", (mPosition.getLongitude() + vLng) + "");
 
-		ConnectionManager.obtain().get("api/locations", vParams, new ConnectionManager.JsonResponse()
+		ConnectionManager.obtain().post("api/positions", vParams, new ConnectionManager.JsonResponse()
 		{
 			@Override
 			public void onResponse(boolean aResult, Object aResponse)
 			{
-				if(aResult && aResponse != null && aResponse instanceof JSONArray)
+				if(aResult && aResponse != null && aResponse instanceof JSONObject)
 				{
-					mNearLocations = LocationModel.getListFromJsonArray((JSONArray)aResponse);
+					JSONArray vLocations = ((JSONObject)aResponse).optJSONArray("Locations");
+					JSONArray vOffers = ((JSONObject)aResponse).optJSONArray("Offerings");
+					
+					mNearLocations = LocationModel.getListFromJsonArray(vLocations);
+					
+					List<Offer> vOffersList = Offer.getListFromJsonArray(vOffers);
+					for(int i = 0; i < vOffersList.size(); ++i)
+					{
+						manageOffer(vOffersList.get(i));
+					}
 				}
 			}
 		});

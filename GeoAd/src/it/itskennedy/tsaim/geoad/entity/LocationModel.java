@@ -73,23 +73,26 @@ public class LocationModel
     {
         List<LocationModel> vResult = new ArrayList<LocationModel>();
 
-        for(int i = 0; i < aServerData.length(); ++i)
+        if(aServerData != null)
         {
-        	LocationModel vToAdd = null;
-        	
-        	try
-        	{
-        		vToAdd = fromJSON(aServerData.getString(i));
-        	}
-	        catch (JSONException e)
-	        {
-	            Log.e(Engine.APP_NAME, "Json Decode Error");
-	        }
-        	
-            if(vToAdd != null)
+        	for(int i = 0; i < aServerData.length(); ++i)
             {
-            	vResult.add(vToAdd);
-            }  
+            	LocationModel vToAdd = null;
+            	
+            	try
+            	{
+            		vToAdd = fromJSON(aServerData.getString(i));
+            	}
+    	        catch (JSONException e)
+    	        {
+    	            Log.e(Engine.APP_NAME, "Json Decode Error");
+    	        }
+            	
+                if(vToAdd != null)
+                {
+                	vResult.add(vToAdd);
+                }  
+            }
         }
 
         return vResult;

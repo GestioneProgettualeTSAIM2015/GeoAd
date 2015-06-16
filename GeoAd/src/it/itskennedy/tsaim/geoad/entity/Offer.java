@@ -2,12 +2,15 @@ package it.itskennedy.tsaim.geoad.entity;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import android.content.ContentValues;
 import android.os.Bundle;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -143,5 +146,34 @@ public class Offer
 		vCalendar.setTimeInMillis(mExpDate);
 
 		return vFormatter.format(vCalendar.getTime()); 
+	}
+
+	public static List<Offer> getListFromJsonArray(JSONArray aServerData)
+	{
+		List<Offer> vResult = new ArrayList<Offer>();
+
+        if(aServerData != null)
+        {
+        	for(int i = 0; i < aServerData.length(); ++i)
+            {
+        		Offer vToAdd = null;
+            	
+            	try
+            	{
+            		vToAdd = fromJSON(aServerData.getString(i));
+            	}
+    	        catch (JSONException e)
+    	        {
+    	            Log.e(Engine.APP_NAME, "Json Decode Error");
+    	        }
+            	
+                if(vToAdd != null)
+                {
+                	vResult.add(vToAdd);
+                }  
+            }
+        }
+
+        return vResult;
 	}
 }
