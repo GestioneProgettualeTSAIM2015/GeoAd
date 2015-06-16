@@ -182,6 +182,8 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 		mBeyondarFragment.setMaxDistanceToRender(10000);
 		mBeyondarFragment.setPullCloserDistance(60);
 		mBeyondarFragment.setPushAwayDistance(10);
+		
+		mBeyondarFragment.setRetainInstance(true);
 
 		// add the plugin
 		mWorld.addPlugin(mRadarPlugin);
@@ -303,7 +305,6 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 	public boolean isNearCenter(Point3 p) {
 		return Math.abs(p.x - cameraWidth / 2) < cameraWidth * horizontalAreaPercent 
 				&& Math.abs(p.y - cameraHeight / 2) < cameraHeight * verticalAreaPercent;
-
 	}
 	
 	public boolean isPanelLocked(BeyondarObject bo) {
