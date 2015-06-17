@@ -18,7 +18,7 @@ else
         </span>
 
         <span class="form-group">
-            <textarea id="locDesc" class="form-control" style="resize:none;" rows="6" placeholder="Descrizione"></textarea>
+            <textarea id="locDesc" class="form-control" style="resize:none;" rows="6" placeholder="Descrizione" maxlength="@(System.Configuration.ConfigurationManager.AppSettings["maxLocationDescriptionLength"])"></textarea>
         </span>
 
         <span class="form-group">

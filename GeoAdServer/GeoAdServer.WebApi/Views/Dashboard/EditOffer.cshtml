@@ -19,7 +19,7 @@
                 <p class="control-label">Descrizione</p>
             </div>
             <div class="col-md-10">
-                <textarea id="offDesc" style="width:100%; resize:none;" rows="6">@Model.Desc</textarea>
+                <textarea id="offDesc" style="width:100%; resize:none;" rows="6" maxlength="@(System.Configuration.ConfigurationManager.AppSettings["maxOfferingDescriptionLength"])">@Model.Desc</textarea>
             </div>
         </div>
         <br />

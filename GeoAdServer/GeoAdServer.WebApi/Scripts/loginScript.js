@@ -2,6 +2,11 @@
 
 $(function () {
 
+    var errorAlert = $("#errorAlert");
+
+    var loadingRegis = $("#loadingRegis");
+    var loadingLogin = $("#loadingLogin");
+
     var loginDiv = $("#loginDiv");
     var dataDiv = $("#dataDiv");
 
@@ -11,6 +16,11 @@ $(function () {
 
     regisForm.submit(function (event) {
         event.preventDefault();
+
+        regisForm.find("input").prop("disabled", true);
+        loginForm.find("input").prop("disabled", true);
+        errorAlert.hide();
+        loadingRegis.css('visibility', 'visible');
 
         user = regisForm.find("#user").val();
         pass = regisForm.find("#pass").val();
@@ -28,6 +38,11 @@ $(function () {
 
     loginForm.submit(function (event) {
         event.preventDefault();
+
+        regisForm.find("input").prop("disabled", true);
+        loginForm.find("input").prop("disabled", true);
+        errorAlert.hide();
+        loadingLogin.css('visibility', 'visible');
 
         user = loginForm.find("#user").val();
         var token = sessionStorage.getItem(headToken + user);
@@ -49,7 +64,11 @@ $(function () {
                 login();
             },
             error: function (xhr) {
+                loadingRegis.css('visibility', 'hidden');
                 console.log("Errore nella registrazione: " + xhr.responseText);
+                errorAlert.text("Error:\n" + xhr.responseText).fadeIn();
+                regisForm.find("input").prop("disabled", false);
+                loginForm.find("input").prop("disabled", false);
             }
         });
     }
@@ -68,7 +87,11 @@ $(function () {
                 window.location.replace("/Dashboard/Home");
             },
             error: function (xhr) {
+                loadingLogin.css('visibility', 'hidden');
                 console.log("Errore nel login: " + xhr.responseText);
+                errorAlert.text("Error:\n" + xhr.responseText).fadeIn();
+                regisForm.find("input").prop("disabled", false);
+                loginForm.find("input").prop("disabled", false);
             }
         });
     }
@@ -88,33 +111,6 @@ $(function () {
         loginDiv.find("fieldset").attr("disabled", true);
         dataDiv.find("fieldset").attr("disabled", false);
     }
-
-    function logOutAccount() {
-        accountToken = undefined;
-        loginDiv.find("fieldset").attr("disabled", false);
-        dataDiv.find("fieldset").attr("disabled", true);
-    }
-
-    $("#btnValues").on("click", function () {
-        $.ajax({
-            url: '/api/locations',
-            type: 'GET',
-            headers: {
-                'Authorization': 'Bearer ' + accountToken
-            },
-            success: function (data) {
-                $("#display").text(data);
-            },
-            error: function (xhr) {
-                console.log("Errore nel recupero dei dati: " + xhr.responseText);
-            }
-        });
-    });
-
-    $("#btnLogout").on("click", function () {
-        $("#display").text("");
-        logOutAccount();
-    });
 });
 
 function getToken() {

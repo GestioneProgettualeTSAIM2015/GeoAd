@@ -8,16 +8,34 @@ using System.Net.Http;
 using System.Web.Http;
 using GeoAdServer.WebApi.Support;
 using GeoAdServer.WebApi.Services;
+using System.Configuration;
+using System.Globalization;
 
 namespace GeoAdServer.WebApi.Controllers
 {
     public class LocationsController : ApiController
     {
-        public IQueryable<LocationDTO> GetAll([FromUri]Position pos)
+        private readonly static int MAX_LOCATION_DESCRIPTION_LENGTH;
+        private readonly static double MAX_LOCATIONS_SEARCH_R, MIN_LOCATIONS_SEARCH_R;
+
+        static LocationsController()
         {
+            MAX_LOCATION_DESCRIPTION_LENGTH = int.Parse(ConfigurationManager.AppSettings["maxLocationDescriptionLength"]);
+            MAX_LOCATIONS_SEARCH_R = double.Parse(ConfigurationManager.AppSettings["maxLocationsSearchR"], CultureInfo.InvariantCulture);
+            MIN_LOCATIONS_SEARCH_R = double.Parse(ConfigurationManager.AppSettings["minLocationsSearchR"], CultureInfo.InvariantCulture);
+        }
+
+        public IQueryable<LocationDTO> GetAll([FromUri]SearchPosition pos)
+        {
+            if (pos.R > MAX_LOCATIONS_SEARCH_R) pos.R = MAX_LOCATIONS_SEARCH_R;
+            else if (pos.R < MIN_LOCATIONS_SEARCH_R || pos.R % 2 != 0) pos.R = MIN_LOCATIONS_SEARCH_R;
+
             using (var repos = DataRepos.Instance)
             {
-                return repos.Locations.GetAll().AsQueryable();
+                return repos.Locations.GetAllAround(
+                    double.Parse(pos.P.Lat, CultureInfo.InvariantCulture),
+                    double.Parse(pos.P.Lng, CultureInfo.InvariantCulture),
+                    pos.R).AsQueryable();
             }
         }
 
@@ -48,6 +66,7 @@ namespace GeoAdServer.WebApi.Controllers
 
                 if (location == null) return Request.CreateResponse((HttpStatusCode)422, "Unprocessable Entity");
 
+                location.Desc = location.Desc.Substring(0, MAX_LOCATION_DESCRIPTION_LENGTH);
                 int id = repos.Locations.Insert(location);
 
                 //event
@@ -75,6 +94,7 @@ namespace GeoAdServer.WebApi.Controllers
 
                 if (location == null) return Request.CreateResponse((HttpStatusCode)422, "Unprocessable Entity");
 
+                location.Desc = location.Desc.Substring(0, MAX_LOCATION_DESCRIPTION_LENGTH);
                 var result = repos.Locations.Update(id, location);
 
                 if (result)

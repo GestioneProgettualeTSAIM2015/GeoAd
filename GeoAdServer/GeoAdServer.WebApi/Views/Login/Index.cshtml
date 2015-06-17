@@ -13,6 +13,14 @@
                 <input type="submit" value="Register" class="btn btn-default" id="regis" />
             </fieldset>
         </form>
+        <span class="wploading" id="loadingRegis" style="visibility: hidden">
+            <span class="l-1"></span>
+            <span class="l-2"></span>
+            <span class="l-3"></span>
+            <span class="l-4"></span>
+            <span class="l-5"></span>
+            <span class="l-6"></span>
+        </span>
     </div>
     <div class="col-md-6">
         <form action="#" method="POST" id="loginForm">
@@ -23,39 +31,17 @@
                 <input type="submit" value="Login" class="btn btn-primary" />
             </fieldset>
         </form>
+        <span class="wploading" id="loadingLogin" style="visibility: hidden">
+            <span class="l-1"></span>
+            <span class="l-2"></span>
+            <span class="l-3"></span>
+            <span class="l-4"></span>
+            <span class="l-5"></span>
+            <span class="l-6"></span>
+        </span>
     </div>
+    <span class="alert alert-danger" role="alert" id="errorAlert" style="display: none">Errore:</span>
 </div>
-<hr />
-<div class="row" id="dataDiv">
-    <fieldset disabled>
-        <div class="col-md-3">
-            <input type="button" value="Get Values" id="btnValues" class="btn btn-default btn-lg" />
-            <br /><br />
-            <input type="button" value="Logout" id="btnLogout" class="btn btn-primary" />
-        </div>
-        <div class="col-md-9">
-            <div id="display"></div>
-        </div>
-    </fieldset>
-</div>
-
-<div class="modal fade">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title">Modal title</h4>
-            </div>
-            <div class="modal-body">
-                <p>One fine body&hellip;</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
-            </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
 
 @section scripts {
     <script src="~/Scripts/loginScript.js"></script>

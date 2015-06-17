@@ -5,6 +5,7 @@ using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -94,8 +95,39 @@ namespace GeoAdServer.Postgresql
 
                 int? sCatId = dr.Field<int?>("SCatId");
 
-                pCat = CategoriesDataTable.Rows.Find(dr.Field<int>("PCatId")).Field<string>("Name");
-                if (sCatId.HasValue) sCat = CategoriesDataTable.Rows.Find(sCatId.Value).Field<string>("Name");
+                pCat = CategoriesDataTable.Rows.Find(dr.Field<int>("PCatId")).Field<string>("Name").Capitalized();
+                if (sCatId.HasValue) sCat = CategoriesDataTable.Rows.Find(sCatId.Value).Field<string>("Name").Capitalized();
+
+                return new LocationDTO
+                {
+                    Id = dr.Field<int>("Id"),
+                    PCat = pCat,
+                    SCat = sCat,
+                    Name = dr.Field<string>("Name"),
+                    Lat = dr.Field<string>("Lat"),
+                    Lng = dr.Field<string>("Lng"),
+                    Desc = dr.Field<string>("Desc"),
+                    Type = dr.Field<string>("Type")
+                };
+            });
+        }
+
+        IEnumerable<LocationDTO> ILocationsRepository.GetAllAround(double lat, double lng, double radius)
+        {
+            string queryTemplate = @"SELECT *
+                                     FROM ""Locations""
+                                     WHERE earth_box(ll_to_earth({0}, {1}), {2})
+	                                           @> ll_to_earth(cast(""Locations"".""Lat"" as double precision),
+		                                                      cast(""Locations"".""Lng"" as double precision));";
+
+            return ExecQuery<LocationDTO>(string.Format(queryTemplate, lat, lng, radius * 1000), (dr) =>
+            {
+                string pCat, sCat = null;
+
+                int? sCatId = dr.Field<int?>("SCatId");
+
+                pCat = CategoriesDataTable.Rows.Find(dr.Field<int>("PCatId")).Field<string>("Name").Capitalized();
+                if (sCatId.HasValue) sCat = CategoriesDataTable.Rows.Find(sCatId.Value).Field<string>("Name").Capitalized();
 
                 return new LocationDTO
                 {

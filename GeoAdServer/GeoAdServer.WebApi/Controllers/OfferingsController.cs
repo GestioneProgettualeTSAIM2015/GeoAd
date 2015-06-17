@@ -11,11 +11,19 @@ using GeoAdServer.WebApi.Support;
 using GeoAdServer.Domain.Contracts;
 using GeoAdServer.WebApi.Services;
 using GeoAdServer.Domain.Entities.Events;
+using System.Configuration;
 
 namespace GeoAdServer.WebApi.Controllers
 {
     public class OfferingsController : ApiController
     {
+        private readonly static int MAX_OFFERING_DESCRIPTION_LENGTH;
+
+        static OfferingsController()
+        {
+            MAX_OFFERING_DESCRIPTION_LENGTH = int.Parse(ConfigurationManager.AppSettings["maxOfferingDescriptionLength"]);
+        }
+
         public IQueryable<OfferingDTO> Get()
         {
             using (var repos = DataRepos.Instance)
@@ -45,6 +53,7 @@ namespace GeoAdServer.WebApi.Controllers
                 if (offering.ExpDateMillis < (DateTime.Today).Millisecond)
                     return Request.CreateResponse((HttpStatusCode)422, "Unprocessable Entity");
 
+                offering.Desc = offering.Desc.Substring(0, MAX_OFFERING_DESCRIPTION_LENGTH);
                 int id = repos.Offerings.Insert(offering);
 
                 //event
@@ -80,6 +89,7 @@ namespace GeoAdServer.WebApi.Controllers
                     if (!dbOffering.LocationId.IsLocationOwner(RequestContext.GetUserId(), repos.Locations))
                         return Request.CreateResponse(HttpStatusCode.Unauthorized);
 
+                    offering.Desc = offering.Desc.Substring(0, MAX_OFFERING_DESCRIPTION_LENGTH);
                     result = repos.Offerings.Update(id, offering);
                 }
 

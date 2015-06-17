@@ -1,6 +1,7 @@
 ﻿using GeoAdServer.DataAccess;
 using GeoAdServer.Domain.Contracts;
 using GeoAdServer.Domain.Entities;
+using GeoAdServer.Domain.Entities.DTOs;
 using GeoAdServer.WebApi.Models;
 using System;
 using System.Collections.Generic;
