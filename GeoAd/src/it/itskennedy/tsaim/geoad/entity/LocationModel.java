@@ -1,6 +1,7 @@
 package it.itskennedy.tsaim.geoad.entity;
 
 import android.location.Location;
+import android.os.BaseBundle;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -156,5 +157,25 @@ public class LocationModel
         }
 
         return null;
+	}
+
+	public String getPCat() 
+	{
+		return mPCat;
+	}
+
+	public String getSCat()
+	{
+		return mSCat;
+	}
+
+	public String getType() 
+	{
+		return mType;
+	}
+
+	public String getDesc() 
+	{
+		return mDesc;
 	}
 }

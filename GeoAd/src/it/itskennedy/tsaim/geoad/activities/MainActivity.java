@@ -6,8 +6,10 @@ import it.itskennedy.tsaim.geoad.core.ConnectionManager;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager.JsonResponse;
 import it.itskennedy.tsaim.geoad.core.Engine;
 import it.itskennedy.tsaim.geoad.core.SettingsManager;
+import it.itskennedy.tsaim.geoad.entity.LocationModel;
 import it.itskennedy.tsaim.geoad.fragment.ActivitiesFragment;
 import it.itskennedy.tsaim.geoad.fragment.AugmentedRealityFragment;
+import it.itskennedy.tsaim.geoad.fragment.DetailFragment;
 import it.itskennedy.tsaim.geoad.fragment.LoginDialogFragment;
 import it.itskennedy.tsaim.geoad.fragment.MarkedLocationFragment;
 import it.itskennedy.tsaim.geoad.fragment.SearchListFragment;
@@ -55,6 +57,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 	private boolean isLogged;
 	private int searchFragmentType;
 
+	private LocationModel mObj;//
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -216,7 +219,10 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 				vFragment = SearchListFragment.getInstance(bundle, this);
 				break;
 			case Utils.TYPE_AUGMENTED_REALITY:
-				vFragment = AugmentedRealityFragment.getInstance(bundle);
+				//vFragment = AugmentedRealityFragment.getInstance(bundle);
+				Bundle vB = new Bundle();
+				vB.putInt(DetailFragment.LOCATION_ID, 580);
+				vFragment = DetailFragment.getInstance(vB);
 				break;
 			case Utils.TYPE_PREFERENCE:
 				vFragment = MarkedLocationFragment.getInstance(bundle);
@@ -245,8 +251,11 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 				return;
 		}
 		
-        FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_frame, vFragment).commit();
+		if(vFragment != null) //
+		{//
+			FragmentManager fragmentManager = getFragmentManager();
+	        fragmentManager.beginTransaction().replace(R.id.content_frame, vFragment).commit();	
+		}//
 	}
 
 	@Override
