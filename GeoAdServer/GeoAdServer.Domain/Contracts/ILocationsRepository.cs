@@ -32,6 +32,8 @@ namespace GeoAdServer.Domain.Contracts
 
         Dictionary<string, IList<string>> GetCategories();
 
-        int? GetCategoryId(string name);
+        CategoryDTO GetCategoryById(int id);
+
+        CategoryDTO GetCategoryByName(string name);
     }
 }

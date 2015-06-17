@@ -37,7 +37,7 @@ namespace GeoAdServer.Domain.ContractsImplementations.Test
 
             //Location Test
             var enumerator = locationRepository.GetCategories().GetEnumerator();
-            enumerator.MoveNext(); int pCatId = locationRepository.GetCategoryId(enumerator.Current.Key).Value;
+            enumerator.MoveNext(); int pCatId = locationRepository.GetCategoryByName(enumerator.Current.Key).Id;
             var userId = "-a1";
 
             var loc = new Location

@@ -84,11 +84,8 @@ namespace GeoAdServer.Postgresql
             if (Categories == null) Categories = FetchCategories();
         }
 
-        IEnumerable<LocationDTO> ILocationsRepository.GetAll()
+        private IEnumerable<LocationDTO> GeneralGet(string query)
         {
-            string query = @"SELECT *
-                             FROM public.""Locations""";
-
             return ExecQuery<LocationDTO>(query, (dr) =>
             {
                 string pCat, sCat = null;
@@ -110,6 +107,14 @@ namespace GeoAdServer.Postgresql
                     Type = dr.Field<string>("Type")
                 };
             });
+        }
+
+        IEnumerable<LocationDTO> ILocationsRepository.GetAll()
+        {
+            string query = @"SELECT *
+                             FROM public.""Locations""";
+
+            return GeneralGet(query);
         }
 
         IEnumerable<LocationDTO> ILocationsRepository.GetAllAround(double lat, double lng, double radius)
@@ -120,27 +125,7 @@ namespace GeoAdServer.Postgresql
 	                                           @> ll_to_earth(cast(""Locations"".""Lat"" as double precision),
 		                                                      cast(""Locations"".""Lng"" as double precision));";
 
-            return ExecQuery<LocationDTO>(string.Format(queryTemplate, lat, lng, radius * 1000), (dr) =>
-            {
-                string pCat, sCat = null;
-
-                int? sCatId = dr.Field<int?>("SCatId");
-
-                pCat = CategoriesDataTable.Rows.Find(dr.Field<int>("PCatId")).Field<string>("Name").Capitalized();
-                if (sCatId.HasValue) sCat = CategoriesDataTable.Rows.Find(sCatId.Value).Field<string>("Name").Capitalized();
-
-                return new LocationDTO
-                {
-                    Id = dr.Field<int>("Id"),
-                    PCat = pCat,
-                    SCat = sCat,
-                    Name = dr.Field<string>("Name"),
-                    Lat = dr.Field<string>("Lat"),
-                    Lng = dr.Field<string>("Lng"),
-                    Desc = dr.Field<string>("Desc"),
-                    Type = dr.Field<string>("Type")
-                };
-            });
+            return GeneralGet(string.Format(queryTemplate, lat, lng, radius * 1000));
         }
 
         IEnumerable<LocationDTO> ILocationsRepository.GetByUserId(string userId)
@@ -149,27 +134,7 @@ namespace GeoAdServer.Postgresql
                                      FROM public.""Locations""
                                      WHERE ""UserId"" = '{0}'";
 
-            return ExecQuery<LocationDTO>(string.Format(templateQuery, userId), (dr) =>
-            {
-                string pCat, sCat = null;
-
-                int? sCatId = dr.Field<int?>("SCatId");
-
-                pCat = CategoriesDataTable.Rows.Find(dr.Field<int>("PCatId")).Field<string>("Name").Capitalized();
-                if (sCatId.HasValue) sCat = CategoriesDataTable.Rows.Find(sCatId.Value).Field<string>("Name").Capitalized();
-
-                return new LocationDTO
-                {
-                    Id = dr.Field<int>("Id"),
-                    PCat = pCat,
-                    SCat = sCat,
-                    Name = dr.Field<string>("Name"),
-                    Lat = dr.Field<string>("Lat"),
-                    Lng = dr.Field<string>("Lng"),
-                    Desc = dr.Field<string>("Desc"),
-                    Type = dr.Field<string>("Type")
-                };
-            });
+            return GeneralGet(string.Format(templateQuery, userId));
         }
 
         LocationDTO ILocationsRepository.GetById(int locationId)
@@ -178,27 +143,7 @@ namespace GeoAdServer.Postgresql
                              FROM public.""Locations""
                              WHERE ""Id"" = " + locationId;
 
-            return ExecQuery<LocationDTO>(query, (dr) =>
-            {
-                string pCat, sCat = null;
-
-                int? sCatId = dr.Field<int?>("SCatId");
-
-                pCat = CategoriesDataTable.Rows.Find(dr.Field<int>("PCatId")).Field<string>("Name").Capitalized();
-                if (sCatId.HasValue) sCat = CategoriesDataTable.Rows.Find(sCatId.Value).Field<string>("Name").Capitalized();
-
-                return new LocationDTO
-                {
-                    Id = locationId,
-                    PCat = pCat,
-                    SCat = sCat,
-                    Name = dr.Field<string>("Name"),
-                    Lat = dr.Field<string>("Lat"),
-                    Lng = dr.Field<string>("Lng"),
-                    Desc = dr.Field<string>("Desc"),
-                    Type = dr.Field<string>("Type")
-                };
-            }).ElementAtOrDefault(0);
+            return GeneralGet(query).ElementAtOrDefault(0);
         }
 
         string ILocationsRepository.GetOwnerId(int locationId)
@@ -381,14 +326,32 @@ namespace GeoAdServer.Postgresql
             return dictionary;
         }
 
-        int? ILocationsRepository.GetCategoryId(string name)
+        CategoryDTO ILocationsRepository.GetCategoryById(int id)
+        {
+            var row = CategoriesDataTable.Rows.Find(id);
+            if (row == null) return null;
+
+            return new CategoryDTO
+            {
+                Id = id,
+                Name = row.Field<string>("Name"),
+                Aggregate = row.Field<int?>("Aggregate")
+            };
+        }
+
+        CategoryDTO ILocationsRepository.GetCategoryByName(string name)
         {
             name = name.ToLower();
 
             var row = CategoriesDataTable.Select("Name = '" + name + "'").FirstOrDefault();
             if (row == null) return null;
 
-            return row.Field<int>("Id");
+            return new CategoryDTO
+            {
+                Id = row.Field<int>("Id"),
+                Name = name,
+                Aggregate = row.Field<int?>("Aggregate")
+            };
         }
 
         void InitCategoriesDataTable()

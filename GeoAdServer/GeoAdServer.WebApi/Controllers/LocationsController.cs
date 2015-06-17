@@ -10,6 +10,8 @@ using GeoAdServer.WebApi.Support;
 using GeoAdServer.WebApi.Services;
 using System.Configuration;
 using System.Globalization;
+using GeoAdServer.Domain.Entities;
+using System;
 
 namespace GeoAdServer.WebApi.Controllers
 {
@@ -62,9 +64,17 @@ namespace GeoAdServer.WebApi.Controllers
             {
                 if (locationApiModel == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
 
-                var location = locationApiModel.CreateLocationFromModel(RequestContext.GetUserId(), repos.Locations, User.Identity);
-
-                if (location == null) return Request.CreateResponse((HttpStatusCode)422, "Unprocessable Entity");
+                Location location = null;
+                try
+                {
+                    location = locationApiModel.CreateLocationFromModel(RequestContext.GetUserId(), repos.Locations, User.Identity);
+                }
+                catch (ArgumentException aEx)
+                {
+                    var message = "Unprocessable Entity";
+                    if (aEx.Message != null) message += ": " + aEx.Message;
+                    return Request.CreateResponse((HttpStatusCode)422, message);
+                }
 
                 location.Desc = location.Desc.Substring(0, MAX_LOCATION_DESCRIPTION_LENGTH);
                 int id = repos.Locations.Insert(location);
@@ -90,9 +100,17 @@ namespace GeoAdServer.WebApi.Controllers
                 if (!id.IsLocationOwner(RequestContext.GetUserId(), repos.Locations))
                     return Request.CreateResponse(HttpStatusCode.Unauthorized, RequestContext.GetUserId());
 
-                var location = locationApiModel.CreateLocationFromModel(RequestContext.GetUserId(), repos.Locations, User.Identity);
-
-                if (location == null) return Request.CreateResponse((HttpStatusCode)422, "Unprocessable Entity");
+                Location location = null;
+                try
+                {
+                    location = locationApiModel.CreateLocationFromModel(RequestContext.GetUserId(), repos.Locations, User.Identity);
+                }
+                catch (ArgumentException aEx)
+                {
+                    var message = "Unprocessable Entity";
+                    if (aEx.Message != null) message += ": " + aEx.Message;
+                    return Request.CreateResponse((HttpStatusCode)422, message);
+                }
 
                 location.Desc = location.Desc.Substring(0, MAX_LOCATION_DESCRIPTION_LENGTH);
                 var result = repos.Locations.Update(id, location);

@@ -10,6 +10,9 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http.Controllers;
+using GeoAdServer.GeneralUtilities;
+using System.Net;
+using System.Net.Http;
 
 namespace GeoAdServer.WebApi.Support
 {
@@ -48,22 +51,35 @@ namespace GeoAdServer.WebApi.Support
 
         public static Location CreateLocationFromModel(this LocationApiModel model, string userId, ILocationsRepository repository, IIdentity identity)
         {
-            int pCatId;
             int? sCatId = null;
+            var pCat = repository.GetCategoryByName(model.PCat);
+            if (pCat == null) throw new ArgumentException("primary category not found");
 
-            int? tempPCatId = repository.GetCategoryId(model.PCat);
-            if (!tempPCatId.HasValue) return null;
+            if (model.SCat != null)
+            {
+                var sCat = repository.GetCategoryByName(model.SCat);
+                if (sCat == null)
+                {
+                    sCatId = repository.InsertCategory(model.SCat, pCat.Id);
+                }
+                else if (!sCat.Aggregate.HasValue || sCat.Aggregate.Value != pCat.Id)
+                {
+                    var message = string.Format("categories aren't consistent, {0} is a ", sCat.Name);
+                    if (sCat.Aggregate.HasValue)
+                        message += string.Format("sub-category of {0}",
+                            repository.GetCategoryById(sCat.Aggregate.Value).Name);
+                    else message += "primary category";
 
-            pCatId = tempPCatId.Value;
-
-            if (model.SCat != null && !(sCatId = repository.GetCategoryId(model.SCat)).HasValue) sCatId = repository.InsertCategory(model.SCat, pCatId);
+                    throw new ArgumentException(message);
+                }
+            }
 
             var typeId = identity.IsAdmin() ? 1 : 0;
 
             return new Location
             {
                 UserId = userId,
-                PCatId = pCatId,
+                PCatId = pCat.Id,
                 SCatId = sCatId,
                 Name = model.Name,
                 Lat = model.Lat,
