@@ -42,7 +42,6 @@ namespace GeoAdServer.WebApi.Controllers
             }
         }
 
-        [Authorize]
         [ActionName("Data")]
         public HttpResponseMessage GetData(int photoId)
         {

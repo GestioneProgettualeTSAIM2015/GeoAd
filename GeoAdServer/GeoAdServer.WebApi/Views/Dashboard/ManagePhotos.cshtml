@@ -1,172 +1,219 @@
 ﻿@model IEnumerable<GeoAdServer.Domain.Entities.DTOs.PhotoDTO>
 
-<link rel="stylesheet" href="~/Content/jquery-ui.css" />
+@Styles.Render("~/Content/Custom.css")
 
 <h2>Gestione Foto @ViewBag.LocName</h2>
-
-<div id="gallery">
-    @if (Model.Count() == 0)
-    {
-        <h5>Non sono presenti foto</h5>
-    }
-    else
-    {
-
-        foreach (var item in Model)
-        {         
-            <div class="photo" data-id="@item.Id" data-w="@item.Width" data-h="@item.Height" id="@item.Id" style="cursor:pointer; float:none;">
-                <img src="data:image/jpg;base64,@item.Base64Thumbnail" />
-                <span class="glyphicon glyphicon-trash delete" data-id="@item.Id" style="cursor:pointer; float:left;"></span>
-            </div>           
+<br />
+<span class="alert alert-danger pull-right" role="alert" id="errorAlert" style="display: none">Errore:</span>
+<div class="container">
+    <div class="row">
+        <input type="file" id="photoInput" />
+        <br />
+        <button class="btn btn-primary btn-sm" id="btnUpload">Carica Foto</button>
+        <br />
+        <span class="wploading" id="loading" style="visibility: hidden">
+            <span class="l-1"></span>
+            <span class="l-2"></span>
+            <span class="l-3"></span>
+            <span class="l-4"></span>
+            <span class="l-5"></span>
+            <span class="l-6"></span>
+        </span>
+    </div>
+    <div class="row" id="gallery">
+        @if (Model.Count() == 0)
+        {
+            <div class='col-md-12'><h5>Non sono presenti foto</h5></div>
         }
-
-    }
-</div>
-<hr />
-<div>
-    <input type="file" id="photoInput" />
-    <br />
-    <button class="btn btn-primary btn-sm" onclick="uploadPhoto();">Carica Foto</button>
-    <div id="progressbar"></div>
-</div>  
-<div>
+        else
+        {
+            foreach (var item in Model)
+            {
+                <div class="col-lg-3 col-md-4 col-xs-6 thumb" style="position: relative">
+                    <div class="thumbnail photo" id="@item.Id" style="cursor:pointer">
+                        <i class="glyphicon glyphicon-trash delete right-top-corner"></i>
+                        <img class="img-responsive" data-w="@item.Width" data-h="@item.Height" src="data:image/jpg;base64,@item.Base64Thumbnail" />
+                    </div>
+                </div>
+            }
+        }
+    </div>
     <hr />
-    @Html.ActionLink("Le mie attività", "ManageLocations")
+    @Html.ActionLink("Le mie attività", "ManageLocations", "Dashboard", null,
+    new
+    {
+        @class = "btn btn-default"
+    })
 </div>
 
-<div id="dialog" title="Immagine"><img id="contentimg" /></div>
+<!-- Modal -->
+<div class="modal fade" id="modalConferma" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div id="dialogBody"></div>
+                <span class="wploading" id="dialogLoading" style="display: none">
+                    <span class="l-1"></span>
+                    <span class="l-2"></span>
+                    <span class="l-3"></span>
+                    <span class="l-4"></span>
+                    <span class="l-5"></span>
+                    <span class="l-6"></span>
+                </span>
+            </div>
+            <div class="modal-footer" id="dialogFooter">
+                <button type="button" id="cancelModal" class="btn btn-default" data-dismiss="modal">Annulla</button>
+                <button class="btn btn-primary" id="btnDelete">Cancella</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section scripts {
     <script type="text/javascript" src="~/Scripts/loginScript.js"></script>
     <script type="text/javascript" src="~/Scripts/jquery-ui-1.10.4.js"></script>
     <script>
 
-        var photoNumber = @Model.Count();
+        $(function () {
 
-        function uploadPhoto()
-        {
-            var files = document.getElementById("photoInput").files;
+            var dialog = $('#modalConferma');
+            var dialogBody = $('#dialogBody');
+            var dialogFooter = $('#dialogFooter');
+            var dialogLoading = $("#dialogLoading");
 
-            if (files.length > 0)
-            {
+            var errorAlert = $("#errorAlert");
+            
+            var loading = $("#loading");
+
+            var photoNumber = @Model.Count();
+
+            $("#btnUpload").click(function () {
+
+                var files = document.getElementById("photoInput").files;
+
+                if (files.length < 1) return alert("Seleziona una foto!");
+
                 var reader = new FileReader();
 
-                reader.onloadend = function ()
-                {
+                reader.onloadend = function () {
                     var base64 = reader.result;
 
-                    if(base64.length > 1048576)
-                    {
-                        alert("Foto troppo grande");
-                        return;
-                    }
+                    if(base64.length > 1048576) return alert("Foto troppo grande");
 
                     var datas = {
-                        "Base64Data": base64.replace("data:image/jpeg;base64,", ""),
+                        "Base64Data": base64.substring(base64.indexOf(",") + 1),
                         "LocationId": @ViewBag.LocId,
                     };
+
+                    loading.css('visibility', 'visible');
+                    $("#btnUpload").prop("disabled", true);
 
                     $.ajax({
                         url: '../../api/Photos',
                         type: 'POST',
                         data: datas,
-                        beforeSend: function (xhr, settings) { 
+                        beforeSend: function (xhr, settings) {
                             xhr.setRequestHeader('Authorization', 'Bearer ' + getToken());
                         },
                         success: function (obj) {
 
-                            if(photoNumber == 0)
-                            {
-                                $("#gallery").html("");
-                            }
+                            document.getElementById("photoInput").value = "";
+                            $("#btnUpload").prop("disabled", false);
 
-                            photoNumber++;
-                            $("#gallery").append("<div class=\"photo\" data-id=\"" + obj.Id + "\" data-h=\"" + obj.HeightBig + "\" data-w=\"" + obj.WidthBig + "\" id=\"" + obj.Id + "\" style=\"cursor:pointer; float:none;\">" +
-                            "<img src=\"data:image/jpeg;base64," + obj.Base64Thumbnail + "\" />" +
-                            "<span class=\"glyphicon glyphicon-trash delete\" data-id=\"" + obj.Id + "\" style=\"cursor:pointer; float:left;\"></span>" +
-                            "</div>"); 
+                            if(photoNumber++ == 0) $("#gallery").html("");
+
+                            $("#gallery").append('\
+                            <div class="col-lg-3 col-md-4 col-xs-6 thumb" style="position: relative">\
+                                <div class="thumbnail photo" id="' + obj.Id + '" style="cursor:pointer">\
+                                    <i class="glyphicon glyphicon-trash delete right-top-corner"></i>\
+                                    <img class="img-responsive" data-w="' + obj.WidthBig + '" data-h="' + obj.HeightBig + '" src="data:image/jpg;base64,' + obj.Base64Thumbnail + '" />\
+                                </div>\
+                            </div>');
+
+                            loading.css('visibility', 'hidden');
                         },
                         error: function (error) {
-                            alert(error.responseText);
+                            $("#btnUpload").prop("disabled", false);
+                            loading.css('visibility', 'hidden');
+                            errorAlert.text("Errore:\n" + error.responseText).fadeIn();
                         }
                     });
                 }
 
                 reader.readAsDataURL(files[0]);
-            }
-            else
-            {
-                alert("Seleziona una foto!");
-            }
-        }
-
-        function generateImgDiv(base64)
-        {
-            var ret = "<img src=\"data:image/jpeg;base64," + base64 + "\" /><br />";
-            return ret;
-        }
-    
-        $(document.body).on("click", ".photo", function(){
-            var photoId = $(this).data("id");
-            var h = $(this).data("h");
-            var w = $(this).data("w");
-
-            h = h < 128 ? 128 : h;
-            w = w < 128 ? 128 : w;
-
-            $("#dialog").dialog({
-                width: w + 40,
-                height: h + 90,
-                resizable:false,
-                draggable:false,
-                modal:true
             });
 
-            $("#contentimg").attr("src", "/Content/images/Loader.GIF");
+            function generateImgDiv(base64) {
+                var ret = "<img src=\"data:image/jpeg;base64," + base64 + "\" /><br />";
+                return ret;
+            }
 
-            $.ajax({
-                url: '../../api/Photos/data/' + photoId,
-                type: 'GET',
-                beforeSend: function(xhr, settings) { xhr.setRequestHeader('Authorization','Bearer ' + getToken()); },
-                success: function (base64)
-                {
-                    $("#contentimg").attr("src", "data:image/jpeg;base64," + base64);
-                },
-                error: function (error)
-                {
-                    alert(error.responseText);
-                }
-            });
-        });
+            $(document.body).on("click", ".photo", function(){
+                var photoId = $(this).attr("id");
 
-        $(document.body).on("click", ".delete", function (evt) {
+                dialogBody.html("");
+                dialogFooter.hide();
+                dialogLoading.show();
+                dialog.modal({
+                    keyboard: true,
+                    show: true
+                });
 
-            evt.stopPropagation();
-
-            var photoId = $(this).data("id");
-
-            var r = confirm("Cancellare la foto " + photoId + "?");
-            if (r == true)
-            {
                 $.ajax({
-                    url: '../../api/Photos/' + photoId,
-                    type: 'DELETE',
+                    url: '../../api/Photos/data/' + photoId,
+                    type: 'GET',
                     beforeSend: function(xhr, settings) { xhr.setRequestHeader('Authorization','Bearer ' + getToken()); },
-                    success: function (result)
-                    {
-                        photoNumber--;
-                        $("#" + photoId).remove();
-                        if(photoNumber == 0)
-                        {
-                            $("#gallery").html("<h5>Non sono presenti foto</h5>");
-                        }
+                    success: function (base64) {
+                        dialogLoading.hide();
+                        dialogBody.html('<img class="img-responsive" style="margin: 0 auto" src="data:image/jpg;base64,' + base64 + '" />');
                     },
-                    error: function (error)
-                    {
-                        alert(error.responseText);
+                    error: function (error) {
+                        dialog.modal('hide');
+                        dialogLoading.hide();
+                        errorAlert.text("Errore:\n" + error.responseText).fadeIn();
                     }
                 });
-            }
+            });
+
+            $(document.body).on("click", ".delete", function (evt) {
+                evt.stopPropagation();
+
+                dialog.photoId = $(this).parent().attr("id");
+                dialogFooter.find("button").prop("disabled", false);
+                dialogFooter.show();
+                dialogBody.html('<h5>Cancellare la seguente foto?</h5><hr /><img class="img-responsive" style="margin: 0 auto" src="' +
+                    $($(this).parent().find("img")[0]).attr("src") + '" />');
+                dialog.modal({
+                    keyboard: true,
+                    show: true
+                });
+            });
+
+            $("#btnDelete").click(function () {
+                dialogFooter.find("button").prop("disabled", true);
+                dialogLoading.show();
+                $.ajax({
+                    url: '../../api/Photos/' + dialog.photoId,
+                    type: 'DELETE',
+                    beforeSend: function(xhr, settings) { xhr.setRequestHeader('Authorization','Bearer ' + getToken()); },
+                    success: function (result) {
+                        $("#" + dialog.photoId).parent().remove();
+                        photoNumber--;
+                        if(photoNumber == 0) {
+                            $("#gallery").html("<div class='col-md-12'><h5>Non sono presenti foto</h5></div>");
+                        }
+                        dialog.modal('hide');
+                        dialogLoading.hide();
+                        delete dialog.photoId;
+                    },
+                    error: function (error) {
+                        dialogLoading.hide();
+                        errorAlert.text("Errore:\n" + error.responseText).fadeIn();
+                        delete dialog.photoId;
+                        dialog.modal('hide');
+                    }
+                });
+            });
         });
 
     </script>
