@@ -24,19 +24,12 @@ namespace GeoAdServer.WebApi.Controllers
             MAX_OFFERING_DESCRIPTION_LENGTH = int.Parse(ConfigurationManager.AppSettings["maxOfferingDescriptionLength"]);
         }
 
-        public IQueryable<OfferingDTO> Get()
+        [ActionName("FromLocation")]
+        public IQueryable<OfferingDTO> Get(int locationId)
         {
             using (var repos = DataRepos.Instance)
             {
-                return repos.Offerings.GetAll().AsQueryable();
-            }
-        }
-        
-        public IQueryable<OfferingDTO> Get(int id)
-        {
-            using (var repos = DataRepos.Instance)
-            {
-                return repos.Offerings.GetByLocationId(id).AsQueryable();
+                return repos.Offerings.GetByLocationId(locationId).AsQueryable();
             }
         }
 
