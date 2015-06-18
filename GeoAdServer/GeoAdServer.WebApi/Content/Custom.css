@@ -12,18 +12,24 @@
 }
 
 .thumb div {
-    background-color: rgba(128, 128, 128, 0.3);
     padding: 7px 0 7px 0;
     border-radius: 5%;
 }
 
+.photo:hover {
+    background-color: azure;
+}
+
 .right-top-corner {
-    float: right !important;
-    margin-top: 5px !important;
-    margin-right: 7px !important;
-    border: 1px solid black;
+    position: absolute;
+    right: 30px;
+    top: 10px;
     border-radius: 20%;
-    padding: 5px;
+    padding: 7px;
     font-size: 16px;
-    color: #bd5656;
+    background-color: #ddd;
+}
+
+.right-top-corner:hover {
+    background-color: #ccc;
 }
