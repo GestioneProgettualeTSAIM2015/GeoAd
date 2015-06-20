@@ -15,30 +15,54 @@ using GeoAdServer.WebApi.Models;
 using System.Drawing;
 using System.Drawing.Imaging;
 using GeoAdServer.Domain.Contracts;
+using Newtonsoft.Json;
 
 namespace GeoAdServer.WebApi.Controllers
 {
     public class PhotosController : ApiController
     {
-        private static double IMAGE_WIDTH = 960.0;
-        private static double IMAGE_HEIGHT = 720.0;
-        private static double THUMB_WIDTH = 200.0;
-        private static double THUMB_HEIGHT = 150.0;
+        private static readonly double IMAGE_WIDTH = 960.0;
+        private static readonly double IMAGE_HEIGHT = 720.0;
+        private static readonly double THUMB_WIDTH = 200.0;
+        private static readonly double THUMB_HEIGHT = 150.0;
 
         [ActionName("FromLocation")]
-        public IQueryable<PhotoDTO> GetFromLocation(int locationId)
+        public IQueryable<PhotoDTO> GetFromLocation(int locationId, [FromUri]string cache)
         {
             using (var repos = DataRepos.Instance)
             {
-                return repos.Photos.GetByLocationId(locationId).AsQueryable();
-            }
-        }
+                var list = new LinkedList<PhotoDTO>(repos.Photos.GetByLocationId(locationId));
 
-        public PhotoDTO Get(int id)
-        {
-            using (var repos = DataRepos.Instance)
-            {
-                return repos.Photos.GetById(id);
+                if (cache == null) return list.AsQueryable();
+
+                List<int> cacheIds = null;
+                try
+                {
+                    cacheIds = JsonConvert.DeserializeObject<List<int>>(cache);
+                } catch
+                {
+                    return null;
+                }
+
+                foreach (var id in cacheIds)
+                {
+                    var photo = list.Where(p => p.Id == id).FirstOrDefault();
+                    if (photo != null)
+                    {
+                        list.Remove(photo);
+                    }
+                    else
+                    {
+                        list.AddFirst(new PhotoDTO
+                        {
+                            Id = -1 * id,
+                            LocationId = locationId,
+                            Base64Thumbnail = null
+                        });
+                    }
+                }
+
+                return list.AsQueryable();
             }
         }
 

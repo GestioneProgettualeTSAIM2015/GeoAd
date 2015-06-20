@@ -32,7 +32,7 @@
                 <div class="col-lg-3 col-md-4 col-xs-6 thumb" style="position: relative">
                     <div class="thumbnail photo" id="@item.Id" style="cursor:pointer">
                         <i class="glyphicon glyphicon-trash delete right-top-corner"></i>
-                        <img class="img-responsive" data-w="@item.Width" data-h="@item.Height" src="data:image/jpg;base64,@item.Base64Thumbnail" />
+                        <img class="img-responsive" src="data:image/jpg;base64,@item.Base64Thumbnail" />
                     </div>
                 </div>
             }
@@ -126,7 +126,7 @@
                             <div class="col-lg-3 col-md-4 col-xs-6 thumb" style="position: relative">\
                                 <div class="thumbnail photo" id="' + obj.Id + '" style="cursor:pointer">\
                                     <i class="glyphicon glyphicon-trash delete right-top-corner"></i>\
-                                    <img class="img-responsive" data-w="' + obj.WidthBig + '" data-h="' + obj.HeightBig + '" src="data:image/jpg;base64,' + obj.Base64Thumbnail + '" />\
+                                    <img class="img-responsive" src="data:image/jpg;base64,' + obj.Base64Thumbnail + '" />\
                                 </div>\
                             </div>');
 

@@ -22,7 +22,7 @@ namespace GeoAdServer.Postgresql
 
         IEnumerable<PhotoDTO> IPhotosRepository.GetByLocationId(int locationId)
         {
-            string query = @"SELECT ""Id"", ""Width"", ""Height"", ""Base64Thumbnail""
+            string query = @"SELECT ""Id"", ""Base64Thumbnail""
                              FROM public.""Photos""
                              WHERE ""LocationId"" = " + locationId;
 
@@ -32,8 +32,6 @@ namespace GeoAdServer.Postgresql
                 {
                     Id = dr.Field<int>("Id"),
                     LocationId = locationId,
-                    Width = dr.Field<int>("Width"),
-                    Height = dr.Field<int>("Height"),
                     Base64Thumbnail = dr.Field<string>("Base64Thumbnail")
                 };
             });
@@ -41,7 +39,7 @@ namespace GeoAdServer.Postgresql
 
         PhotoDTO IPhotosRepository.GetById(int photoId)
         {
-            string query = @"SELECT ""LocationId"", ""Width"", ""Height"", ""Base64Thumbnail""
+            string query = @"SELECT ""LocationId"", ""Base64Thumbnail""
                              FROM public.""Photos""
                              WHERE ""Id"" = " + photoId;
 
@@ -51,8 +49,6 @@ namespace GeoAdServer.Postgresql
                 {
                     Id = photoId,
                     LocationId = dr.Field<int>("LocationId"),
-                    Width = dr.Field<int>("Width"),
-                    Height = dr.Field<int>("Height"),
                     Base64Thumbnail = dr.Field<string>("Base64Thumbnail")
                 };
             }).ElementAtOrDefault(0);
