@@ -1,69 +1,70 @@
 package it.itskennedy.tsaim.geoad.fragment;
 
+import it.itskennedy.tsaim.geoad.OfferExpandableListAdapter;
 import it.itskennedy.tsaim.geoad.R;
-import it.itskennedy.tsaim.geoad.ThumbWithDim;
+import it.itskennedy.tsaim.geoad.Utils;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager;
-import it.itskennedy.tsaim.geoad.core.Engine;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager.JsonResponse;
+import it.itskennedy.tsaim.geoad.core.Engine;
 import it.itskennedy.tsaim.geoad.entity.LocationModel;
-import it.itskennedy.tsaim.geoad.services.GeoAdService;
-import it.itskennedy.tsaim.geoad.services.GeoAdService.GeoAdBinder;
-import it.itskennedy.tsaim.geoad.services.GeoAdService.GetLocationListener;
+import it.itskennedy.tsaim.geoad.entity.Offer;
+import it.itskennedy.tsaim.geoad.entity.Thumb;
+
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Fragment;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import com.loopj.android.http.RequestParams;
 
 public class DetailFragment extends Fragment
 {
-	public static final String LOCATION_ID = "location_id";
-	private int mLocationId;
+	public static final String TAG = "detail_fragment";
+	
+	private static final String LOCATION = "location";
+	private static final String OFFERS = "offers";
+	private static final String THUMB = "thumb";
 	private LocationModel mLoc;
-	private ServiceConnection mServiceConnection = new ServiceConnection()
-	{	
-		@Override
-		public void onServiceDisconnected(ComponentName name)
-		{
-			
-		}
-		
-		@Override
-		public void onServiceConnected(ComponentName name, IBinder service) 
-		{
-			Log.d(Engine.APP_NAME, "Service Binded");
-			((GeoAdBinder) service).getService().getLocationById(mLocationId, new GetLocationListener()
-			{	
-				@Override
-				public void onLoad(LocationModel aLocation)
-				{
-					Log.d(Engine.APP_NAME, "Location Load");
-					mLoc = aLocation;
-					populateFragment(mLoc);
-				}
-			});
-			
-			getActivity().unbindService(this);
-		}
-	};
 	private TextView mPCat;
 	private TextView mSCat;
-	private TextView mType;
 	private TextView mDesc;
 	private LinearLayout mThumbScroll;
+	private ExpandableListView mExpandable;
+	private OfferExpandableListAdapter mAdapter;
+	private ProgressBar mProgressThumb;
+	private String mOffersString;
+	private boolean mThumbUpdated = false;
+	
+	private OnClickListener mThumbClickListener = new OnClickListener()
+	{	
+		@Override
+		public void onClick(View v)
+		{
+			if(v instanceof Thumb)
+			{
+				ImageDialog vDialog = ImageDialog.get(((Thumb) v).mId);
+				vDialog.show(getActivity().getFragmentManager(), ImageDialog.TAG);	
+			}
+		}
+	};
 	
 	public static DetailFragment getInstance(Bundle aBundle)
 	{
@@ -78,13 +79,48 @@ public class DetailFragment extends Fragment
 	@Override
 	public void onCreate(Bundle savedInstanceState) 
 	{
-		mLocationId = getArguments().getInt(LOCATION_ID);
+		if(savedInstanceState == null)
+		{
+			mLoc = LocationModel.fromBundle(getArguments());
+		}
+		else
+		{
+			mThumbUpdated = savedInstanceState.getBoolean(THUMB);
+			mLoc = LocationModel.fromBundle(savedInstanceState.getBundle(LOCATION));
+			mOffersString = savedInstanceState.getString(OFFERS);
+		}
+		
 		setHasOptionsMenu(true);
 		
-		Intent vBind = new Intent(getActivity(), GeoAdService.class);
-		getActivity().bindService(vBind, mServiceConnection , Context.BIND_AUTO_CREATE);
-		
 		super.onCreate(savedInstanceState);
+	}
+	
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
+	{
+        inflater.inflate(R.menu.detail_menu, menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item)
+	{
+		switch(item.getItemId())
+		{
+			case R.id.action_map:
+			{ 
+				String vName = mLoc.getName();  
+				String uriBegin = "geo:" + mLoc.getLat() + "," + mLoc.getLng();  
+				String query = mLoc.getLat() + "," + mLoc.getLng() + "(" + vName + ")";  
+				String encodedQuery = Uri.encode(query);  
+				String uriString = uriBegin + "?q=" + encodedQuery + "&z=16";  
+				Uri uri = Uri.parse(uriString);  
+				Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+				getActivity().startActivity(intent);
+			
+				return true;
+			}
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -93,56 +129,213 @@ public class DetailFragment extends Fragment
 		View view = inflater.inflate(R.layout.fragment_detail, container, false);
 		mPCat = (TextView) view.findViewById(R.id.textViewPCat);
 		mSCat = (TextView) view.findViewById(R.id.textViewSCat);
-		mType = (TextView) view.findViewById(R.id.textViewType);
 		mDesc = (TextView) view.findViewById(R.id.textViewDesc);
 		mThumbScroll = (LinearLayout) view.findViewById(R.id.thumbContainer);
+		mExpandable = (ExpandableListView) view.findViewById(R.id.expandableListViewOffer);
+		mProgressThumb = (ProgressBar) view.findViewById(R.id.progressBarThumb);
 		
 		return view;
 	}
 
-	private void populateFragment(LocationModel mLocation)
+	@Override
+	public void onStart()
 	{
-		getActivity().setTitle(mLocation.getName());
-		mPCat.setText(mLocation.getPCat());
+		populateFragment();
+		super.onStart();
+	}
+
+	private void populateFragment()
+	{
+		getActivity().setTitle(mLoc.getName());
 		
-		if(!mLocation.getSCat().isEmpty())
+		String vSub = "";
+		switch(mLoc.getType())
 		{
-			mSCat.setText(mLocation.getSCat());	
+			case Utils.LOC_TYPE_CA:
+			{
+				vSub = getString(R.string.ca);
+				break;
+			}
+			case Utils.LOC_TYPE_POI:
+			{
+				vSub = getString(R.string.poi);
+				break;
+			}
+		}
+		getActivity().getActionBar().setSubtitle(vSub);
+		
+		mPCat.setText(mLoc.getPCat());
+		if(!mLoc.getSCat().isEmpty())
+		{
+			mSCat.setText("(" + mLoc.getSCat() + ")");	
 		}
 		
-		mType.setText(mLocation.getType());
-		mDesc.setText(mLocation.getDesc());
+		mDesc.setText(mLoc.getDesc());
 		
-		ConnectionManager.obtain().get("api/photos/fromlocation/" + mLocation.getId(), null, new JsonResponse()
+		List<Thumb> vCachedThumb = Engine.get().getCache().getThumbs(mLoc.getId());
+		if(vCachedThumb == null || vCachedThumb.size() == 0)
 		{
-			@Override
-			public void onResponse(boolean aResult, Object aResponse) 
+			mProgressThumb.setVisibility(ProgressBar.VISIBLE);
+		}
+		else
+		{
+			for(int i = 0; i < vCachedThumb.size(); ++i)
 			{
-				if(aResult && aResponse != null)
+				Thumb vT = vCachedThumb.get(i);
+				vT.setOnClickListener(mThumbClickListener);
+				mThumbScroll.addView(vT);
+			}
+		}
+				
+		if(mOffersString == null)
+		{
+			ConnectionManager.obtain().get("api/offerings/fromlocation/" + mLoc.getId(), null, new JsonResponse()
+			{	
+				@Override
+				public void onResponse(boolean aResult, Object aResponse)
 				{
-					JSONArray vThumbArray = (JSONArray) aResponse;
-					for(int i = 0; i < vThumbArray.length(); ++i)
+					if(aResult)
 					{
-						int vW, vH;
-						String vBase64;
-						
-						try
-						{
-							JSONObject vImage = vThumbArray.getJSONObject(i);
-							
-							vW = vImage.getInt("Width");
-							vH = vImage.getInt("Height");
-							vBase64 = vImage.getString("Base64Thumbnail");
-							ThumbWithDim vThumb = new ThumbWithDim(getActivity(), vW, vH, vBase64);
-							
-							mThumbScroll.addView(vThumb);
-						}
-						catch (JSONException e)
-						{
-						}
+						mOffersString = ((JSONArray) aResponse).toString();
+						fillOffersList((JSONArray)aResponse);
 					}
 				}
+			});
+		}
+		else
+		{
+			try 
+			{
+				fillOffersList(new JSONArray(mOffersString));
+			} 
+			catch (JSONException e)
+			{
+			}
+		}
+		
+		if(!mThumbUpdated)
+		{
+			RequestParams vParams = new RequestParams();
+			vParams.put("cache", Engine.get().getCache().getThumbIdList(mLoc.getId()).toString());
+			
+			ConnectionManager.obtain().get("api/photos/fromlocation/" + mLoc.getId(), vParams, new JsonResponse()
+			{
+				@Override
+				public void onResponse(boolean aResult, Object aResponse) 
+				{
+					if(aResult && aResponse != null)
+					{
+						JSONArray vThumbArray = (JSONArray) aResponse;
+						for(int i = 0; i < vThumbArray.length(); ++i)
+						{
+							int vId;
+							String vBase64;
+							
+							try
+							{
+								JSONObject vImage = vThumbArray.getJSONObject(i);
+								
+								vId = vImage.getInt("Id");
+							
+								if(vId > 0)
+								{
+									vBase64 = vImage.getString("Base64Thumbnail");
+									
+									if(!alreadyAdded(vId))
+									{
+										Thumb vThumb = new Thumb(getActivity(), vId, vBase64);
+										vThumb.setOnClickListener(mThumbClickListener);
+										
+										Engine.get().getCache().cacheThumb(vThumb, mLoc.getId());
+										mThumbScroll.addView(vThumb);
+									}
+								}
+								else
+								{
+									removeThumb(-vId);
+								}
+							}
+							catch (JSONException e)
+							{
+							}
+						}
+						
+						mThumbUpdated = true;
+						mProgressThumb.setVisibility(ProgressBar.INVISIBLE);
+					}
+				}
+			});
+		}
+	}
+	
+	private void fillOffersList(JSONArray aArray)
+	{
+		List<Offer> vList = Offer.getListFromJsonArray(aArray);
+		mAdapter = new OfferExpandableListAdapter(getActivity(), vList);
+		mExpandable.setAdapter(mAdapter);
+		
+		mExpandable.setOnChildClickListener(new OnChildClickListener()
+		{	
+			@Override
+			public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id)
+			{
+				// TODO dialog condivisione? topas 
+				return false;
 			}
 		});
 	}
+	
+	private boolean alreadyAdded(int aThumbId)
+	{
+		for(int j = 0; j < mThumbScroll.getChildCount(); ++j)
+		{
+			View vView = mThumbScroll.getChildAt(j);
+			
+			if(vView instanceof Thumb)
+			{
+				if(((Thumb)vView).mId == aThumbId)
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	private void removeThumb(int aId)
+	{
+		for(int j = 0; j < mThumbScroll.getChildCount(); ++j)
+		{
+			View vView = mThumbScroll.getChildAt(j);
+			
+			if(vView instanceof Thumb)
+			{
+				if(((Thumb)vView).mId == aId)
+				{
+					mThumbScroll.removeView(vView);
+					--j;
+					continue;
+				}
+			}
+		}
+		
+		Engine.get().getCache().remove(aId, mLoc.getId());
+	}
+	
+	@Override
+	public void onStop()
+	{
+		mThumbScroll.removeAllViews();
+		getActivity().getActionBar().setSubtitle(null);
+		super.onStop();
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState)
+	{
+		outState.putBoolean(THUMB, mThumbUpdated);
+		outState.putBundle(LOCATION, getArguments());
+		outState.putString(OFFERS, mOffersString);
+		super.onSaveInstanceState(outState);
+	}	
 }

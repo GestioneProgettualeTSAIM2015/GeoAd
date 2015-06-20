@@ -5,57 +5,87 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/textViewPCat"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TextView" />
-
-    <TextView
-        android:id="@+id/textViewType"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/textViewPCat"
-        android:text="TextView" />
-
-    <HorizontalScrollView
-        android:id="@+id/horizontalScrollThumb"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/textViewType"
-        android:layout_weight="0.06" >
+        android:layout_height="match_parent"
+        android:fillViewport="true" >
 
-        <LinearLayout
-            android:id="@+id/thumbContainer"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:orientation="horizontal" >
+        <RelativeLayout
+            android:id="@+id/detailContent"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" >
 
-        </LinearLayout>
-    </HorizontalScrollView>
+            <TextView
+                android:id="@+id/textViewPCat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TextView"
+                android:textSize="18sp" />
 
-    <TextView
-        android:id="@+id/textViewSCat"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:text="TextView" />
+            <RelativeLayout
+                android:id="@+id/thumbLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textViewPCat" >
 
-    <TextView
-        android:id="@+id/textViewDesc"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/horizontalScrollThumb"
-        android:text="TextView" />
+                <ProgressBar
+                    android:id="@+id/progressBarThumb"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:visibility="invisible" />
 
-    <ExpandableListView
-        android:id="@+id/expandableListView1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/textViewDesc" >
-    </ExpandableListView>
+                <HorizontalScrollView
+                    android:id="@+id/horizontalScrollThumb"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" >
+
+                    <LinearLayout
+                        android:id="@+id/thumbContainer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="135dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal" >
+                    </LinearLayout>
+                </HorizontalScrollView>
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/textViewSCat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true" />
+
+            <TextView
+                android:id="@+id/textViewDesc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/thumbLayout"
+                android:background="#DDDDDD"
+                android:padding="10dp"
+                android:text="TextView" />
+            
+            <TextView
+                android:id="@+id/textViewOffTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textViewDesc"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="10dp"
+                android:text="@string/offers"
+                android:textSize="18sp" />
+
+            <ExpandableListView
+                android:id="@+id/expandableListViewOffer"
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:layout_below="@+id/textViewOffTitle" >
+
+            </ExpandableListView>
+        </RelativeLayout>
+    </ScrollView>
 
 </RelativeLayout>

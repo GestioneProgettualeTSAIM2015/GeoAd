@@ -27,6 +27,7 @@ public class Engine extends Application implements PushKeyReceiver
     private static Engine mInstance;
 	private String mKey;
 	private String mToken;
+	private Base64Cache mCache;
 
     @Override
     public void onCreate()
@@ -39,11 +40,11 @@ public class Engine extends Application implements PushKeyReceiver
         setVariables();
         
         mToken = SettingsManager.get(this).getToken();
+        mCache = new Base64Cache();
         
         new PushSignIn(this, this);
 
-        mInstance = this;
-        
+        mInstance = this; 
     }
 
     public static Engine get()
@@ -114,5 +115,10 @@ public class Engine extends Application implements PushKeyReceiver
 	public void setToken(String aToken) 
 	{
 		mToken = aToken;
+	}
+	
+	public Base64Cache getCache()
+	{
+		return mCache;
 	}
 }

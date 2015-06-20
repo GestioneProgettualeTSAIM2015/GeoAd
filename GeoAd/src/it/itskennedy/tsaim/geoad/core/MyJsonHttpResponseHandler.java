@@ -11,12 +11,10 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 public class MyJsonHttpResponseHandler extends JsonHttpResponseHandler
 {
 	private JsonResponse mListener;
-	private ConnectionManager mManager;
 
-	public MyJsonHttpResponseHandler(JsonResponse aListener, ConnectionManager connectionManager)
+	public MyJsonHttpResponseHandler(JsonResponse aListener)
 	{
 		mListener = aListener;
-		mManager = connectionManager;
 	}
 	
 	@Override
@@ -26,8 +24,6 @@ public class MyJsonHttpResponseHandler extends JsonHttpResponseHandler
         {
             mListener.onResponse(true, response);
         }
-
-        mManager.executeQueue();
 	}
 
 	@Override
@@ -37,8 +33,6 @@ public class MyJsonHttpResponseHandler extends JsonHttpResponseHandler
         {
             mListener.onResponse(true, response);
         }
-
-        mManager.executeQueue();
     }
 
     @Override
@@ -48,8 +42,6 @@ public class MyJsonHttpResponseHandler extends JsonHttpResponseHandler
     	{
     		mListener.onResponse(false, null);
     	}
-    	
-    	mManager.executeQueue();
     }
     
     @Override
@@ -57,14 +49,12 @@ public class MyJsonHttpResponseHandler extends JsonHttpResponseHandler
 	{
 		if(mListener != null && statusCode == 200)
 		{
-			mListener.onResponse(true, null);
+			mListener.onResponse(true, responseString);
 		}
 		else if(mListener != null)
 		{
 			mListener.onResponse(false, null);
 		}
-		
-		mManager.executeQueue();
 	}
 
 	@Override
@@ -78,7 +68,5 @@ public class MyJsonHttpResponseHandler extends JsonHttpResponseHandler
 		{
 			mListener.onResponse(false, null);
 		}
-		
-		mManager.executeQueue();
 	}
 }

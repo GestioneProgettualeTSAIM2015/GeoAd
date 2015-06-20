@@ -8,7 +8,6 @@ import it.itskennedy.tsaim.geoad.core.Engine;
 import it.itskennedy.tsaim.geoad.core.SettingsManager;
 import it.itskennedy.tsaim.geoad.entity.LocationModel;
 import it.itskennedy.tsaim.geoad.fragment.ActivitiesFragment;
-import it.itskennedy.tsaim.geoad.fragment.AugmentedRealityFragment;
 import it.itskennedy.tsaim.geoad.fragment.DetailFragment;
 import it.itskennedy.tsaim.geoad.fragment.LoginDialogFragment;
 import it.itskennedy.tsaim.geoad.fragment.MarkedLocationFragment;
@@ -56,9 +55,9 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
     ArrayAdapter<String> mAdapter;
 	private boolean isLogged;
 	private int searchFragmentType;
-
-	private LocationModel mObj;//
-
+	
+	private LocationModel mLocTest;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -66,6 +65,23 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		setContentView(R.layout.activity_main);
 		
 		isLogged = SettingsManager.get(this).isUserLogged();
+		
+		RequestParams vParams = new RequestParams();
+		vParams.put("id", 580);
+		
+		ConnectionManager.obtain().get("api/locations", vParams, new JsonResponse()
+		{	
+			@Override
+			public void onResponse(boolean aResult, Object aResponse)
+			{
+				if(aResult && aResponse != null && aResponse instanceof JSONObject)
+				{
+					Log.i(Engine.APP_NAME, "LOC OK!");
+					mLocTest = LocationModel.fromJSON((JSONObject)aResponse);	
+					return;
+				}
+			}
+		});
 		
         mTitle = mDrawerTitle = getTitle();
         mPlanetTitles = new ArrayList<>();
@@ -149,9 +165,9 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
             return true;
         	case R.id.action_filter: 
             return true;
-        default:
-            return super.onOptionsItemSelected(item);
         }
+        
+        return super.onOptionsItemSelected(item);
     }
     
     /* The click listner for ListView in the navigation drawer */
@@ -211,21 +227,23 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 	public void loadFragment(int fragmentType, Bundle bundle)
 	{
 		Fragment vFragment = null;
+		String vTag = "";
 		
 		switch (fragmentType)
 		{
 			case Utils.TYPE_SEARCH_LIST:
 				searchFragmentType = Utils.TYPE_SEARCH_LIST;
 				vFragment = SearchListFragment.getInstance(bundle, this);
+				vTag = SearchListFragment.TAG;
 				break;
 			case Utils.TYPE_AUGMENTED_REALITY:
 				//vFragment = AugmentedRealityFragment.getInstance(bundle);
-				Bundle vB = new Bundle();
-				vB.putInt(DetailFragment.LOCATION_ID, 580);
-				vFragment = DetailFragment.getInstance(vB);
+				vFragment = DetailFragment.getInstance(mLocTest.getBundle());
+				vTag = DetailFragment.TAG;
 				break;
 			case Utils.TYPE_PREFERENCE:
 				vFragment = MarkedLocationFragment.getInstance(bundle);
+				vTag = MarkedLocationFragment.TAG;
 				break;
 			case Utils.TYPE_ACTIVITIES:
 				if(isLogged)
@@ -251,11 +269,8 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 				return;
 		}
 		
-		if(vFragment != null) //
-		{//
-			FragmentManager fragmentManager = getFragmentManager();
-	        fragmentManager.beginTransaction().replace(R.id.content_frame, vFragment).commit();	
-		}//
+		FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.content_frame, vFragment, vTag).commit();	
 	}
 
 	@Override

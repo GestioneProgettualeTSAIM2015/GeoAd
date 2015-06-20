@@ -178,4 +178,14 @@ public class LocationModel
 	{
 		return mDesc;
 	}
+
+	public double getLat() 
+	{
+		return mLat;
+	}
+	
+	public double getLng()
+	{
+		return mLng;
+	}
 }

@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 
 public class SearchListFragment extends Fragment
 {
-	
+	public static final String TAG = "search_list_fragment";
 	private static IFragment mListener;
 
 	public static SearchListFragment getInstance(Bundle aBundle, IFragment listener)

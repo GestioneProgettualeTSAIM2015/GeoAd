@@ -18,6 +18,8 @@ import android.widget.ExpandableListView.OnGroupClickListener;
 public class MarkedLocationFragment extends Fragment
 {	
 	public static final int DELETE_CODE = 1;
+
+	public static final String TAG = "marked_loc";
 	
 	private ExpandableListView mExpandable;
 	private MarkedExpandableListAdapter mAdapter;

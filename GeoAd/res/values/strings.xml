@@ -13,6 +13,12 @@
         <item>Login</item>
     </string-array>
     
+    <string name="poi">Punto d\'interesse</string>
+    <string name="ca">Attività commerciale</string>
+    
+    <string name="offers">Offerte</string>
+    <string name="expire">Scadenza</string>
+    
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     
@@ -25,5 +31,7 @@
     
     <string name="remove_marked_fav">Rimuovere il luogo dai preferiti?</string>
     <string name="remove_marked_ign">Rimuovere il luogo dagli ignorati?</string>
+    
+    <string name="action_map">Visualizza su mappa</string>
 
 </resources>

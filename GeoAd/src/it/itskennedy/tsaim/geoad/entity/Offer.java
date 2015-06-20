@@ -122,7 +122,7 @@ public class Offer
 
             int vId = vObj.getInt(ID);
             String vName = vObj.getString(NAME);
-            String vLocationName = vObj.getString(LOC_NAME);
+            String vLocationName = vObj.optString(LOC_NAME);
             int vLocationId = vObj.getInt(LOC_ID);
             String vDesc = vObj.getString(DESC);
             long vInsDate = vObj.getLong(INS_DATE);
@@ -175,5 +175,10 @@ public class Offer
         }
 
         return vResult;
+	}
+
+	public String getName()
+	{
+		return mName;
 	}
 }

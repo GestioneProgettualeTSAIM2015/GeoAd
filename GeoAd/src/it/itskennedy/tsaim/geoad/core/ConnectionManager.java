@@ -1,7 +1,5 @@
 package it.itskennedy.tsaim.geoad.core;
 
-import java.util.ArrayList;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -22,12 +20,6 @@ public class ConnectionManager extends BroadcastReceiver
     private static ConnectionManager mInstance;
     private static AsyncHttpClient mClient;
 
-	private ArrayList<HttpMethod> mTypes;
-    private ArrayList<String> mUrls;
-    private ArrayList<RequestParams> mRequests;
-    private ArrayList<JsonResponse> mListeners;
-
-    private boolean mIsPending = false;
     private boolean mIsConnection = true;
 
     private enum HttpMethod { GET, POST, PUT, DELETE };
@@ -51,11 +43,6 @@ public class ConnectionManager extends BroadcastReceiver
     {
         mClient = new AsyncHttpClient();
 
-        mTypes = new ArrayList<HttpMethod>();
-        mUrls = new ArrayList<String>();
-        mRequests = new ArrayList<RequestParams>();
-        mListeners = new ArrayList<JsonResponse>();
-        
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);        
         Engine.get().registerReceiver(this, filter);
     }
@@ -99,49 +86,40 @@ public class ConnectionManager extends BroadcastReceiver
 	    	
 	    	if(vKey != null)
 	    	{
-	    		if(!mIsPending)
-	            {	
-	                mIsPending = true;
-	                
-	                if(aParams == null)
-	                {
-	                	aParams = new RequestParams();
-	                }
-	                
-	                aParams.add("key", vKey);
-	
-	                Log.d(Engine.APP_NAME, "URL: " + Engine.SERVER_URL + aUrl);
-	
-	                JsonHttpResponseHandler vResponseHandler = new MyJsonHttpResponseHandler(aListener, this);
-	                      
-	                switch(aType)
-	                {
-						case DELETE:
-						{
-							mClient.delete(Engine.SERVER_URL + aUrl, vResponseHandler);
-							break;
-						}
-						case GET:
-						{
-							mClient.get(Engine.SERVER_URL + aUrl, aParams, vResponseHandler);
-							break;
-						}
-						case POST:
-						{
-							mClient.post(Engine.SERVER_URL + aUrl, aParams, vResponseHandler);
-							break;
-						}
-						case PUT:
-						{
-							mClient.put(Engine.SERVER_URL + aUrl, aParams, vResponseHandler);
-							break;
-						}
-	                }
-	            }
-	            else
-	            {
-	                enqueue(aType, aUrl, aParams, aListener);
-	            }
+                if(aParams == null)
+                {
+                	aParams = new RequestParams();
+                }
+                
+                aParams.add("key", vKey);
+
+                Log.d(Engine.APP_NAME, "URL: " + Engine.SERVER_URL + aUrl);
+
+                JsonHttpResponseHandler vResponseHandler = new MyJsonHttpResponseHandler(aListener);
+                      
+                switch(aType)
+                {
+					case DELETE:
+					{
+						mClient.delete(Engine.SERVER_URL + aUrl, vResponseHandler);
+						break;
+					}
+					case GET:
+					{
+						mClient.get(Engine.SERVER_URL + aUrl, aParams, vResponseHandler);
+						break;
+					}
+					case POST:
+					{
+						mClient.post(Engine.SERVER_URL + aUrl, aParams, vResponseHandler);
+						break;
+					}
+					case PUT:
+					{
+						mClient.put(Engine.SERVER_URL + aUrl, aParams, vResponseHandler);
+						break;
+					}
+                }	            
 	    	}
 	    	else
 	    	{
@@ -162,29 +140,6 @@ public class ConnectionManager extends BroadcastReceiver
     		mClient.addHeader("Authorization", "Bearer " + Engine.get().getToken());	
     	}
 	}
-
-    void executeQueue()
-    {
-        mIsPending = false;
-
-        if(mRequests.size() > 0)
-        {
-        	HttpMethod vM = mTypes.remove(0);
-        	String vU = mUrls.remove(0);
-        	RequestParams vP = mRequests.remove(0);
-        	JsonResponse vR = mListeners.remove(0);
-        	
-        	send(vM, vU, vP, vR);   
-        }
-    }
-
-    private void enqueue(HttpMethod aType, String aUrl, RequestParams aParams, JsonResponse aListener)
-    {
-    	mTypes.add(aType);
-        mUrls.add(aUrl);
-        mRequests.add(aParams);
-        mListeners.add(aListener);
-    }
 
 	@Override
 	public void onReceive(Context context, Intent intent)
