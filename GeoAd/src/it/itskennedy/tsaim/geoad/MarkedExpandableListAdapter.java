@@ -163,10 +163,12 @@ public class MarkedExpandableListAdapter extends BaseExpandableListAdapter
 		{
 			if(vElem.get(i).mId == aId)
 			{
-				vElem.remove(i);			
+				mContents.get(aGroup).remove(i);			
 				return;
 			}
 		}
+		
+		notifyDataSetChanged();
 	}
 
 	

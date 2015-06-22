@@ -11,6 +11,7 @@ import it.itskennedy.tsaim.geoad.entity.LocationModel;
 import it.itskennedy.tsaim.geoad.entity.Offer;
 import it.itskennedy.tsaim.geoad.localdb.DataFavContentProvider;
 import it.itskennedy.tsaim.geoad.localdb.DataOffersContentProvider;
+import it.itskennedy.tsaim.geoad.localdb.FavoritesHelper;
 import it.itskennedy.tsaim.geoad.localdb.IgnoredHelper;
 import it.itskennedy.tsaim.geoad.localdb.OffersHelper;
 import it.itskennedy.tsaim.geoad.widgets.WidgetProvider;

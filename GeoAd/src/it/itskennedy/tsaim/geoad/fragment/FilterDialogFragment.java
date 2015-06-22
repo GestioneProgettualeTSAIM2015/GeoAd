@@ -2,7 +2,6 @@ package it.itskennedy.tsaim.geoad.fragment;
 
 import it.itskennedy.tsaim.geoad.R;
 import it.itskennedy.tsaim.geoad.interfaces.IFilterDialogFragment;
-import it.itskennedy.tsaim.geoad.interfaces.ILoginDialogFragment;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -10,7 +9,6 @@ import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.widget.EditText;
 
 public class FilterDialogFragment extends DialogFragment
 {

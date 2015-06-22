@@ -8,6 +8,7 @@ import it.itskennedy.tsaim.geoad.core.Engine;
 import it.itskennedy.tsaim.geoad.core.SettingsManager;
 import it.itskennedy.tsaim.geoad.entity.LocationModel;
 import it.itskennedy.tsaim.geoad.fragment.ActivitiesFragment;
+import it.itskennedy.tsaim.geoad.fragment.AugmentedRealityFragment;
 import it.itskennedy.tsaim.geoad.fragment.DetailFragment;
 import it.itskennedy.tsaim.geoad.fragment.LoginDialogFragment;
 import it.itskennedy.tsaim.geoad.fragment.MarkedLocationFragment;
@@ -56,8 +57,6 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 	private boolean isLogged;
 	private int searchFragmentType;
 	
-	private LocationModel mLocTest;
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -66,7 +65,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		
 		isLogged = SettingsManager.get(this).isUserLogged();
 		
-		RequestParams vParams = new RequestParams();
+		/*RequestParams vParams = new RequestParams();
 		vParams.put("id", 580);
 		
 		ConnectionManager.obtain().get("api/locations", vParams, new JsonResponse()
@@ -76,12 +75,10 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 			{
 				if(aResult && aResponse != null && aResponse instanceof JSONObject)
 				{
-					Log.i(Engine.APP_NAME, "LOC OK!");
-					mLocTest = LocationModel.fromJSON((JSONObject)aResponse);	
-					return;
+					loadFragment(Utils.TYPE_DETAIL, LocationModel.fromJSON(aResponse.toString()).getBundle());
 				}
 			}
-		});
+		});*/
 		
         mTitle = mDrawerTitle = getTitle();
         mPlanetTitles = new ArrayList<>();
@@ -237,9 +234,8 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 				vTag = SearchListFragment.TAG;
 				break;
 			case Utils.TYPE_AUGMENTED_REALITY:
-				//vFragment = AugmentedRealityFragment.getInstance(bundle);
-				vFragment = DetailFragment.getInstance(mLocTest.getBundle());
-				vTag = DetailFragment.TAG;
+				vFragment = AugmentedRealityFragment.getInstance(bundle);
+				vTag = AugmentedRealityFragment.TAG;
 				break;
 			case Utils.TYPE_PREFERENCE:
 				vFragment = MarkedLocationFragment.getInstance(bundle);
@@ -262,6 +258,12 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 				searchFragmentType = Utils.TYPE_SEARCH_MAP;
 				vFragment = SearchMapFragment.getInstance(bundle, this);
 				break;
+			case Utils.TYPE_DETAIL:
+			{
+				vFragment = DetailFragment.getInstance(bundle);
+				vTag = DetailFragment.TAG;
+				break;
+			}
 			case Utils.TYPE_FILTER:
 				LoginDialogFragment loginDialog = new LoginDialogFragment();
 				loginDialog.setCancelable(false);

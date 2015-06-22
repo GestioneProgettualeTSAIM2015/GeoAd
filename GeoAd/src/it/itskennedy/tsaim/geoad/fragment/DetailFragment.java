@@ -212,6 +212,10 @@ public class DetailFragment extends Fragment
 						mOffersString = ((JSONArray) aResponse).toString();
 						fillOffersList((JSONArray)aResponse);
 					}
+					else
+					{
+						
+					}
 				}
 			});
 		}
@@ -275,6 +279,10 @@ public class DetailFragment extends Fragment
 						
 						mThumbUpdated = true;
 						mProgressThumb.setVisibility(ProgressBar.INVISIBLE);
+					}
+					else
+					{
+						
 					}
 				}
 			});

@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 public class AugmentedRealityFragment extends Fragment
 {
 
+	public static final String TAG = "augmentedrealityfragment";
+
 	public static AugmentedRealityFragment getInstance(Bundle aBundle)
 	{
 		AugmentedRealityFragment vFragment = new AugmentedRealityFragment();

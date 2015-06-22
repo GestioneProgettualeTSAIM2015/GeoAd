@@ -12,6 +12,7 @@ public class Utils
 	public static final int TYPE_PREFERENCE = 2;
 	public static final int TYPE_ACTIVITIES = 3;
 	public static final int TYPE_FILTER = 5;
+	public static final int TYPE_DETAIL = 6;
 	
 	public static Bitmap base64ToBitmap(String aBase64)
 	{

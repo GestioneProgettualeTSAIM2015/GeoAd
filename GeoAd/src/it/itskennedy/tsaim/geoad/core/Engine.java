@@ -15,12 +15,16 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Application;
 import android.content.Intent;
 import android.database.Cursor;
+import android.util.Log;
+
+import com.loopj.android.http.RequestParams;
 
 /**
  * Created by Marco Zeni on 13/05/2015.
@@ -140,11 +144,13 @@ public class Engine extends Application implements PushKeyReceiver
 		{
 			deleteIgnored(aLocation.getId());
 			getContentResolver().insert(DataFavContentProvider.FAVORITES_URI, aLocation.getContentValues());
+			notifyServer();
 		}
 		else if(aState == LocationState.IGNORED)
 		{
 			deleteFavorite(aLocation.getId());
 			getContentResolver().insert(DataFavContentProvider.IGNORED_URI, aLocation.getIgnoredContentValues());	
+			notifyServer();
 		}
 		else if(aState == LocationState.NEUTRAL)
 		{
@@ -152,10 +158,35 @@ public class Engine extends Application implements PushKeyReceiver
 		}
 	}
 	
-	private void setNeutralLocationState(int aId)
+	public void setNeutralLocationState(int aId)
 	{
 		deleteIgnored(aId);
 		deleteFavorite(aId);
+		notifyServer();
+	}
+	
+	private void notifyServer()
+	{
+		JSONArray vJsonList = new JSONArray();
+		
+		Cursor vCur = getContentResolver().query(DataFavContentProvider.FAVORITES_URI, null, null, null, null);
+		while(vCur.moveToNext())
+		{
+			int vIdIndex = vCur.getColumnIndex(FavoritesHelper._ID);
+			vJsonList.put(vCur.getInt(vIdIndex));
+		}
+		
+		vCur = getContentResolver().query(DataFavContentProvider.IGNORED_URI, null, null, null, null);
+		while(vCur.moveToNext())
+		{
+			int vIdIndex = vCur.getColumnIndex(IgnoredHelper._ID);
+			vJsonList.put(-vCur.getInt(vIdIndex));
+		}
+		
+		RequestParams vParams = new RequestParams();
+		vParams.put("ids", vJsonList.toString());
+		
+		ConnectionManager.obtain().post("api/favorites", vParams, null);
 	}
 
 	private void deleteFavorite(int aId)

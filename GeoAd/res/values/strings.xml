@@ -26,6 +26,11 @@
     <string name="save">Salva</string>
     <string name="close">Chiudi</string>
     
+    <string name="dont_show_again">Non mostrare più</string>
+    
+    <string name="favorite_desc">Aggiungendo un luogo tra i preferiti potrai consultarne i dettagli anche in assenza di rete e abiliterai la ricezione delle offerte anche se non ti trovi vicino ad esso.</string>
+    <string name="ignored_desc">Aggungendo un luogo tra quelli ignorati interromperai la ricezione delle sue offerte. Puoi rimuovere un luogo dagli ignorati in qualsiasi momento.</string>
+    
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     
