@@ -111,16 +111,6 @@ public class OfferExpandableListAdapter extends BaseExpandableListAdapter
 		return true;
 	}
 	
-	public int getFavourite()
-	{
-		return mContents.get(0).size();
-	}
-	
-	public int getIgnored()
-	{
-		return mContents.get(1).size();
-	}
-	
 	public void remove(int aGroup, int aId)
 	{
 		List<OfferDetail> vElem = mContents.get(aGroup);

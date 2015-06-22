@@ -77,6 +77,16 @@
                 android:layout_marginTop="10dp"
                 android:text="@string/offers"
                 android:textSize="18sp" />
+            
+            <TextView
+                android:id="@+id/textViewEmpty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textViewOffTitle"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="10dp"
+                android:text="@string/no_offer"
+                android:textSize="16sp" />
 
             <ExpandableListView
                 android:id="@+id/expandableListViewOffer"

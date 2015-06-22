@@ -64,7 +64,7 @@ public class ImageDialog extends DialogFragment
 			showImage(vCacheImage);
 		}
 		
-		builder.setNegativeButton("Chiudi", null);
+		builder.setNegativeButton(getString(R.string.close), null);
 
 		Dialog vDialog = builder.create();
 		return vDialog;

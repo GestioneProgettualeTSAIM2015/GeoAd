@@ -21,7 +21,7 @@ public class FavoritesHelper implements BaseColumns {
             + _ID + " INTEGER PRIMARY KEY, "
             + NAME + " TEXT NOT NULL, "
             + LAT + " DOUBLE, "
-            + LNG + " DOUBLE "
+            + LNG + " DOUBLE, "
             + DESC + " TEXT, "
             + TYPE + " TEXT, "
             + PCAT + " TEXT, "

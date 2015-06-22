@@ -6,6 +6,7 @@ import it.itskennedy.tsaim.geoad.Utils;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager.JsonResponse;
 import it.itskennedy.tsaim.geoad.core.Engine;
+import it.itskennedy.tsaim.geoad.core.Engine.LocationState;
 import it.itskennedy.tsaim.geoad.entity.LocationModel;
 import it.itskennedy.tsaim.geoad.entity.Offer;
 import it.itskennedy.tsaim.geoad.entity.Thumb;
@@ -16,6 +17,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
 import android.net.Uri;
@@ -38,6 +40,7 @@ import com.loopj.android.http.RequestParams;
 public class DetailFragment extends Fragment
 {
 	public static final String TAG = "detail_fragment";
+	public static final int LOCATION_STATE_RC = 0;
 	
 	private static final String LOCATION = "location";
 	private static final String OFFERS = "offers";
@@ -61,6 +64,7 @@ public class DetailFragment extends Fragment
 			if(v instanceof Thumb)
 			{
 				ImageDialog vDialog = ImageDialog.get(((Thumb) v).mId);
+				vDialog.setTargetFragment(DetailFragment.this, LOCATION_STATE_RC);
 				vDialog.show(getActivity().getFragmentManager(), ImageDialog.TAG);	
 			}
 		}
@@ -117,6 +121,15 @@ public class DetailFragment extends Fragment
 				Intent intent = new Intent(Intent.ACTION_VIEW, uri);
 				getActivity().startActivity(intent);
 			
+				return true;
+			}
+			case R.id.action_mark:
+			{
+				LocationState vActual = Engine.get().getLocationState(mLoc.getId());
+				boolean vIsIgnorable = mLoc.getType().equals(Utils.LOC_TYPE_CA);
+				MarkingDialogFragment vDial = MarkingDialogFragment.get(vActual, vIsIgnorable);
+				vDial.setTargetFragment(DetailFragment.this, LOCATION_STATE_RC);
+				vDial.show(getFragmentManager(), MarkingDialogFragment.TAG);
 				return true;
 			}
 		}
@@ -273,6 +286,7 @@ public class DetailFragment extends Fragment
 		List<Offer> vList = Offer.getListFromJsonArray(aArray);
 		mAdapter = new OfferExpandableListAdapter(getActivity(), vList);
 		mExpandable.setAdapter(mAdapter);
+		mExpandable.setEmptyView(getView().findViewById(R.id.textViewEmpty));
 		
 		mExpandable.setOnChildClickListener(new OnChildClickListener()
 		{	
@@ -337,5 +351,15 @@ public class DetailFragment extends Fragment
 		outState.putBundle(LOCATION, getArguments());
 		outState.putString(OFFERS, mOffersString);
 		super.onSaveInstanceState(outState);
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		if(requestCode == LOCATION_STATE_RC && resultCode == Activity.RESULT_OK && data != null)
+		{
+			Engine.get().updateLocationState(mLoc, LocationState.values()[data.getIntExtra(MarkingDialogFragment.LOCATION_STATE, 0)]);
+		}
+		super.onActivityResult(requestCode, resultCode, data);
 	}	
 }

@@ -1,6 +1,12 @@
 package it.itskennedy.tsaim.geoad.core;
 
 import it.itskennedy.tsaim.geoad.R;
+import it.itskennedy.tsaim.geoad.entity.LocationModel;
+import it.itskennedy.tsaim.geoad.localdb.DataFavContentProvider;
+import it.itskennedy.tsaim.geoad.localdb.DataOffersContentProvider;
+import it.itskennedy.tsaim.geoad.localdb.FavoritesHelper;
+import it.itskennedy.tsaim.geoad.localdb.IgnoredHelper;
+import it.itskennedy.tsaim.geoad.localdb.OffersHelper;
 import it.itskennedy.tsaim.geoad.push.PushSignIn;
 import it.itskennedy.tsaim.geoad.push.PushSignIn.PushKeyReceiver;
 import it.itskennedy.tsaim.geoad.services.GeoAdService;
@@ -14,6 +20,7 @@ import org.json.JSONObject;
 
 import android.app.Application;
 import android.content.Intent;
+import android.database.Cursor;
 
 /**
  * Created by Marco Zeni on 13/05/2015.
@@ -29,6 +36,11 @@ public class Engine extends Application implements PushKeyReceiver
 	private String mToken;
 	private Base64Cache mCache;
 
+	public enum LocationState
+	{
+		NEUTRAL, FAVORITE, IGNORED
+	}
+	
     @Override
     public void onCreate()
     {
@@ -120,5 +132,59 @@ public class Engine extends Application implements PushKeyReceiver
 	public Base64Cache getCache()
 	{
 		return mCache;
+	}
+
+	public void updateLocationState(LocationModel aLocation, LocationState aState)
+	{
+		if(aState == LocationState.FAVORITE)
+		{
+			deleteIgnored(aLocation.getId());
+			getContentResolver().insert(DataFavContentProvider.FAVORITES_URI, aLocation.getContentValues());
+		}
+		else if(aState == LocationState.IGNORED)
+		{
+			deleteFavorite(aLocation.getId());
+			getContentResolver().insert(DataFavContentProvider.IGNORED_URI, aLocation.getIgnoredContentValues());	
+		}
+		else if(aState == LocationState.NEUTRAL)
+		{
+			setNeutralLocationState(aLocation.getId());
+		}
+	}
+	
+	private void setNeutralLocationState(int aId)
+	{
+		deleteIgnored(aId);
+		deleteFavorite(aId);
+	}
+
+	private void deleteFavorite(int aId)
+	{
+		getContentResolver().delete(DataFavContentProvider.FAVORITES_URI, IgnoredHelper._ID + " = " + aId, null);
+		getContentResolver().delete(DataOffersContentProvider.OFFERS_URI, OffersHelper.LOCATION_ID + " = " + aId, null);
+	}
+
+	private void deleteIgnored(int aId)
+	{
+		getContentResolver().delete(DataFavContentProvider.IGNORED_URI, IgnoredHelper._ID + " = " + aId, null);
+	}
+
+	public LocationState getLocationState(int id)
+	{
+		Cursor vCur = getContentResolver().query(DataFavContentProvider.FAVORITES_URI, null, FavoritesHelper._ID + " = " + id, null, null);
+		if(vCur.getCount() == 1)
+		{
+			return LocationState.FAVORITE;
+		}
+		else
+		{
+			vCur = getContentResolver().query(DataFavContentProvider.IGNORED_URI, null, IgnoredHelper._ID + " = " + id, null, null);
+			if(vCur.getCount() == 1)
+			{
+				return LocationState.IGNORED;
+			}	
+		}
+		
+		return LocationState.NEUTRAL;
 	}
 }

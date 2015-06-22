@@ -4,4 +4,8 @@
 	    android:showAsAction="always" 
 	    android:icon="@drawable/ic_menu_map" 
 	    android:id="@+id/action_map"/>
+	
+	<item android:title="@string/location_state" 
+	    android:showAsAction="never" 
+	    android:id="@+id/action_mark"/>
 </menu>

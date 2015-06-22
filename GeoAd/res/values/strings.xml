@@ -19,15 +19,22 @@
     <string name="offers">Offerte</string>
     <string name="expire">Scadenza</string>
     
+    <string name="location_state">Opzioni Luogo</string>
+    <string name="favorite">Preferito</string>
+    <string name="ignored">Ignorato</string>
+    
+    <string name="save">Salva</string>
+    <string name="close">Chiudi</string>
+    
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     
     <string name="widget_title">Offerte GeoAd</string>
     <string name="widget_button">Gestisci le tue attività</string>
-    <string name="widget_no_offer">Non sono presenti offerte</string>
+    <string name="no_offer">Non sono presenti offerte</string>
     
-    <string name="favourite">Luoghi preferiti</string>
-    <string name="ignored">Luoghi ignorati</string>
+    <string name="favorite_loc">Luoghi preferiti</string>
+    <string name="ignored_loc">Luoghi ignorati</string>
     
     <string name="remove_marked_fav">Rimuovere il luogo dai preferiti?</string>
     <string name="remove_marked_ign">Rimuovere il luogo dagli ignorati?</string>
