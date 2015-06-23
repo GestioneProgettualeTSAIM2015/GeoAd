@@ -76,7 +76,7 @@ else
                 <p class="control-label">Nome</p>
             </div>
             <div class="col-md-10">
-                <input type="text" id="offName" />
+                <input type="text" id="offName" maxlength="@(System.Configuration.ConfigurationManager.AppSettings["maxOfferingNameLength"])" />
             </div>
         </div>
         <br />

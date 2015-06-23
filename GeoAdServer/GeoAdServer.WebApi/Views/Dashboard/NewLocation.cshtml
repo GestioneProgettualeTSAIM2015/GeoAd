@@ -14,7 +14,7 @@ else
         <input type="hidden" name="lng" id="lng" required title="Indicare sulla mappa dove si trova" />
 
         <span class="form-group">
-            <input type="text" id="locName" name="Name" class="form-control" placeholder="Nome" required autofocus />
+            <input type="text" id="locName" name="Name" class="form-control" placeholder="Nome" maxlength="@(System.Configuration.ConfigurationManager.AppSettings["maxLocationNameLength"])" required autofocus />
         </span>
 
         <span class="form-group">

@@ -17,10 +17,11 @@ namespace GeoAdServer.WebApi.Controllers
 {
     public class OfferingsController : ApiController
     {
-        private readonly static int MAX_OFFERING_DESCRIPTION_LENGTH;
+        private readonly static int MAX_OFFERING_NAME_LENGTH, MAX_OFFERING_DESCRIPTION_LENGTH;
 
         static OfferingsController()
         {
+            MAX_OFFERING_NAME_LENGTH = int.Parse(ConfigurationManager.AppSettings["maxOfferingNameLength"]);
             MAX_OFFERING_DESCRIPTION_LENGTH = int.Parse(ConfigurationManager.AppSettings["maxOfferingDescriptionLength"]);
         }
 
@@ -46,7 +47,14 @@ namespace GeoAdServer.WebApi.Controllers
                 if (offering.ExpDateMillis < (DateTime.Today).Millisecond)
                     return Request.CreateResponse((HttpStatusCode)422, "Unprocessable Entity");
 
-                offering.Desc = offering.Desc.Substring(0, MAX_OFFERING_DESCRIPTION_LENGTH);
+                if (offering.Name.Length < 1)
+                    return Request.CreateResponse((HttpStatusCode)422, "Unprocessable Entity: Offering must have a valid name");
+                else if (offering.Name.Length > MAX_OFFERING_NAME_LENGTH)
+                    offering.Name = offering.Name.Substring(0, MAX_OFFERING_NAME_LENGTH);
+
+                if (offering.Desc.Length > MAX_OFFERING_DESCRIPTION_LENGTH)
+                    offering.Desc = offering.Desc.Substring(0, MAX_OFFERING_DESCRIPTION_LENGTH);
+
                 int id = repos.Offerings.Insert(offering);
 
                 //event
@@ -82,7 +90,14 @@ namespace GeoAdServer.WebApi.Controllers
                     if (!dbOffering.LocationId.IsLocationOwner(RequestContext.GetUserId(), repos.Locations))
                         return Request.CreateResponse(HttpStatusCode.Unauthorized);
 
-                    offering.Desc = offering.Desc.Substring(0, MAX_OFFERING_DESCRIPTION_LENGTH);
+                    if (offering.Name.Length < 1)
+                        return Request.CreateResponse((HttpStatusCode)422, "Unprocessable Entity: Offering must have a valid name");
+                    else if (offering.Name.Length > MAX_OFFERING_NAME_LENGTH)
+                        offering.Name = offering.Name.Substring(0, MAX_OFFERING_NAME_LENGTH);
+
+                    if (offering.Desc.Length > MAX_OFFERING_DESCRIPTION_LENGTH)
+                        offering.Desc = offering.Desc.Substring(0, MAX_OFFERING_DESCRIPTION_LENGTH);
+
                     result = repos.Offerings.Update(id, offering);
                 }
 

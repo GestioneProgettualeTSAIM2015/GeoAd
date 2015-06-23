@@ -17,11 +17,12 @@ namespace GeoAdServer.WebApi.Controllers
 {
     public class LocationsController : ApiController
     {
-        private readonly static int MAX_LOCATION_DESCRIPTION_LENGTH;
+        private readonly static int MAX_LOCATION_NAME_LENGTH, MAX_LOCATION_DESCRIPTION_LENGTH;
         private readonly static double MAX_LOCATIONS_SEARCH_R, MIN_LOCATIONS_SEARCH_R;
 
         static LocationsController()
         {
+            MAX_LOCATION_NAME_LENGTH = int.Parse(ConfigurationManager.AppSettings["maxLocationNameLength"]);
             MAX_LOCATION_DESCRIPTION_LENGTH = int.Parse(ConfigurationManager.AppSettings["maxLocationDescriptionLength"]);
             MAX_LOCATIONS_SEARCH_R = double.Parse(ConfigurationManager.AppSettings["maxLocationsSearchR"], CultureInfo.InvariantCulture);
             MIN_LOCATIONS_SEARCH_R = double.Parse(ConfigurationManager.AppSettings["minLocationsSearchR"], CultureInfo.InvariantCulture);
@@ -76,7 +77,14 @@ namespace GeoAdServer.WebApi.Controllers
                     return Request.CreateResponse((HttpStatusCode)422, message);
                 }
 
-                location.Desc = location.Desc.Substring(0, MAX_LOCATION_DESCRIPTION_LENGTH);
+                if (location.Name.Length < 1)
+                    return Request.CreateResponse((HttpStatusCode)422, "Unprocessable Entity: Location must have a valid name");
+                else if (location.Name.Length > MAX_LOCATION_NAME_LENGTH)
+                    location.Name = location.Name.Substring(0, MAX_LOCATION_NAME_LENGTH);
+
+                if (location.Desc.Length > MAX_LOCATION_DESCRIPTION_LENGTH)
+                    location.Desc = location.Desc.Substring(0, MAX_LOCATION_DESCRIPTION_LENGTH);
+
                 int id = repos.Locations.Insert(location);
 
                 //event
@@ -112,7 +120,14 @@ namespace GeoAdServer.WebApi.Controllers
                     return Request.CreateResponse((HttpStatusCode)422, message);
                 }
 
-                location.Desc = location.Desc.Substring(0, MAX_LOCATION_DESCRIPTION_LENGTH);
+                if (location.Name.Length < 1)
+                    return Request.CreateResponse((HttpStatusCode)422, "Unprocessable Entity: Location must have a valid name");
+                else if (location.Name.Length > MAX_LOCATION_NAME_LENGTH)
+                    location.Name = location.Name.Substring(0, MAX_LOCATION_NAME_LENGTH);
+
+                if (location.Desc.Length > MAX_LOCATION_DESCRIPTION_LENGTH)
+                    location.Desc = location.Desc.Substring(0, MAX_LOCATION_DESCRIPTION_LENGTH);
+
                 var result = repos.Locations.Update(id, location);
 
                 if (result)
