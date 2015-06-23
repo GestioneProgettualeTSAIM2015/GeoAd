@@ -183,4 +183,4 @@ public class MarkedExpandableListAdapter extends BaseExpandableListAdapter
 			mName = aName;
 		}
 	}
-	}
+}

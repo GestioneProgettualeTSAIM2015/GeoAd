@@ -2,17 +2,15 @@ package it.itskennedy.tsaim.geoad.services;
 
 import it.itskennedy.tsaim.geoad.R;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager;
-import it.itskennedy.tsaim.geoad.core.Engine;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager.JsonResponse;
+import it.itskennedy.tsaim.geoad.core.Engine;
+import it.itskennedy.tsaim.geoad.core.Engine.LocationState;
 import it.itskennedy.tsaim.geoad.core.LocationManager;
 import it.itskennedy.tsaim.geoad.core.LocationManager.LocationListener;
 import it.itskennedy.tsaim.geoad.core.NotificationManager;
 import it.itskennedy.tsaim.geoad.entity.LocationModel;
 import it.itskennedy.tsaim.geoad.entity.Offer;
-import it.itskennedy.tsaim.geoad.localdb.DataFavContentProvider;
 import it.itskennedy.tsaim.geoad.localdb.DataOffersContentProvider;
-import it.itskennedy.tsaim.geoad.localdb.FavoritesHelper;
-import it.itskennedy.tsaim.geoad.localdb.IgnoredHelper;
 import it.itskennedy.tsaim.geoad.localdb.OffersHelper;
 import it.itskennedy.tsaim.geoad.widgets.WidgetProvider;
 
@@ -98,7 +96,7 @@ public class GeoAdService extends Service implements LocationListener
 						String vJson = intent.getExtras().getString(DATA);
 						
 						Offer vOff = Offer.fromJSON(vJson); 
-						if(!isLocationIgnored(vOff.getLocationId()))
+						if(Engine.get().getLocationState(vOff.getLocationId()) != LocationState.IGNORED)
 						{
 							manageOffer(vOff);
 						}
@@ -130,18 +128,6 @@ public class GeoAdService extends Service implements LocationListener
 		}
 		
 	    return START_STICKY;
-	}
-	
-	private boolean isLocationIgnored(int aId)
-	{
-		Cursor vCur = getContentResolver().query(DataFavContentProvider.IGNORED_URI, null, IgnoredHelper._ID + " = " + aId, null, null);
-		
-		if(vCur.getCount() == 1)
-		{
-			return true;
-		}
-		
-		return false;
 	}
 	
 	private Notification getNotify()
@@ -193,10 +179,13 @@ public class GeoAdService extends Service implements LocationListener
 		
 		if(vCur.getCount() == 0)
 		{
-			if(isLocationNear(aOffer.getLocationId()))
+			if(mPosition != null)
 			{
-				getContentResolver().insert(DataOffersContentProvider.OFFERS_URI, aOffer.getContentValues());
-				NotificationManager.showOffer(GeoAdService.this, aOffer);
+				if(isLocationNear(aOffer.getLocationId()))
+				{
+					getContentResolver().insert(DataOffersContentProvider.OFFERS_URI, aOffer.getContentValues());
+					NotificationManager.showOffer(GeoAdService.this, aOffer);
+				}
 			}
 			else
 			{

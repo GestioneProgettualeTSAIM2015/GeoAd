@@ -1,6 +1,7 @@
 package it.itskennedy.tsaim.geoad.core;
 
 import it.itskennedy.tsaim.geoad.R;
+import it.itskennedy.tsaim.geoad.core.ConnectionManager.JsonResponse;
 import it.itskennedy.tsaim.geoad.entity.LocationModel;
 import it.itskennedy.tsaim.geoad.localdb.DataFavContentProvider;
 import it.itskennedy.tsaim.geoad.localdb.DataOffersContentProvider;
@@ -15,14 +16,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Application;
 import android.content.Intent;
 import android.database.Cursor;
-import android.util.Log;
 
 import com.loopj.android.http.RequestParams;
 
@@ -138,19 +137,40 @@ public class Engine extends Application implements PushKeyReceiver
 		return mCache;
 	}
 
-	public void updateLocationState(LocationModel aLocation, LocationState aState)
+	public void updateLocationState(final LocationModel aLocation, LocationState aState)
 	{
+		RequestParams vParams = new RequestParams();
+		vParams.put("Id", aLocation.getId());
+		
 		if(aState == LocationState.FAVORITE)
-		{
-			deleteIgnored(aLocation.getId());
-			getContentResolver().insert(DataFavContentProvider.FAVORITES_URI, aLocation.getContentValues());
-			notifyServer();
+		{	
+			ConnectionManager.obtain().post("api/usersettings/favorites", vParams, new JsonResponse()
+			{	
+				@Override
+				public void onResponse(boolean aResult, Object aResponse)
+				{
+					if(aResult)
+					{
+						deleteIgnored(aLocation.getId());
+						getContentResolver().insert(DataFavContentProvider.FAVORITES_URI, aLocation.getContentValues());
+					}
+				}
+			});
 		}
 		else if(aState == LocationState.IGNORED)
 		{
-			deleteFavorite(aLocation.getId());
-			getContentResolver().insert(DataFavContentProvider.IGNORED_URI, aLocation.getIgnoredContentValues());	
-			notifyServer();
+			ConnectionManager.obtain().post("api/usersettings/ignored", vParams, new JsonResponse()
+			{	
+				@Override
+				public void onResponse(boolean aResult, Object aResponse)
+				{
+					if(aResult)
+					{
+						deleteFavorite(aLocation.getId());
+						getContentResolver().insert(DataFavContentProvider.IGNORED_URI, aLocation.getIgnoredContentValues());	
+					}
+				}
+			});
 		}
 		else if(aState == LocationState.NEUTRAL)
 		{
@@ -158,35 +178,40 @@ public class Engine extends Application implements PushKeyReceiver
 		}
 	}
 	
-	public void setNeutralLocationState(int aId)
+	public void setNeutralLocationState(final int aId)
 	{
-		deleteIgnored(aId);
-		deleteFavorite(aId);
-		notifyServer();
-	}
-	
-	private void notifyServer()
-	{
-		JSONArray vJsonList = new JSONArray();
-		
-		Cursor vCur = getContentResolver().query(DataFavContentProvider.FAVORITES_URI, null, null, null, null);
-		while(vCur.moveToNext())
-		{
-			int vIdIndex = vCur.getColumnIndex(FavoritesHelper._ID);
-			vJsonList.put(vCur.getInt(vIdIndex));
-		}
-		
-		vCur = getContentResolver().query(DataFavContentProvider.IGNORED_URI, null, null, null, null);
-		while(vCur.moveToNext())
-		{
-			int vIdIndex = vCur.getColumnIndex(IgnoredHelper._ID);
-			vJsonList.put(-vCur.getInt(vIdIndex));
-		}
-		
 		RequestParams vParams = new RequestParams();
-		vParams.put("ids", vJsonList.toString());
+		vParams.put("Id", aId);
 		
-		ConnectionManager.obtain().post("api/favorites", vParams, null);
+		LocationState vActual = getLocationState(aId);
+		if(vActual == LocationState.IGNORED)
+		{	
+			ConnectionManager.obtain().delete("api/usersettings/ignored", vParams, new JsonResponse()
+			{	
+				@Override
+				public void onResponse(boolean aResult, Object aResponse)
+				{
+					if(aResult)
+					{
+						deleteIgnored(aId);
+					}
+				}
+			});
+		}
+		else if(vActual == LocationState.FAVORITE)
+		{		
+			ConnectionManager.obtain().delete("api/usersettings/favorites", vParams, new JsonResponse()
+			{	
+				@Override
+				public void onResponse(boolean aResult, Object aResponse)
+				{
+					if(aResult)
+					{
+						deleteFavorite(aId);
+					}
+				}
+			});
+		}
 	}
 
 	private void deleteFavorite(int aId)
@@ -195,7 +220,7 @@ public class Engine extends Application implements PushKeyReceiver
 		getContentResolver().delete(DataOffersContentProvider.OFFERS_URI, OffersHelper.LOCATION_ID + " = " + aId, null);
 	}
 
-	private void deleteIgnored(int aId)
+	private void deleteIgnored(final int aId)
 	{
 		getContentResolver().delete(DataFavContentProvider.IGNORED_URI, IgnoredHelper._ID + " = " + aId, null);
 	}
