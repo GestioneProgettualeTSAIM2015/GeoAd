@@ -6,7 +6,6 @@ import it.itskennedy.tsaim.geoad.core.ConnectionManager;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager.JsonResponse;
 import it.itskennedy.tsaim.geoad.core.Engine;
 import it.itskennedy.tsaim.geoad.core.SettingsManager;
-import it.itskennedy.tsaim.geoad.fragment.ActivitiesFragment;
 import it.itskennedy.tsaim.geoad.fragment.AugmentedRealityFragment;
 import it.itskennedy.tsaim.geoad.fragment.LoginDialogFragment;
 import it.itskennedy.tsaim.geoad.fragment.MarkedLocationFragment;
@@ -221,10 +220,10 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 			case Utils.TYPE_PREFERENCE:
 				vFragment = MarkedLocationFragment.getInstance(bundle);
 				break;
-			case Utils.TYPE_ACTIVITIES:
-				if(isLogged)
+			case Utils.TYPE_LOCATIONS:
+				if(isLogged && false) //TODO
 				{
-					vFragment = ActivitiesFragment.getInstance(bundle);
+					//vFragment = ActivitiesFragment.getInstance(bundle);
 				}
 				else
 				{
@@ -272,7 +271,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 						SettingsManager.get(MainActivity.this).saveToken(aToken);
 						Engine.get().setToken(aToken);
 						
-						selectItem(Utils.TYPE_ACTIVITIES);
+						selectItem(Utils.TYPE_LOCATIONS);
 						Toast.makeText(MainActivity.this, "Loggato", Toast.LENGTH_SHORT).show();
 					
 					} 
@@ -283,7 +282,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 				}
 				else
 				{
-					selectItem(Utils.TYPE_ACTIVITIES);
+					selectItem(Utils.TYPE_LOCATIONS);
 					Toast.makeText(MainActivity.this, "Errore", Toast.LENGTH_SHORT).show();
 				}
 			}

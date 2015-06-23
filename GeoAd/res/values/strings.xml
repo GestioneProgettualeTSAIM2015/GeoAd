@@ -34,5 +34,11 @@
     <string name="create">Crea</string>
     <string name="edit">Modifica</string>
     <string name="confirm">Conferma</string>
+    
+    <string name="add_photo">Aggiungi foto</string>
+    <string name="add_offering">Nuova offerta</string>
+    <string name="edit_name">Modifica nome</string>
+    <string name="edit_description">Modifica descrizione</string>
+    <string name="edit_position">Modifica posizione</string>
 
 </resources>
