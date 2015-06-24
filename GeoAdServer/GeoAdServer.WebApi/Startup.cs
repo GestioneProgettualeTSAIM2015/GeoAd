@@ -7,6 +7,7 @@ using GeoAdServer.WebApi.Services;
 using GeoAdServer.EventsHandling;
 using GeoAdServer.Domain.Contracts;
 using System.Web;
+using GeoAdServer.DataAccess;
 
 namespace GeoAdServer.WebApi
 {
@@ -17,11 +18,13 @@ namespace GeoAdServer.WebApi
             ConfigureAuth(app);
 
             IChangedPositionHandler chpHandler = new PositionsContainer();
+            IUserPreferencesHandler userPrefsHandler = new PreferencesContainer(DataRepos.Instance.Preferences);
 
             EventService.Instance.Add(new AndroidEventPropagator(
                 HttpContext.Current.Server.MapPath("~/App_Data/Logs")));
 
             EventService.Instance.SetPositionsContainer(chpHandler);
+            EventService.Instance.SetUserPreferencesHandler(userPrefsHandler);
         }
     }
 }

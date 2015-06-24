@@ -230,11 +230,13 @@
     <Compile Include="Controllers\OfferingsController.cs" />
     <Compile Include="Controllers\PhotosController.cs" />
     <Compile Include="Controllers\PositionsController.cs" />
+    <Compile Include="Controllers\UserSettingsController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\LocationPreferenceModel.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\LocationApiModel.cs" />
     <Compile Include="Models\PhotoApiModel.cs" />

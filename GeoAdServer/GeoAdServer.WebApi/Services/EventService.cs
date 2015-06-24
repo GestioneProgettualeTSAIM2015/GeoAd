@@ -1,4 +1,5 @@
 ﻿using GeoAdServer.Domain.Contracts;
+using GeoAdServer.Domain.Entities;
 using GeoAdServer.Domain.Entities.Events;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,7 @@ namespace GeoAdServer.WebApi.Services
 
         private ICollection<IEventsHandler> _eventsHandlers;
         private IChangedPositionHandler _chpHandler;
+        private IUserPreferencesHandler _userPrefsHandler;
 
         private EventService()
         {
@@ -29,7 +31,11 @@ namespace GeoAdServer.WebApi.Services
         public void Add(IEventsHandler eventsHandler)
         {
             _eventsHandlers.Add(eventsHandler);
-            if (_chpHandler != null) eventsHandler.ChpHandler = _chpHandler;
+            if (_chpHandler != null)
+            {
+                eventsHandler.ChpHandler = _chpHandler;
+                eventsHandler.UserPrefsHandler = _userPrefsHandler;
+            }
         }
 
         public void Remove(IEventsHandler eventsHandler)
@@ -37,12 +43,21 @@ namespace GeoAdServer.WebApi.Services
             _eventsHandlers.Remove(eventsHandler);
         }
 
-        public void SetPositionsContainer(IChangedPositionHandler chHandler)
+        public void SetPositionsContainer(IChangedPositionHandler chpHandler)
         {
-            _chpHandler = chHandler;
+            _chpHandler = chpHandler;
             foreach (IEventsHandler eventHandler in _eventsHandlers)
             {
                 eventHandler.ChpHandler = _chpHandler;
+            }
+        }
+
+        public void SetUserPreferencesHandler(IUserPreferencesHandler userPrefsHandler)
+        {
+            _userPrefsHandler = userPrefsHandler;
+            foreach (IEventsHandler eventHandler in _eventsHandlers)
+            {
+                eventHandler.UserPrefsHandler = _userPrefsHandler;
             }
         }
 
@@ -62,11 +77,19 @@ namespace GeoAdServer.WebApi.Services
             }
         }
 
-        public IEnumerable<string> GetKeysAffected(double lat, double lng)
+        public void SetPreference(int locationId, string key, PreferenceTypes pref)
         {
-            if (_chpHandler == null) return null;
+            _userPrefsHandler.SetPreference(locationId, key, pref);
+        }
 
-            return _chpHandler.GetKeysAffected(lat, lng);
+        public void DeletePreference(int locationId, string key, PreferenceTypes pref)
+        {
+            _userPrefsHandler.DeletePreference(locationId, key, pref);
+        }
+
+        public Dictionary<PreferenceTypes, List<int>> Get(string key)
+        {
+            return _userPrefsHandler.Get(key);
         }
     }
 }

@@ -11,6 +11,8 @@ namespace GeoAdServer.Domain.Entities.Events
     {
         public OfferingDTO Offering { get; set; }
 
+        public int LocationId { get; set; }
+
         public string LocationName { get; set; }
 
         public string Lat { get; set; }

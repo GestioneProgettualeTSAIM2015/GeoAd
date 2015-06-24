@@ -10,6 +10,8 @@ namespace GeoAdServer.Domain.Entities.Events
     {
         public int OfferingId { get; set; }
 
+        public int LocationId { get; set; }
+
         public string Lat { get; set; }
 
         public string Lng { get; set; }

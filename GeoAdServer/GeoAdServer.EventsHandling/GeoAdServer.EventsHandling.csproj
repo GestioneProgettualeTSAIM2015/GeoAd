@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="AndroidEventPropagator.cs" />
     <Compile Include="PositionsContainer.cs" />
+    <Compile Include="PreferencesContainer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

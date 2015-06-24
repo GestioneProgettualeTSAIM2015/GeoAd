@@ -17,21 +17,21 @@ namespace GeoAdServer.WebApi.Controllers
 {
     public class LocationsController : ApiController
     {
-        private readonly static int MAX_LOCATION_NAME_LENGTH, MAX_LOCATION_DESCRIPTION_LENGTH;
-        private readonly static double MAX_LOCATIONS_SEARCH_R, MIN_LOCATIONS_SEARCH_R;
+        private readonly static int _MAX_LOCATION_NAME_LENGTH, _MAX_LOCATION_DESCRIPTION_LENGTH;
+        private readonly static double _MAX_LOCATIONS_SEARCH_R, _MIN_LOCATIONS_SEARCH_R;
 
         static LocationsController()
         {
-            MAX_LOCATION_NAME_LENGTH = int.Parse(ConfigurationManager.AppSettings["maxLocationNameLength"]);
-            MAX_LOCATION_DESCRIPTION_LENGTH = int.Parse(ConfigurationManager.AppSettings["maxLocationDescriptionLength"]);
-            MAX_LOCATIONS_SEARCH_R = double.Parse(ConfigurationManager.AppSettings["maxLocationsSearchR"], CultureInfo.InvariantCulture);
-            MIN_LOCATIONS_SEARCH_R = double.Parse(ConfigurationManager.AppSettings["minLocationsSearchR"], CultureInfo.InvariantCulture);
+            _MAX_LOCATION_NAME_LENGTH = int.Parse(ConfigurationManager.AppSettings["maxLocationNameLength"]);
+            _MAX_LOCATION_DESCRIPTION_LENGTH = int.Parse(ConfigurationManager.AppSettings["maxLocationDescriptionLength"]);
+            _MAX_LOCATIONS_SEARCH_R = double.Parse(ConfigurationManager.AppSettings["maxLocationsSearchR"], CultureInfo.InvariantCulture);
+            _MIN_LOCATIONS_SEARCH_R = double.Parse(ConfigurationManager.AppSettings["minLocationsSearchR"], CultureInfo.InvariantCulture);
         }
 
         public IQueryable<LocationDTO> GetAll([FromUri]SearchPosition pos)
         {
-            if (pos.R > MAX_LOCATIONS_SEARCH_R) pos.R = MAX_LOCATIONS_SEARCH_R;
-            else if (pos.R < MIN_LOCATIONS_SEARCH_R || pos.R % 2 != 0) pos.R = MIN_LOCATIONS_SEARCH_R;
+            if (pos.R > _MAX_LOCATIONS_SEARCH_R) pos.R = _MAX_LOCATIONS_SEARCH_R;
+            else if (pos.R < _MIN_LOCATIONS_SEARCH_R || pos.R % 2 != 0) pos.R = _MIN_LOCATIONS_SEARCH_R;
 
             using (var repos = DataRepos.Instance)
             {
@@ -79,11 +79,11 @@ namespace GeoAdServer.WebApi.Controllers
 
                 if (location.Name.Length < 1)
                     return Request.CreateResponse((HttpStatusCode)422, "Unprocessable Entity: Location must have a valid name");
-                else if (location.Name.Length > MAX_LOCATION_NAME_LENGTH)
-                    location.Name = location.Name.Substring(0, MAX_LOCATION_NAME_LENGTH);
+                else if (location.Name.Length > _MAX_LOCATION_NAME_LENGTH)
+                    location.Name = location.Name.Substring(0, _MAX_LOCATION_NAME_LENGTH);
 
-                if (location.Desc.Length > MAX_LOCATION_DESCRIPTION_LENGTH)
-                    location.Desc = location.Desc.Substring(0, MAX_LOCATION_DESCRIPTION_LENGTH);
+                if (location.Desc.Length > _MAX_LOCATION_DESCRIPTION_LENGTH)
+                    location.Desc = location.Desc.Substring(0, _MAX_LOCATION_DESCRIPTION_LENGTH);
 
                 int id = repos.Locations.Insert(location);
 
@@ -122,11 +122,11 @@ namespace GeoAdServer.WebApi.Controllers
 
                 if (location.Name.Length < 1)
                     return Request.CreateResponse((HttpStatusCode)422, "Unprocessable Entity: Location must have a valid name");
-                else if (location.Name.Length > MAX_LOCATION_NAME_LENGTH)
-                    location.Name = location.Name.Substring(0, MAX_LOCATION_NAME_LENGTH);
+                else if (location.Name.Length > _MAX_LOCATION_NAME_LENGTH)
+                    location.Name = location.Name.Substring(0, _MAX_LOCATION_NAME_LENGTH);
 
-                if (location.Desc.Length > MAX_LOCATION_DESCRIPTION_LENGTH)
-                    location.Desc = location.Desc.Substring(0, MAX_LOCATION_DESCRIPTION_LENGTH);
+                if (location.Desc.Length > _MAX_LOCATION_DESCRIPTION_LENGTH)
+                    location.Desc = location.Desc.Substring(0, _MAX_LOCATION_DESCRIPTION_LENGTH);
 
                 var result = repos.Locations.Update(id, location);
 

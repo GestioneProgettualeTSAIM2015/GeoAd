@@ -40,10 +40,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Contracts\IChangedPositionHandler.cs" />
+    <Compile Include="Contracts\AbstractEventsHandler.cs" />
     <Compile Include="Contracts\IEventsHandler.cs" />
     <Compile Include="Contracts\ILocationsRepository.cs" />
     <Compile Include="Contracts\IOfferingsRepository.cs" />
     <Compile Include="Contracts\IPhotosRepository.cs" />
+    <Compile Include="Contracts\IPreferencesRepository.cs" />
+    <Compile Include="Contracts\IUserPreferencesHandler.cs" />
     <Compile Include="Entities\DTOs\CategoryDTO.cs" />
     <Compile Include="Entities\DTOs\LocationDTO.cs" />
     <Compile Include="Entities\DTOs\OfferingDTO.cs" />
@@ -57,6 +60,8 @@
     <Compile Include="Entities\Events\LocationDeleted.cs" />
     <Compile Include="Entities\Events\OfferingUpdated.cs" />
     <Compile Include="Entities\Events\LocationUpdated.cs" />
+    <Compile Include="Entities\Preferences.cs" />
+    <Compile Include="Entities\PreferenceTypes.cs" />
     <Compile Include="Entities\ReflectiveEquals.cs" />
     <Compile Include="Entities\Location.cs" />
     <Compile Include="Entities\Offering.cs" />

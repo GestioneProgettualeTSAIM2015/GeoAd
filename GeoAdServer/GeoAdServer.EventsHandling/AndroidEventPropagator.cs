@@ -18,12 +18,10 @@ using System.Threading.Tasks;
 
 namespace GeoAdServer.EventsHandling
 {
-    public class AndroidEventPropagator : IEventsHandler
+    public class AndroidEventPropagator : AbstractEventsHandler
     {
-        private readonly static string _applicationId =
+        private readonly static string _APPLICATION_ID =
             ConfigurationManager.AppSettings["androidApplicationId"];
-
-        IChangedPositionHandler IEventsHandler.ChpHandler { get; set; }
 
         public bool IsWorking { get; private set; }
 
@@ -52,7 +50,7 @@ namespace GeoAdServer.EventsHandling
             _logger.Log(Id + " => " + message);
         }
 
-        void IEventsHandler.Enqueue(IEvent command)
+        public override void Enqueue(IEvent command)
         {
             _eventsQueue.Enqueue(command);
             if (!IsWorking)
@@ -122,30 +120,27 @@ namespace GeoAdServer.EventsHandling
         private void Handle(OfferingCreated ievent)
         {
             NotifyAffected("OfferingCreated", ievent.Offering
-                .AddProperty("LocationName", ievent.LocationName), ievent.Lat, ievent.Lng);
+                .AddProperty("LocationName", ievent.LocationName), ievent.Lat, ievent.Lng, ievent.LocationId);
         }
 
         private void Handle(OfferingUpdated ievent)
         {
             NotifyAffected("OfferingUpdated", ievent.Offering
-                .AddProperty("LocationName", ievent.LocationName), ievent.Lat, ievent.Lng);
+                .AddProperty("LocationName", ievent.LocationName), ievent.Lat, ievent.Lng, ievent.LocationId);
         }
 
         private void Handle(OfferingDeleted ievent)
         {
-            NotifyAffected("OfferingDeleted", ievent.OfferingId, ievent.Lat, ievent.Lng);
+            NotifyAffected("OfferingDeleted", ievent.OfferingId, ievent.Lat, ievent.Lng, ievent.LocationId);
         }
 
-        private void NotifyAffected(string action, object dataObject, string lat, string lng)
+        private void NotifyAffected(string action, object dataObject, string lat, string lng, int? locationId = null)
         {
-            IChangedPositionHandler chpHandler = ((IEventsHandler)this).ChpHandler;
-            if (chpHandler != null)
-            {
-                IEnumerable<string> keys = chpHandler.GetKeysAffected(
-                    double.Parse(lat, CultureInfo.InvariantCulture), double.Parse(lng, CultureInfo.InvariantCulture));
-
-                Push(action, dataObject, keys);
-            }
+            Push(action, dataObject,
+                    ((IEventsHandler)this).GetKeysAffected(
+                        double.Parse(lat, CultureInfo.InvariantCulture),
+                        double.Parse(lng, CultureInfo.InvariantCulture),
+                        locationId));
         }
 
         private readonly static int _MAX_KEYS_PER_PUSH = 1000;
@@ -167,7 +162,7 @@ namespace GeoAdServer.EventsHandling
                 request = WebRequest.Create("https://android.googleapis.com/gcm/send");
                 request.Method = "post";
                 request.ContentType = "application/json;charset=UTF-8";
-                request.Headers.Add(string.Format("Authorization: key={0}", _applicationId));
+                request.Headers.Add(string.Format("Authorization: key={0}", _APPLICATION_ID));
 
                 Byte[] byteArray = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(push));
                 request.ContentLength = byteArray.Length;

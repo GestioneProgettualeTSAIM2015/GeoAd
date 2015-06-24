@@ -45,6 +45,14 @@ namespace GeoAdServer.Postgresql
             return cmd.ExecuteScalar();
         }
 
+        protected NpgsqlDataReader ExecReader(string query, params NpgsqlParameter[] queryParameters)
+        {
+            NpgsqlCommand cmd = new NpgsqlCommand(query, Connection);
+            foreach (NpgsqlParameter par in queryParameters)
+                cmd.Parameters.Add(par);
+            return cmd.ExecuteReader();
+        }
+
         DataTable Exec(string query)
         {
             DataSet ds = new DataSet();

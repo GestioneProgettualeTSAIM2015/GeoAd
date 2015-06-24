@@ -17,12 +17,12 @@ namespace GeoAdServer.WebApi.Controllers
 {
     public class OfferingsController : ApiController
     {
-        private readonly static int MAX_OFFERING_NAME_LENGTH, MAX_OFFERING_DESCRIPTION_LENGTH;
+        private readonly static int _MAX_OFFERING_NAME_LENGTH, _MAX_OFFERING_DESCRIPTION_LENGTH;
 
         static OfferingsController()
         {
-            MAX_OFFERING_NAME_LENGTH = int.Parse(ConfigurationManager.AppSettings["maxOfferingNameLength"]);
-            MAX_OFFERING_DESCRIPTION_LENGTH = int.Parse(ConfigurationManager.AppSettings["maxOfferingDescriptionLength"]);
+            _MAX_OFFERING_NAME_LENGTH = int.Parse(ConfigurationManager.AppSettings["maxOfferingNameLength"]);
+            _MAX_OFFERING_DESCRIPTION_LENGTH = int.Parse(ConfigurationManager.AppSettings["maxOfferingDescriptionLength"]);
         }
 
         [ActionName("FromLocation")]
@@ -49,11 +49,11 @@ namespace GeoAdServer.WebApi.Controllers
 
                 if (offering.Name.Length < 1)
                     return Request.CreateResponse((HttpStatusCode)422, "Unprocessable Entity: Offering must have a valid name");
-                else if (offering.Name.Length > MAX_OFFERING_NAME_LENGTH)
-                    offering.Name = offering.Name.Substring(0, MAX_OFFERING_NAME_LENGTH);
+                else if (offering.Name.Length > _MAX_OFFERING_NAME_LENGTH)
+                    offering.Name = offering.Name.Substring(0, _MAX_OFFERING_NAME_LENGTH);
 
-                if (offering.Desc.Length > MAX_OFFERING_DESCRIPTION_LENGTH)
-                    offering.Desc = offering.Desc.Substring(0, MAX_OFFERING_DESCRIPTION_LENGTH);
+                if (offering.Desc.Length > _MAX_OFFERING_DESCRIPTION_LENGTH)
+                    offering.Desc = offering.Desc.Substring(0, _MAX_OFFERING_DESCRIPTION_LENGTH);
 
                 int id = repos.Offerings.Insert(offering);
 
@@ -62,6 +62,7 @@ namespace GeoAdServer.WebApi.Controllers
                 EventService.Instance.Enqueue(new OfferingCreated()
                 {
                     Offering = offering.BuildDTO(id),
+                    LocationId = location.Id,
                     LocationName = location.Name,
                     Lat = location.Lat,
                     Lng = location.Lng
@@ -92,11 +93,11 @@ namespace GeoAdServer.WebApi.Controllers
 
                     if (offering.Name.Length < 1)
                         return Request.CreateResponse((HttpStatusCode)422, "Unprocessable Entity: Offering must have a valid name");
-                    else if (offering.Name.Length > MAX_OFFERING_NAME_LENGTH)
-                        offering.Name = offering.Name.Substring(0, MAX_OFFERING_NAME_LENGTH);
+                    else if (offering.Name.Length > _MAX_OFFERING_NAME_LENGTH)
+                        offering.Name = offering.Name.Substring(0, _MAX_OFFERING_NAME_LENGTH);
 
-                    if (offering.Desc.Length > MAX_OFFERING_DESCRIPTION_LENGTH)
-                        offering.Desc = offering.Desc.Substring(0, MAX_OFFERING_DESCRIPTION_LENGTH);
+                    if (offering.Desc.Length > _MAX_OFFERING_DESCRIPTION_LENGTH)
+                        offering.Desc = offering.Desc.Substring(0, _MAX_OFFERING_DESCRIPTION_LENGTH);
 
                     result = repos.Offerings.Update(id, offering);
                 }
@@ -108,6 +109,7 @@ namespace GeoAdServer.WebApi.Controllers
                     EventService.Instance.Enqueue(new OfferingUpdated()
                     {
                         Offering = offering.BuildDTO(id),
+                        LocationId = location.Id,
                         LocationName = location.Name,
                         Lat = location.Lat,
                         Lng = location.Lng
@@ -143,6 +145,7 @@ namespace GeoAdServer.WebApi.Controllers
                     EventService.Instance.Enqueue(new OfferingDeleted()
                     {
                         OfferingId = id,
+                        LocationId = location.Id,
                         Lat = location.Lat,
                         Lng = location.Lng
                     });

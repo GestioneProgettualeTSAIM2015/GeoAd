@@ -44,6 +44,12 @@ namespace GeoAdServer.WebApi
             );
 
             config.Routes.MapHttpRoute(
+                name: "UserPreferencesLocations",
+                routeTemplate: "api/{controller}/{action}",
+                defaults: new { controller = "usersettings" }
+            );
+
+            config.Routes.MapHttpRoute(
                 name: "FromUserApi",
                 routeTemplate: "api/{controller}/fromuser/{userId}"
             );

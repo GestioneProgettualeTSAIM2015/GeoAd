@@ -26,15 +26,18 @@ namespace GeoAdServer.DataAccess
 
         public IOfferingsRepository Offerings { get; private set; }
 
-        private readonly static string connectionString =
+        public IPreferencesRepository Preferences { get; private set; }
+
+        private readonly static string _CONNECTION_STRING =
             ConfigurationManager.ConnectionStrings["PostgresqlCS"].ConnectionString;
 
         private DataRepos()
         {
-            Locations = new PostgresqlLocationsRepository(connectionString);
+            Locations = new PostgresqlLocationsRepository(_CONNECTION_STRING);
             var connection = ((AbstractPostgresqlRepository)Locations).Connection;
             Photos = new PostgresqlPhotosRepository(connection);
             Offerings = new PostgresqlOfferingsRepository(connection);
+            Preferences = new PostgresqlPreferencesRepository(connection);
         }
 
         void IDisposable.Dispose()
