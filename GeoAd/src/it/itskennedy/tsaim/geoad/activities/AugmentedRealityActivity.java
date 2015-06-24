@@ -15,6 +15,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -27,6 +28,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -62,6 +64,13 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 	private List<LocationModel> activeLocations;
 	
 	private int cameraWidth, cameraHeight;
+	private BeyondarObject activeObj;
+	private View activePanelView;
+	
+	private Drawable lockedPanelBackground, unlockedPanelBackground;
+	
+	
+	private ImageButton btnImgClose, btnImgGoToDetails;
 
 	private AugmentedRealityManager mArgReality;
 
@@ -78,15 +87,15 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 
 		@Override
 		public void onNewNearLocations(List<LocationModel> aToDraw) {
-			System.out.println("NEW LOCATIONSS!");
-			List<BeyondarObject> toDelete = new ArrayList<>();
 			List<LocationModel> toAdd = new ArrayList<>();
 
 			//for every world object I check if they are still to be drawn or not
 			for (BeyondarObjectList objList : mWorld.getBeyondarObjectLists()) {
 				for (BeyondarObject obj : objList) {
 					if (findLocationFromId(obj.getId(), aToDraw) == null) {
-						toDelete.add(obj);
+						mWorld.remove(obj);
+						LocationModel lmToDelete = findLocationFromId(obj.getId(), activeLocations);
+						activeLocations.remove(lmToDelete);
 					}
 				}
 			}
@@ -96,13 +105,6 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 					toAdd.add(lm);
 				}
 			}
-			
-			for (BeyondarObject obj : toDelete) {
-				mWorld.remove(obj);
-				LocationModel lmToDelete = findLocationFromId(obj.getId(), activeLocations);
-				activeLocations.remove(lmToDelete);
-			}
-			
 
 			for (int i = 0; i < toAdd.size(); ++i) {
 				LocationModel lm = toAdd.get(i);
@@ -139,15 +141,40 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		setContentView(R.layout.activity_augmented_reality);
+		
 		mArgReality = new AugmentedRealityManager(this);
 		showViewOn = Collections.synchronizedList(new ArrayList<BeyondarObject>());
 		lockedPanels = new ArrayList<BeyondarObject>();
 		activeLocations = new ArrayList<LocationModel>();
-		// Hide the window title.
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
-
-		setContentView(R.layout.activity_augmented_reality);
+		
+		lockedPanelBackground = getResources().getDrawable(R.drawable.ar_locked_panel_background);
+		unlockedPanelBackground = getResources().getDrawable(R.drawable.ar_panel_background);
+		
+		btnImgClose = (ImageButton) findViewById(R.id.btn_img_close);
+		btnImgGoToDetails = (ImageButton) findViewById(R.id.btn_img_goto_detail);
+		
+		btnImgClose.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				lockedPanels.remove(activeObj);
+				activeObj = null;
+				btnImgClose.setVisibility(View.GONE);
+				btnImgGoToDetails.setVisibility(View.GONE);
+			}
+		});
+		
+		btnImgGoToDetails.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				//GO TO DETAIL ACTIVITY
+				Toast.makeText(AugmentedRealityActivity.this,"DETAILLLLLL", 
+		                Toast.LENGTH_SHORT).show();
+			}
+		});
 
 		mBeyondarFragment = (BeyondarFragmentSupport) getSupportFragmentManager().findFragmentById(R.id.beyondarFragment);
 
@@ -222,15 +249,20 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 		}
 		BeyondarObject beyondarObject = beyondarObjects.get(0);
 		if (showViewOn.contains(beyondarObject)) {
-			showViewOn.remove(beyondarObject);
+			if (!isPanelLocked(beyondarObject))
+				showViewOn.remove(beyondarObject);
 		} else {
 			showViewOn.add(beyondarObject);
 		}
 		
 		if (isPanelLocked(beyondarObject)) {
 			lockedPanels.remove(beyondarObject);
+			activeObj = null;
+			btnImgClose.setVisibility(View.GONE);
+			btnImgGoToDetails.setVisibility(View.GONE);
 		} else {
 			lockedPanels.add(beyondarObject);
+			activeObj = beyondarObject;
 		}
 	}
 
@@ -244,7 +276,9 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 		}
 
 		@Override
-		public View getView(BeyondarObject beyondarObject, View recycledView, ViewGroup parent) {
+		public View getView(final BeyondarObject beyondarObject, View recycledView, ViewGroup parent) {
+			
+	
 			Point3 objPosition = beyondarObject.getScreenPositionCenter();
 			if (isNearCenter(objPosition)) {
 				if (!showViewOn.contains(beyondarObject)) 
@@ -262,8 +296,14 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 					recycledView = inflater.inflate(R.layout.near_ar_object_view, parent, false);
 			}
 			
+			if (activeObj == beyondarObject) {
+				activePanelView = recycledView;
+			}
+			
 			if (isPanelLocked(beyondarObject)) {
-				recycledView.setBackgroundResource(R.drawable.ar_locked_panel_background);
+				recycledView.setBackground(lockedPanelBackground);
+			} else {
+				recycledView.setBackground(unlockedPanelBackground);
 			}
 
 			TextView txtName = (TextView) recycledView
@@ -281,18 +321,21 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 				txtDescription.setText(current.getDescription());
 			}
 			
-			recycledView.setOnClickListener(new View.OnClickListener() {
-
-				@Override
-				public void onClick(View v) {
-					Toast.makeText(AugmentedRealityActivity.this, "Click!!",
-							Toast.LENGTH_SHORT).show();
-
-				}
-			});
+//			recycledView.setOnClickListener(new View.OnClickListener() {
+//				
+//				@Override
+//				public void onClick(View v) {
+//					lockedPanels.add(beyondarObject);
+//					activeObj = beyondarObject;
+//				}
+//			});
+			
 			// Once the view is ready we specify the position
 			setPosition(beyondarObject.getScreenPositionTopRight());
-
+			if (activeObj == beyondarObject && activePanelView == recycledView )  {
+				updateCloseAndGoToButtons(beyondarObject.getScreenPositionTopRight());
+			}
+			
 			return recycledView;
 		}
 	}
@@ -326,6 +369,24 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 			do {
 				activeOffersLocationIDs.add(cursor.getInt(idColumnIndex));
 			} while (cursor.moveToNext());
+		}
+	}
+	
+	public void updateCloseAndGoToButtons(Point3 p) {
+		
+		if (activePanelView != null && activeObj != null) {
+			float panelWidth = activePanelView.getWidth();
+			float panelHeight = activePanelView.getHeight();
+			if (panelHeight > 0 && panelWidth > 0) {
+				
+				btnImgGoToDetails.setX(p.x + panelWidth - btnImgClose.getWidth() / 2);
+				btnImgGoToDetails.setY(p.y + panelHeight - btnImgClose.getHeight() / 2);
+
+				btnImgClose.setX(p.x + panelWidth - btnImgClose.getWidth() / 2);
+				btnImgClose.setY(p.y - btnImgClose.getHeight() / 2);
+				btnImgGoToDetails.setVisibility(View.VISIBLE);
+				btnImgClose.setVisibility(View.VISIBLE);
+			}
 		}
 	}
 	
