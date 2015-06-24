@@ -15,6 +15,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
@@ -65,7 +66,7 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 	
 	private int cameraWidth, cameraHeight;
 	private BeyondarObject activeObj;
-	private View activePanelView;
+	private long activeObjId;
 	
 	private Drawable lockedPanelBackground, unlockedPanelBackground;
 	
@@ -160,6 +161,7 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 			public void onClick(View v) {
 				lockedPanels.remove(activeObj);
 				activeObj = null;
+				activeObjId = -1;
 				btnImgClose.setVisibility(View.GONE);
 				btnImgGoToDetails.setVisibility(View.GONE);
 			}
@@ -258,11 +260,13 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 		if (isPanelLocked(beyondarObject)) {
 			lockedPanels.remove(beyondarObject);
 			activeObj = null;
+			activeObjId = -1;
 			btnImgClose.setVisibility(View.GONE);
 			btnImgGoToDetails.setVisibility(View.GONE);
 		} else {
 			lockedPanels.add(beyondarObject);
 			activeObj = beyondarObject;
+			activeObjId = beyondarObject.getId();
 		}
 	}
 
@@ -276,9 +280,8 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 		}
 
 		@Override
-		public View getView(final BeyondarObject beyondarObject, View recycledView, ViewGroup parent) {
+		public View getView(BeyondarObject beyondarObject, View recycledView, ViewGroup parent) {
 			
-	
 			Point3 objPosition = beyondarObject.getScreenPositionCenter();
 			if (isNearCenter(objPosition)) {
 				if (!showViewOn.contains(beyondarObject)) 
@@ -295,16 +298,12 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 			if (recycledView == null) {
 					recycledView = inflater.inflate(R.layout.near_ar_object_view, parent, false);
 			}
-			
-			if (activeObj == beyondarObject) {
-				activePanelView = recycledView;
-			}
-			
-			if (isPanelLocked(beyondarObject)) {
-				recycledView.setBackground(lockedPanelBackground);
-			} else {
-				recycledView.setBackground(unlockedPanelBackground);
-			}
+						
+//			if (isPanelLocked(beyondarObject) && recycledView.getBackground() != lockedPanelBackground) {
+//				recycledView.setBackground(lockedPanelBackground);
+//			} else if (recycledView.getBackground() != unlockedPanelBackground){
+//				recycledView.setBackground(unlockedPanelBackground);
+//			}
 
 			TextView txtName = (TextView) recycledView
 					.findViewById(R.id.titleTextView);
@@ -332,8 +331,14 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 			
 			// Once the view is ready we specify the position
 			setPosition(beyondarObject.getScreenPositionTopRight());
-			if (activeObj == beyondarObject && activePanelView == recycledView )  {
-				updateCloseAndGoToButtons(beyondarObject.getScreenPositionTopRight());
+			
+			if (activeObjId == beyondarObject.getId())  {
+				
+				Rect panelRect = new Rect();
+				recycledView.getDrawingRect(panelRect);
+				
+				System.out.println("panel width: " + panelRect.width() + " bey obj x: " + beyondarObject.getScreenPositionCenter().x);
+				updateCloseAndGoToButtons(beyondarObject.getScreenPositionTopRight(), panelRect);
 			}
 			
 			return recycledView;
@@ -372,11 +377,11 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 		}
 	}
 	
-	public void updateCloseAndGoToButtons(Point3 p) {
+	public void updateCloseAndGoToButtons(Point3 p, Rect panelRect) {
 		
-		if (activePanelView != null && activeObj != null) {
-			float panelWidth = activePanelView.getWidth();
-			float panelHeight = activePanelView.getHeight();
+		if (activeObj != null && panelRect != null) {
+			float panelWidth = panelRect.width();
+			float panelHeight = panelRect.height();
 			if (panelHeight > 0 && panelWidth > 0) {
 				
 				btnImgGoToDetails.setX(p.x + panelWidth - btnImgClose.getWidth() / 2);

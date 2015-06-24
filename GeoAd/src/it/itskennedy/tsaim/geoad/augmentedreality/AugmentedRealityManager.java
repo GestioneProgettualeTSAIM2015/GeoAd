@@ -66,7 +66,7 @@ public class AugmentedRealityManager implements LocationListener
 		mNears.add(new LocationModel(7, "", "", "roba 7", 46.0005, 13, "Descrizione lunga lunga lungaDescrizione lunga lunga lunga", "CA"));
 		mNears.add(new LocationModel(8, "", "", "roba 8", 45.9995, 12.9995, "Descrizione lunga lunga lungaDescrizione lunga lunga lunga", "CA"));
 		mNears.add(new LocationModel(9, "", "", "DUH", 46.01, 13.02, "Descrizione lunga lunga lunga", "CA"));
-		mNears.add(new LocationModel(10, "", "", "roba 4", 45.999, 13.001, "Descrizione corta", "CA"));
+		mNears.add(new LocationModel(10, "", "", "roba 10", 45.9981, 13.004, "Descrizione corta", "CA"));
 		
 		
 		
