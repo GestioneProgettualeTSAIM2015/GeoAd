@@ -16,19 +16,14 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,25 +46,16 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 	private static final int TYPE_POI = 0;
 	private static final int TYPE_CA = 1;
 	
-	private float horizontalAreaPercent = 0.2f;
-	private float verticalAreaPercent = 0.2f;
-	
 	private BeyondarFragmentSupport mBeyondarFragment;
 	private RadarView mRadarView;
 	private RadarWorldPlugin mRadarPlugin;
 	private World mWorld;
 
 	private List<BeyondarObject> showViewOn;
-	private List<BeyondarObject> lockedPanels;
 	private ArrayList<Integer> activeOffersLocationIDs;
 	private List<LocationModel> activeLocations;
-	
-	private int cameraWidth, cameraHeight;
-	private BeyondarObject activeObj;
-	private long activeObjId;
-	
-	private Drawable lockedPanelBackground, unlockedPanelBackground;
-	
+
+	private BeyondarObject activeObj;		
 	
 	private ImageButton btnImgClose, btnImgGoToDetails;
 
@@ -146,11 +132,7 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 		
 		mArgReality = new AugmentedRealityManager(this);
 		showViewOn = Collections.synchronizedList(new ArrayList<BeyondarObject>());
-		lockedPanels = new ArrayList<BeyondarObject>();
 		activeLocations = new ArrayList<LocationModel>();
-		
-		lockedPanelBackground = getResources().getDrawable(R.drawable.ar_locked_panel_background);
-		unlockedPanelBackground = getResources().getDrawable(R.drawable.ar_panel_background);
 		
 		btnImgClose = (ImageButton) findViewById(R.id.btn_img_close);
 		btnImgGoToDetails = (ImageButton) findViewById(R.id.btn_img_goto_detail);
@@ -159,9 +141,8 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 			
 			@Override
 			public void onClick(View v) {
-				lockedPanels.remove(activeObj);
+				showViewOn.remove(activeObj);
 				activeObj = null;
-				activeObjId = -1;
 				btnImgClose.setVisibility(View.GONE);
 				btnImgGoToDetails.setVisibility(View.GONE);
 			}
@@ -173,7 +154,7 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				//GO TO DETAIL ACTIVITY
-				Toast.makeText(AugmentedRealityActivity.this,"DETAILLLLLL", 
+				Toast.makeText(AugmentedRealityActivity.this,"DETAILLLLLL ID: " + activeObj.getId() , 
 		                Toast.LENGTH_SHORT).show();
 			}
 		});
@@ -220,8 +201,6 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 		Display display = getWindowManager().getDefaultDisplay();
 		Point size = new Point();
 		display.getSize(size);
-		cameraHeight = size.y;
-		cameraWidth = size.x;
 
 		// We also can see the Frames per seconds
 //		mBeyondarFragment.showFPS(true);
@@ -251,22 +230,14 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 		}
 		BeyondarObject beyondarObject = beyondarObjects.get(0);
 		if (showViewOn.contains(beyondarObject)) {
-			if (!isPanelLocked(beyondarObject))
-				showViewOn.remove(beyondarObject);
-		} else {
-			showViewOn.add(beyondarObject);
-		}
-		
-		if (isPanelLocked(beyondarObject)) {
-			lockedPanels.remove(beyondarObject);
+			showViewOn.remove(beyondarObject);
 			activeObj = null;
-			activeObjId = -1;
 			btnImgClose.setVisibility(View.GONE);
 			btnImgGoToDetails.setVisibility(View.GONE);
 		} else {
-			lockedPanels.add(beyondarObject);
+			showViewOn.clear();
+			showViewOn.add(beyondarObject);
 			activeObj = beyondarObject;
-			activeObjId = beyondarObject.getId();
 		}
 	}
 
@@ -281,17 +252,7 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 
 		@Override
 		public View getView(BeyondarObject beyondarObject, View recycledView, ViewGroup parent) {
-			
-			Point3 objPosition = beyondarObject.getScreenPositionCenter();
-			if (isNearCenter(objPosition)) {
-				if (!showViewOn.contains(beyondarObject)) 
-					showViewOn.add(beyondarObject);
-			} else {
-				if (!isPanelLocked(beyondarObject)) {
-					showViewOn.remove(beyondarObject);
-				}
-			}
-			
+						
 			if (!showViewOn.contains(beyondarObject)) {
 				return null;
 			}
@@ -299,12 +260,6 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 					recycledView = inflater.inflate(R.layout.near_ar_object_view, parent, false);
 			}
 						
-//			if (isPanelLocked(beyondarObject) && recycledView.getBackground() != lockedPanelBackground) {
-//				recycledView.setBackground(lockedPanelBackground);
-//			} else if (recycledView.getBackground() != unlockedPanelBackground){
-//				recycledView.setBackground(unlockedPanelBackground);
-//			}
-
 			TextView txtName = (TextView) recycledView
 					.findViewById(R.id.titleTextView);
 			TextView txtDistance = (TextView) recycledView
@@ -319,27 +274,13 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 				txtDistance.setText((int) beyondarObject.getDistanceFromUser() + " m");
 				txtDescription.setText(current.getDescription());
 			}
-			
-//			recycledView.setOnClickListener(new View.OnClickListener() {
-//				
-//				@Override
-//				public void onClick(View v) {
-//					lockedPanels.add(beyondarObject);
-//					activeObj = beyondarObject;
-//				}
-//			});
-			
+						
 			// Once the view is ready we specify the position
 			setPosition(beyondarObject.getScreenPositionTopRight());
-			
-			if (activeObjId == beyondarObject.getId())  {
-				
-				Rect panelRect = new Rect();
-				recycledView.getDrawingRect(panelRect);
-				
-				System.out.println("panel width: " + panelRect.width() + " bey obj x: " + beyondarObject.getScreenPositionCenter().x);
-				updateCloseAndGoToButtons(beyondarObject.getScreenPositionTopRight(), panelRect);
-			}
+
+			Rect panelRect = new Rect();
+			recycledView.getDrawingRect(panelRect);
+			updateCloseAndGoToButtons(beyondarObject.getScreenPositionTopRight(), panelRect);
 			
 			return recycledView;
 		}
@@ -349,16 +290,7 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 	public boolean onTouchEvent(MotionEvent event) {
 		return super.onTouchEvent(event);
 	}
-	
-	public boolean isNearCenter(Point3 p) {
-		return Math.abs(p.x - cameraWidth / 2) < cameraWidth * horizontalAreaPercent 
-				&& Math.abs(p.y - cameraHeight / 2) < cameraHeight * verticalAreaPercent;
-	}
-	
-	public boolean isPanelLocked(BeyondarObject bo) {
-		return lockedPanels.contains(bo);
-	}
-
+		
 	public void populateOffersList() {
 
 		activeOffersLocationIDs = new ArrayList<Integer>();
