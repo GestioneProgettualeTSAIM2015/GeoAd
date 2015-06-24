@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:src="@drawable/radar_north_small" />
     </FrameLayout>
-    
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -35,5 +35,21 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true" />
     </RelativeLayout>
+
+    <ImageButton
+        android:id="@+id/btn_img_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/round_button"
+        android:src="@android:drawable/ic_menu_close_clear_cancel"
+        android:visibility="gone" />
+
+    <ImageButton
+        android:id="@+id/btn_img_goto_detail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/round_button"
+        android:src="@android:drawable/ic_media_play"
+        android:visibility="gone" />
 
 </FrameLayout>
