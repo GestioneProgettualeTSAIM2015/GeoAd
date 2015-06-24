@@ -146,6 +146,22 @@ namespace GeoAdServer.Postgresql
             return GeneralGet(query).ElementAtOrDefault(0);
         }
 
+        IEnumerable<LocationDTO> ILocationsRepository.GetByIds(IEnumerable<int> ids)
+        {
+            IEnumerator<int> en = ids.GetEnumerator();
+
+            if (!en.MoveNext()) return new List<LocationDTO>();
+
+            string query = @"SELECT *
+                             FROM public.""Locations""
+                             WHERE ""Id"" = " + en.Current;
+
+            while (en.MoveNext())
+                query += string.Format(@" OR ""Id"" = {0}", en.Current);
+
+            return GeneralGet(query);
+        }
+
         string ILocationsRepository.GetOwnerId(int locationId)
         {
             string query = @"SELECT ""UserId""

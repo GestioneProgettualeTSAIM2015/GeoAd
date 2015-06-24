@@ -9,6 +9,7 @@ using System.Data;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using GeoAdServer.Domain.Entities.DTOs;
 
 namespace GeoAdServer.WebApi.Controllers
 {
@@ -42,9 +43,41 @@ namespace GeoAdServer.WebApi.Controllers
             return Request.CreateResponse(HttpStatusCode.NoContent);
         }
 
-        public Dictionary<PreferenceTypes, List<int>> Get(string key)
+        public UserFavsIgn Get(string key)
         {
-            return EventService.Instance.Get(key);
+            var userFavsIgn = new UserFavsIgn();
+            var schema = EventService.Instance.Get(key);
+
+            var ids = new List<int>();
+
+            List<int> favs = null;
+            if (schema.TryGetValue(PreferenceTypes.FAVORITE, out favs))
+            {
+                userFavsIgn.Favorites = new List<LocationDTO>(favs.Count);
+                ids.AddRange(favs);
+            }
+
+            List<int> ign = null;
+            if (schema.TryGetValue(PreferenceTypes.IGNORED, out ign))
+            {
+                userFavsIgn.Ignored = new List<IgnoredLocation>(ign.Count);
+                ids.AddRange(ign);
+            }
+
+            using (var repos = DataRepos.Instance)
+            {
+                foreach (var location in repos.Locations.GetByIds(ids))
+                {
+                    if (favs.Contains(location.Id)) userFavsIgn.Favorites.Add(location);
+                    else userFavsIgn.Ignored.Add(new IgnoredLocation
+                         {
+                             Id = location.Id,
+                             Name = location.Name
+                         });
+                }
+            }
+
+            return userFavsIgn;
         }
     }
 }
