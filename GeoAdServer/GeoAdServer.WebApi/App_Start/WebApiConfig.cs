@@ -36,18 +36,18 @@ namespace GeoAdServer.WebApi
                 constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) }
             );
 
-            config.Routes.MapHttpRoute(
+            /*config.Routes.MapHttpRoute(
                 name: "MapKey",
                 routeTemplate: "api/{controller}/{action}",
                 defaults: new { controller = "locations" },
                 constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Post) }
-            );
+            );*/
 
-            config.Routes.MapHttpRoute(
+            /*config.Routes.MapHttpRoute(
                 name: "UserPreferencesLocations",
                 routeTemplate: "api/{controller}/{action}",
                 defaults: new { controller = "usersettings" }
-            );
+            );*/
 
             config.Routes.MapHttpRoute(
                 name: "FromUserApi",
@@ -57,6 +57,18 @@ namespace GeoAdServer.WebApi
             config.Routes.MapHttpRoute(
                 name: "FromLocationApi",
                 routeTemplate: "api/{controller}/fromlocation/{locationId}"
+            );
+
+            config.Routes.MapHttpRoute(
+                name: "UserPreferencesClear",
+                routeTemplate: "api/{controller}/{action}/{key}",
+                defaults: new { controller = "usersettings", action = "Clear" },
+                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Delete) }
+            );
+
+            config.Routes.MapHttpRoute(
+                name: "UserPreferencesLocations",
+                routeTemplate: "api/{controller}/{action}"
             );
 
             config.Routes.MapHttpRoute(

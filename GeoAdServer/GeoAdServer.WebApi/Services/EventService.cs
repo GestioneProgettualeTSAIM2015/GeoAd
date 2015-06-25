@@ -91,5 +91,10 @@ namespace GeoAdServer.WebApi.Services
         {
             return _userPrefsHandler.Get(key);
         }
+
+        public bool Delete(string key)
+        {
+            return _userPrefsHandler.Delete(key);
+        }
     }
 }

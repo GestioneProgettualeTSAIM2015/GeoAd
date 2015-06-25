@@ -10,11 +10,25 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using GeoAdServer.Domain.Entities.DTOs;
+using GeoAdServer.WebApi.Support;
 
 namespace GeoAdServer.WebApi.Controllers
 {
     public class UserSettingsController : ApiController
     {
+        [HttpGet]
+        [ActionName("MyLocations")]
+        public HttpResponseMessage GetMyLocation()
+        {
+            if (!RequestContext.Principal.Identity.IsAuthenticated)
+                return Request.CreateResponse(HttpStatusCode.Unauthorized);
+
+            using (var repos = DataRepos.Instance)
+            {
+                return Request.CreateResponse(HttpStatusCode.OK, repos.Locations.GetByUserId(RequestContext.GetUserId()).AsQueryable());
+            }
+        }
+
         [ActionName("Favorites")]
         public HttpResponseMessage PostFav(LocationPreferenceModel prefModel)
         {
@@ -78,6 +92,13 @@ namespace GeoAdServer.WebApi.Controllers
             }
 
             return userFavsIgn;
+        }
+
+        [HttpDelete]
+        [ActionName("Clear")]
+        public HttpResponseMessage DeletePreferences(string key)
+        {
+            return Request.CreateResponse(EventService.Instance.Delete(key) ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
         }
     }
 }

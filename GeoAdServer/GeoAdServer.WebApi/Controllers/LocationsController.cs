@@ -50,14 +50,6 @@ namespace GeoAdServer.WebApi.Controllers
             }
         }
 
-        public IQueryable<LocationDTO> Get(string userId)
-        {
-            using (var repos = DataRepos.Instance)
-            {
-                return repos.Locations.GetByUserId(userId).AsQueryable();
-            }
-        }
-
         [Authorize]
         public HttpResponseMessage Post([FromBody]LocationApiModel locationApiModel)
         {

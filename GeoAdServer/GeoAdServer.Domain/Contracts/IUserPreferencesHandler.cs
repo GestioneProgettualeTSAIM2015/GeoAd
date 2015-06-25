@@ -16,5 +16,7 @@ namespace GeoAdServer.Domain.Contracts
         void DeletePreference(int locationId, string key, PreferenceTypes pref);
 
         Dictionary<PreferenceTypes, List<int>> Get(string key);
+
+        bool Delete(string key);
     }
 }

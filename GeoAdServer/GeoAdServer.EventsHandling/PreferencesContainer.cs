@@ -95,6 +95,25 @@ namespace GeoAdServer.EventsHandling
             return keyPrefs;
         }
 
+        bool IUserPreferencesHandler.Delete(string key)
+        {
+            bool keyFound = false;
+
+            var keyPrefs = new Dictionary<PreferenceTypes, List<int>>();
+
+            foreach (var locationPair in _preferences.RawDataType)
+            {
+                foreach (var prefTypePair in locationPair.Value)
+                {
+                    if (prefTypePair.Value.Remove(key))
+                        keyFound = true;
+                }
+            }
+
+            IncrLocalChanges();
+            return keyFound;
+        }
+
         void IDisposable.Dispose()
         {
             _preferences = new Preferences();
