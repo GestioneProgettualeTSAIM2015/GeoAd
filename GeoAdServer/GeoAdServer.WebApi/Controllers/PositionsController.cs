@@ -11,18 +11,21 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using GeoAdServer.GeneralUtilities;
+using GeoAdServer.WebApi.Support;
 
 namespace GeoAdServer.WebApi.Controllers
 {
     public class PositionsController : ApiController
     {
-        public dynamic Post(ChangedPosition chp)
+        public HttpResponseMessage Post(ChangedPosition chp)
         {
+            if (!ModelState.IsValid) return Request.CreateResponseForInvalidModelState();
+
             EventService.Instance.HandleChangedPosition(chp);
 
             dynamic data = new ExpandoObject();
             var locations = new LinkedList<LocationDTO>();
-            var offerings = new LinkedList<dynamic>();
+            var offers = new LinkedList<dynamic>();
 
             using (var repos = DataRepos.Instance)
             {
@@ -33,17 +36,17 @@ namespace GeoAdServer.WebApi.Controllers
                     double.Parse(x.Lng, CultureInfo.InvariantCulture) > double.Parse(chp.NWCoord.Lng, CultureInfo.InvariantCulture)))
                 {
                     locations.AddLast(location);
-                    foreach (var offering in repos.Offerings.GetByLocationId(location.Id))
+                    foreach (var offer in repos.Offers.GetByLocationId(location.Id))
                     {
-                        offerings.AddLast(offering.AddProperty("LocationName", location.Name));
+                        offers.AddLast(offer.AddProperty("LocationName", location.Name));
                     }
                 }
             }
 
             data.Locations = locations.AsQueryable();
-            data.Offerings = offerings.AsQueryable();
+            data.Offers = offers.AsQueryable();
 
-            return data;
+            return Request.CreateResponse(HttpStatusCode.OK, (object)data);
         }
     }
 }

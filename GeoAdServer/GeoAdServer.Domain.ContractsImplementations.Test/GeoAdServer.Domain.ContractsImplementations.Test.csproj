@@ -65,7 +65,7 @@
     <Compile Include="LocationsRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PhotosRepository.cs" />
-    <Compile Include="OfferingsRepository.cs" />
+    <Compile Include="OffersRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GeoAdServer.Domain\GeoAdServer.Domain.csproj">

@@ -12,12 +12,12 @@ using System.Threading.Tasks;
 
 namespace GeoAdServer.Postgresql
 {
-    public class PostgresqlPhotosRepository : AbstractPostgresqlRepository, IPhotosRepository
+    public class PostgresqPhotosRepository : AbstractPostgresqlRepository, IPhotosRepository
     {
-        public PostgresqlPhotosRepository(string connectionString) : base(connectionString)
+        public PostgresqPhotosRepository(string connectionString) : base(connectionString)
         { }
 
-        public PostgresqlPhotosRepository(NpgsqlConnection connection) : base(connection)
+        public PostgresqPhotosRepository(NpgsqlConnection connection) : base(connection)
         { }
 
         IEnumerable<PhotoDTO> IPhotosRepository.GetByLocationId(int locationId)

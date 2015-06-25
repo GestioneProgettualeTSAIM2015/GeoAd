@@ -7,9 +7,9 @@ using GeoAdServer.Domain.Entities.DTOs;
 
 namespace GeoAdServer.Domain.Entities.Events
 {
-    public class OfferingUpdated : IEvent
+    public class OfferCreated : IEvent
     {
-        public OfferingDTO Offering { get; set; }
+        public OfferDTO Offer { get; set; }
 
         public int LocationId { get; set; }
 

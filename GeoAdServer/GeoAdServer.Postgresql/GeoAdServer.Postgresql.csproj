@@ -44,10 +44,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbstractPostgresqlRepository.cs" />
-    <Compile Include="PostgresqlLocationsRepository.cs" />
-    <Compile Include="PostgresqlOfferingsRepository.cs" />
-    <Compile Include="PostgresqlPhotosRepository.cs" />
-    <Compile Include="PostgresqlPreferencesRepository.cs" />
+    <Compile Include="PostgresqLocationsRepository.cs" />
+    <Compile Include="PostgresqOffersRepository.cs" />
+    <Compile Include="PostgresqPhotosRepository.cs" />
+    <Compile Include="PostgresqPreferencesRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

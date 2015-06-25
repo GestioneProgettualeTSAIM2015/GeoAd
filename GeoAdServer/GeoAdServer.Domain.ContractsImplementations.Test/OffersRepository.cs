@@ -11,10 +11,10 @@ using System.Linq;
 namespace GeoAdServer.Domain.ContractsImplementations.Test
 {
     [TestClass]
-    public class OfferingsRepository
+    public class OffersRepository
     {
         [TestMethod]
-        public void OfferingsRepositoryTest()
+        public void OffersRepositoryTest()
         {
             //Container initialization
             string connectionString = "";
@@ -22,38 +22,38 @@ namespace GeoAdServer.Domain.ContractsImplementations.Test
             var container = new WindsorContainer();
             container.Register(
                 Component.For<ILocationsRepository>()
-                         .ImplementedBy<PostgresqlLocationsRepository>()
+                         .ImplementedBy<PostgresqLocationsRepository>()
                          .DependsOn(Dependency.OnValue("connectionString", connectionString))
                          .Named("pgrslocrepo"));
             container.Register(
-                Component.For<IOfferingsRepository>()
-                         .ImplementedBy<PostgresqlOfferingsRepository>()
+                Component.For<IOffersRepository>()
+                         .ImplementedBy<PostgresqOffersRepository>()
                          .DependsOn(Dependency.OnValue("connectionString", connectionString))
                          .Named("pgrsoffrepo"));
 
             //Test
             var locationsRepository = container.Resolve<ILocationsRepository>();
-            var offeringsRepository = container.Resolve<IOfferingsRepository>();
+            var offersRepository = container.Resolve<IOffersRepository>();
 
             var locationEnum = locationsRepository.GetAll().GetEnumerator();
             locationEnum.MoveNext();
             int locationId = locationEnum.Current.Id;
 
-            var offering = new Offering
+            var offer = new Offer
             {
                 LocationId = locationId,
-                Desc = "Test offerings",
+                Desc = "Test offers",
                 ExpDateMillis = (long) (DateTime.Now.AddHours(24) - new DateTime(1970, 1, 1)).TotalMilliseconds
             };
-            int id = offeringsRepository.Insert(offering);
-            var offeringDTO = offeringsRepository.GetByLocationId(locationId).Where(off => off.Id == id).Single();
-            var copy = offeringsRepository.GetAll().Where(off => off.Equals(offeringDTO)).Single();
-            offering.Desc = "new desc";
-            Assert.IsTrue(offeringsRepository.Update(id, offering));
-            Assert.IsFalse(offeringsRepository.Update(-1, offering));
-            Assert.IsNull(offeringsRepository.GetAll().Where(off => off.Equals(offeringDTO)).SingleOrDefault());
-            Assert.IsTrue(offeringsRepository.DeleteById(id));
-            Assert.IsNull(offeringsRepository.GetByLocationId(locationId).Where(off => off.Id == id).SingleOrDefault());
+            int id = offersRepository.Insert(offer);
+            var offerDTO = offersRepository.GetByLocationId(locationId).Where(off => off.Id == id).Single();
+            var copy = offersRepository.GetAll().Where(off => off.Equals(offerDTO)).Single();
+            offer.Desc = "new desc";
+            Assert.IsTrue(offersRepository.Update(id, offer));
+            Assert.IsFalse(offersRepository.Update(-1, offer));
+            Assert.IsNull(offersRepository.GetAll().Where(off => off.Equals(offerDTO)).SingleOrDefault());
+            Assert.IsTrue(offersRepository.DeleteById(id));
+            Assert.IsNull(offersRepository.GetByLocationId(locationId).Where(off => off.Id == id).SingleOrDefault());
         }
     }
 }

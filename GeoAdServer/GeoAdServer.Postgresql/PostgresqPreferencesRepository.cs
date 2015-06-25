@@ -13,12 +13,12 @@ using System.Threading.Tasks;
 
 namespace GeoAdServer.Postgresql
 {
-    public class PostgresqlPreferencesRepository : AbstractPostgresqlRepository, IPreferencesRepository
+    public class PostgresqPreferencesRepository : AbstractPostgresqlRepository, IPreferencesRepository
     {
-        public PostgresqlPreferencesRepository(string connectionString) : base(connectionString)
+        public PostgresqPreferencesRepository(string connectionString) : base(connectionString)
         { }
 
-        public PostgresqlPreferencesRepository(NpgsqlConnection connection) : base(connection)
+        public PostgresqPreferencesRepository(NpgsqlConnection connection) : base(connection)
         { }
 
         Preferences IPreferencesRepository.Get()

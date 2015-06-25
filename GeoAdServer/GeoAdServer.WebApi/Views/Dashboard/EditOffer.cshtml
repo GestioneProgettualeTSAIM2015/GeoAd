@@ -1,4 +1,4 @@
-﻿@model GeoAdServer.Domain.Entities.DTOs.OfferingDTO
+﻿@model GeoAdServer.Domain.Entities.DTOs.OfferDTO
 
 <h2>Modifica Offerta @ViewBag.Title</h2>
 
@@ -10,7 +10,7 @@
                 <p class="control-label">Nome</p>
             </div>
             <div class="col-md-10">
-                <input type="text" id="offName" value="@Model.Name" autofocus />
+                <input type="text" id="offName" value="@Model.Name" autofocus maxlength="@(System.Configuration.ConfigurationManager.AppSettings["maxOfferNameLength"])" />
             </div>
         </div>
         <br />
@@ -19,7 +19,7 @@
                 <p class="control-label">Descrizione</p>
             </div>
             <div class="col-md-10">
-                <textarea id="offDesc" style="width:100%; resize:none;" rows="6" maxlength="@(System.Configuration.ConfigurationManager.AppSettings["maxOfferingDescriptionLength"])">@Model.Desc</textarea>
+                <textarea id="offDesc" style="width:100%; resize:none;" rows="6" maxlength="@(System.Configuration.ConfigurationManager.AppSettings["maxOfferDescriptionLength"])">@Model.Desc</textarea>
             </div>
         </div>
         <br />
@@ -50,7 +50,6 @@
 })
 
 @section Scripts {
-    <script type="text/javascript" src="~/Scripts/loginScript.js"></script>
     <script type="text/javascript">
 
         function updateOffer() {
@@ -66,7 +65,7 @@
             };
 
             $.ajax({
-                url: '../../api/Offerings/' + @Model.Id,
+                url: '../../api/Offers/' + @Model.Id,
                 type: 'PUT',
                 data: obj,
                 beforeSend: function (xhr, settings) { xhr.setRequestHeader('Authorization', 'Bearer ' + getToken()); },

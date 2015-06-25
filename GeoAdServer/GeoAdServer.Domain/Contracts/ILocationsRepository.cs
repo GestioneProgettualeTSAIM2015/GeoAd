@@ -12,7 +12,7 @@ namespace GeoAdServer.Domain.Contracts
     {
         IEnumerable<LocationDTO> GetAll();
 
-        IEnumerable<LocationDTO> GetAllAround(double lat, double lng, double radius);
+        IEnumerable<LocationDTO> GetAllAround(string lat, string lng, double radius);
 
         IEnumerable<LocationDTO> GetByUserId(string userId);
 

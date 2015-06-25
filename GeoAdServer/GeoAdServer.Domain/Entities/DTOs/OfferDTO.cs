@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GeoAdServer.Domain.Entities.DTOs
 {
-    public class OfferingDTO : ReflectiveEquals
+    public class OfferDTO : ReflectiveEquals
     {
         public int Id { get; set; }
 

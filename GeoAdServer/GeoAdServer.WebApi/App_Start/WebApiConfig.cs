@@ -25,53 +25,6 @@ namespace GeoAdServer.WebApi
             config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(
-                name: "PhotoData",
-                routeTemplate: "api/{controller}/data/{photoId}"
-            );
-
-            config.Routes.MapHttpRoute(
-                name: "GetAllWithPosition",
-                routeTemplate: "api/{controller}/{pos}",
-                defaults: new { controller = "positions" },
-                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) }
-            );
-
-            /*config.Routes.MapHttpRoute(
-                name: "MapKey",
-                routeTemplate: "api/{controller}/{action}",
-                defaults: new { controller = "locations" },
-                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Post) }
-            );*/
-
-            /*config.Routes.MapHttpRoute(
-                name: "UserPreferencesLocations",
-                routeTemplate: "api/{controller}/{action}",
-                defaults: new { controller = "usersettings" }
-            );*/
-
-            config.Routes.MapHttpRoute(
-                name: "FromUserApi",
-                routeTemplate: "api/{controller}/fromuser/{userId}"
-            );
-
-            config.Routes.MapHttpRoute(
-                name: "FromLocationApi",
-                routeTemplate: "api/{controller}/fromlocation/{locationId}"
-            );
-
-            config.Routes.MapHttpRoute(
-                name: "UserPreferencesClear",
-                routeTemplate: "api/{controller}/{action}/{key}",
-                defaults: new { controller = "usersettings", action = "Clear" },
-                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Delete) }
-            );
-
-            config.Routes.MapHttpRoute(
-                name: "UserPreferencesLocations",
-                routeTemplate: "api/{controller}/{action}"
-            );
-
-            config.Routes.MapHttpRoute(
                 name: "DefaultRoute",
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }

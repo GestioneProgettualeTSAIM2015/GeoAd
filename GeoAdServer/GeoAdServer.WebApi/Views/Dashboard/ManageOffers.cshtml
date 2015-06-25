@@ -1,4 +1,4 @@
-﻿@model IEnumerable<GeoAdServer.Domain.Entities.DTOs.OfferingDTO>
+﻿@model IEnumerable<GeoAdServer.Domain.Entities.DTOs.OfferDTO>
 
 <h2>Gestione Offerte @ViewBag.LocName</h2>
 
@@ -76,7 +76,7 @@ else
                 <p class="control-label">Nome</p>
             </div>
             <div class="col-md-10">
-                <input type="text" id="offName" maxlength="@(System.Configuration.ConfigurationManager.AppSettings["maxOfferingNameLength"])" />
+                <input type="text" id="offName" maxlength="@(System.Configuration.ConfigurationManager.AppSettings["maxOfferNameLength"])" />
             </div>
         </div>
         <br />
@@ -85,7 +85,7 @@ else
                 <p class="control-label">Descrizione</p>
             </div>
             <div class="col-md-10">
-                <textarea id="offDesc" style="width:100%; resize:none;" rows="6" maxlength="@(System.Configuration.ConfigurationManager.AppSettings["maxOfferingDescriptionLength"])"></textarea>
+                <textarea id="offDesc" style="width:100%; resize:none;" rows="6" maxlength="@(System.Configuration.ConfigurationManager.AppSettings["maxOfferDescriptionLength"])"></textarea>
             </div>
         </div>
         <br />
@@ -113,7 +113,6 @@ else
 })
 
 @section scripts {
-    <script type="text/javascript" src="~/Scripts/loginScript.js"></script>
     <script type="text/javascript">
 
         $(".delete").click(function () {
@@ -122,7 +121,7 @@ else
             var r = confirm("Cancellare l'offerta " + id + "?");
             if (r == true) {
                 $.ajax({
-                    url: '../../api/Offerings/' + id,
+                    url: '../../api/Offers/' + id,
                     type: 'DELETE',
                     beforeSend: function (xhr, settings) { xhr.setRequestHeader('Authorization', 'Bearer ' + getToken()); },
                     success: function (result) {
@@ -148,7 +147,7 @@ else
             };
 
             $.ajax({
-                url: '../../api/Offerings',
+                url: '../../api/Offers',
                 type: 'POST',
                 data: offerObj,
                 beforeSend: function (xhr, settings) { xhr.setRequestHeader('Authorization', 'Bearer ' + getToken()); },

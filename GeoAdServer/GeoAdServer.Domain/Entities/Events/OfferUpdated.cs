@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GeoAdServer.Domain.Entities.DTOs;
 
 namespace GeoAdServer.Domain.Entities.Events
 {
-    public class OfferingDeleted : IEvent
+    public class OfferUpdated : IEvent
     {
-        public int OfferingId { get; set; }
+        public OfferDTO Offer { get; set; }
 
         public int LocationId { get; set; }
+
+        public string LocationName { get; set; }
 
         public string Lat { get; set; }
 

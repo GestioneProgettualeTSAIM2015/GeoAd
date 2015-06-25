@@ -11,24 +11,24 @@ using System.Threading.Tasks;
 
 namespace GeoAdServer.Postgresql
 {
-    public class PostgresqlOfferingsRepository : AbstractPostgresqlRepository, IOfferingsRepository
+    public class PostgresqOffersRepository : AbstractPostgresqlRepository, IOffersRepository
     {
-        public PostgresqlOfferingsRepository(string connectionString) : base(connectionString)
+        public PostgresqOffersRepository(string connectionString) : base(connectionString)
         {
         }
 
-        public PostgresqlOfferingsRepository(NpgsqlConnection connection) : base(connection)
+        public PostgresqOffersRepository(NpgsqlConnection connection) : base(connection)
         {
         }
 
-        IEnumerable<OfferingDTO> IOfferingsRepository.GetAll()
+        IEnumerable<OfferDTO> IOffersRepository.GetAll()
         {
             string query = @"SELECT *
-                             FROM ""Offerings""";
+                             FROM ""Offers""";
 
-            return ExecQuery<OfferingDTO>(query, (dr) =>
+            return ExecQuery<OfferDTO>(query, (dr) =>
             {
-                return new OfferingDTO
+                return new OfferDTO
                 {
                     Id = dr.Field<int>("Id"),
                     Name = dr.Field<string>("Name"),
@@ -40,15 +40,15 @@ namespace GeoAdServer.Postgresql
             });
         }
 
-        IEnumerable<OfferingDTO> IOfferingsRepository.GetByLocationId(int locationId)
+        IEnumerable<OfferDTO> IOffersRepository.GetByLocationId(int locationId)
         {
             string query = @"SELECT *
-                             FROM ""Offerings""
+                             FROM ""Offers""
                              WHERE ""LocationId"" = {0}";
 
-            return ExecQuery<OfferingDTO>(string.Format(query, locationId), (dr) =>
+            return ExecQuery<OfferDTO>(string.Format(query, locationId), (dr) =>
             {
-                return new OfferingDTO
+                return new OfferDTO
                 {
                     Id = dr.Field<int>("Id"),
                     Name = dr.Field<string>("Name"),
@@ -60,17 +60,17 @@ namespace GeoAdServer.Postgresql
             });
         }
 
-        OfferingDTO IOfferingsRepository.GetById(int offeringId)
+        OfferDTO IOffersRepository.GetById(int offerId)
         {
             string query = @"SELECT *
-                             FROM ""Offerings""
+                             FROM ""Offers""
                              WHERE ""Id"" = {0}";
 
-            return ExecQuery<OfferingDTO>(string.Format(query, offeringId), (dr) =>
+            return ExecQuery<OfferDTO>(string.Format(query, offerId), (dr) =>
             {
-                return new OfferingDTO
+                return new OfferDTO
                 {
-                    Id = offeringId,
+                    Id = offerId,
                     Name = dr.Field<string>("Name"),
                     LocationId = dr.Field<int>("LocationId"),
                     Desc = dr.Field<string>("Desc"),
@@ -80,23 +80,23 @@ namespace GeoAdServer.Postgresql
             }).ElementAtOrDefault(0);
         }
 
-        int IOfferingsRepository.Insert(Offering offering)
+        int IOffersRepository.Insert(Offer offer)
         {
             var templateCommand = @"INSERT INTO
-                                   ""Offerings"" (""Id"", ""LocationId"", ""Desc"", ""InsDateMillis"", ""ExpDateMillis"", ""Name"")
+                                   ""Offers"" (""Id"", ""LocationId"", ""Desc"", ""InsDateMillis"", ""ExpDateMillis"", ""Name"")
                                    VALUES (DEFAULT, {0}, '{1}', {2}, {3}, '{4}')
                                    RETURNING ""Id""";
 
             object row = ExecCommand(string.Format(new NullFormat(), templateCommand,
-                offering.LocationId, offering.Desc,
-                (long) (DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds, offering.ExpDateMillis, offering.Name));
+                offer.LocationId, offer.Desc,
+                (long) (DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds, offer.ExpDateMillis, offer.Name));
 
             return (int)row;
         }
 
-        bool IOfferingsRepository.Update(int id, Offering offering)
+        bool IOffersRepository.Update(int id, Offer offer)
         {
-            var templateCommand = @"UPDATE public.""Offerings""
+            var templateCommand = @"UPDATE public.""Offers""
                                     SET ""LocationId"" = {0},
                                         ""Desc"" = '{1}',
                                         ""ExpDateMillis"" = {2},
@@ -105,17 +105,17 @@ namespace GeoAdServer.Postgresql
                                     RETURNING ""Id""";
 
             object row = ExecCommand(string.Format(templateCommand,
-                offering.LocationId, offering.Desc, offering.ExpDateMillis, offering.Name, id));
+                offer.LocationId, offer.Desc, offer.ExpDateMillis, offer.Name, id));
 
             return row != null && (int)row == id;
         }
 
-        bool IOfferingsRepository.DeleteById(int offeringId)
+        bool IOffersRepository.DeleteById(int offerId)
         {
-            var templateCommand = @"DELETE FROM public.""Offerings""
+            var templateCommand = @"DELETE FROM public.""Offers""
                                     WHERE ""Id"" = {0}";
 
-            object row = ExecCommand(string.Format(templateCommand, offeringId));
+            object row = ExecCommand(string.Format(templateCommand, offerId));
             return true;
         }
     }

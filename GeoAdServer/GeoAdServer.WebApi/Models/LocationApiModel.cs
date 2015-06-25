@@ -9,16 +9,22 @@ namespace GeoAdServer.WebApi.Models
 {
     public class LocationApiModel
     {
+        [Required]
         public string PCat { get; set; }
 
+        [Required]
         public string SCat { get; set; }
 
+        [Required]
         public string Name { get; set; }
 
+        [Required]
         public string Lat { get; set; }
 
+        [Required]
         public string Lng { get; set; }
 
+        [Required]
         public string Desc { get; set; }
     }
 }

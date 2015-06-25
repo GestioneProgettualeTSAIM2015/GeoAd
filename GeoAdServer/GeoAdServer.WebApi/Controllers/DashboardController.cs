@@ -77,12 +77,12 @@ namespace GeoAdServer.WebApi.Controllers
 
             using (var repos = DataRepos.Instance)
             {
-                IEnumerable<OfferingDTO> offerings = repos.Offerings.GetByLocationId(Id);
+                IEnumerable<OfferDTO> offers = repos.Offers.GetByLocationId(Id);
 
                 ViewBag.LocId = Id;
                 ViewBag.LocName = repos.Locations.GetById(Id).Name;
 
-                return View(offerings);
+                return View(offers);
             }
         }
 
@@ -122,13 +122,13 @@ namespace GeoAdServer.WebApi.Controllers
 
             using (var repos = DataRepos.Instance)
             {
-                var offer = repos.Offerings.GetById(id);
-                ViewBag.Title = truncDesc(offer.Desc);
+                var offer = repos.Offers.GetById(id);
+                ViewBag.Title = TruncDesc(offer.Desc);
                 return View(offer);
             }
         }
 
-        private string truncDesc(string aDesc)
+        private string TruncDesc(string aDesc)
         {
             return aDesc.Length <= 20 ? aDesc : aDesc.Substring(0, 20) + "...";
         }

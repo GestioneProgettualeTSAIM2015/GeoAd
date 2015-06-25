@@ -22,12 +22,12 @@ namespace GeoAdServer.Domain.ContractsImplementations.Test
             var container = new WindsorContainer();
             container.Register(
                 Component.For<ILocationsRepository>()
-                         .ImplementedBy<PostgresqlLocationsRepository>()
+                         .ImplementedBy<PostgresqLocationsRepository>()
                          .DependsOn(Dependency.OnValue("connectionString", connectionString))
                          .Named("pgrslocrepo"));
             container.Register(
                 Component.For<IPhotosRepository>()
-                         .ImplementedBy<PostgresqlPhotosRepository>()
+                         .ImplementedBy<PostgresqPhotosRepository>()
                          .DependsOn(Dependency.OnValue("connectionString", connectionString))
                          .Named("pgrsphorepo"));
 

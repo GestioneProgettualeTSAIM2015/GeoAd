@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace GeoAdServer.Postgresql
 {
-    public class PostgresqlLocationsRepository : AbstractPostgresqlRepository, ILocationsRepository
+    public class PostgresqLocationsRepository : AbstractPostgresqlRepository, ILocationsRepository
     {
         private static Dictionary<string, IList<string>> _categories;
 
@@ -74,12 +74,12 @@ namespace GeoAdServer.Postgresql
             }
         }
 
-        public PostgresqlLocationsRepository(string connectionString) : base(connectionString)
+        public PostgresqLocationsRepository(string connectionString) : base(connectionString)
         {
             if (Categories == null) Categories = FetchCategories();
         }
 
-        public PostgresqlLocationsRepository(NpgsqlConnection connection) : base(connection)
+        public PostgresqLocationsRepository(NpgsqlConnection connection) : base(connection)
         {
             if (Categories == null) Categories = FetchCategories();
         }
@@ -117,7 +117,7 @@ namespace GeoAdServer.Postgresql
             return GeneralGet(query);
         }
 
-        IEnumerable<LocationDTO> ILocationsRepository.GetAllAround(double lat, double lng, double radius)
+        IEnumerable<LocationDTO> ILocationsRepository.GetAllAround(string lat, string lng, double radius)
         {
             string queryTemplate = @"SELECT *
                                      FROM ""Locations""

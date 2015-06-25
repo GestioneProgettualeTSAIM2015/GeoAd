@@ -10,9 +10,5 @@ namespace GeoAdServer.WebApi.Models
         public int Id { get; set; }
 
         public string Base64Thumbnail { get; set; }
-
-        public int WidthBig { get; set; }
-
-        public int HeightBig { get; set; }
     }
 }

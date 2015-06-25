@@ -24,7 +24,7 @@ namespace GeoAdServer.DataAccess
 
         public IPhotosRepository Photos { get; private set; }
 
-        public IOfferingsRepository Offerings { get; private set; }
+        public IOffersRepository Offers { get; private set; }
 
         public IPreferencesRepository Preferences { get; private set; }
 
@@ -33,11 +33,11 @@ namespace GeoAdServer.DataAccess
 
         private DataRepos()
         {
-            Locations = new PostgresqlLocationsRepository(_CONNECTION_STRING);
+            Locations = new PostgresqLocationsRepository(_CONNECTION_STRING);
             var connection = ((AbstractPostgresqlRepository)Locations).Connection;
-            Photos = new PostgresqlPhotosRepository(connection);
-            Offerings = new PostgresqlOfferingsRepository(connection);
-            Preferences = new PostgresqlPreferencesRepository(connection);
+            Photos = new PostgresqPhotosRepository(connection);
+            Offers = new PostgresqOffersRepository(connection);
+            Preferences = new PostgresqPreferencesRepository(connection);
         }
 
         void IDisposable.Dispose()

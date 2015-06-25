@@ -81,17 +81,17 @@ namespace GeoAdServer.EventsHandling
                     {
                         Handle(ievent as LocationDeleted);
                     }
-                    else if (ievent is OfferingCreated)
+                    else if (ievent is OfferCreated)
                     {
-                        Handle(ievent as OfferingCreated);
+                        Handle(ievent as OfferCreated);
                     }
-                    else if (ievent is OfferingUpdated)
+                    else if (ievent is OfferUpdated)
                     {
-                        Handle(ievent as OfferingUpdated);
+                        Handle(ievent as OfferUpdated);
                     }
-                    else if (ievent is OfferingDeleted)
+                    else if (ievent is OfferDeleted)
                     {
-                        Handle(ievent as OfferingDeleted);
+                        Handle(ievent as OfferDeleted);
                     }
                 }
                 else
@@ -117,21 +117,21 @@ namespace GeoAdServer.EventsHandling
             NotifyAffected("LocationDeleted", ievent.LocationId, ievent.Lat, ievent.Lng);
         }
 
-        private void Handle(OfferingCreated ievent)
+        private void Handle(OfferCreated ievent)
         {
-            NotifyAffected("OfferingCreated", ievent.Offering
+            NotifyAffected("OfferCreated", ievent.Offer
                 .AddProperty("LocationName", ievent.LocationName), ievent.Lat, ievent.Lng, ievent.LocationId);
         }
 
-        private void Handle(OfferingUpdated ievent)
+        private void Handle(OfferUpdated ievent)
         {
-            NotifyAffected("OfferingUpdated", ievent.Offering
+            NotifyAffected("OfferUpdated", ievent.Offer
                 .AddProperty("LocationName", ievent.LocationName), ievent.Lat, ievent.Lng, ievent.LocationId);
         }
 
-        private void Handle(OfferingDeleted ievent)
+        private void Handle(OfferDeleted ievent)
         {
-            NotifyAffected("OfferingDeleted", ievent.OfferingId, ievent.Lat, ievent.Lng, ievent.LocationId);
+            NotifyAffected("OfferDeleted", ievent.OfferId, ievent.Lat, ievent.Lng, ievent.LocationId);
         }
 
         private void NotifyAffected(string action, object dataObject, string lat, string lng, int? locationId = null)

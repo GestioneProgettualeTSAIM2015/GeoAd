@@ -31,6 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -43,28 +44,28 @@
     <Compile Include="Contracts\AbstractEventsHandler.cs" />
     <Compile Include="Contracts\IEventsHandler.cs" />
     <Compile Include="Contracts\ILocationsRepository.cs" />
-    <Compile Include="Contracts\IOfferingsRepository.cs" />
+    <Compile Include="Contracts\IOffersRepository.cs" />
     <Compile Include="Contracts\IPhotosRepository.cs" />
     <Compile Include="Contracts\IPreferencesRepository.cs" />
     <Compile Include="Contracts\IUserPreferencesHandler.cs" />
     <Compile Include="Entities\DTOs\CategoryDTO.cs" />
     <Compile Include="Entities\DTOs\LocationDTO.cs" />
-    <Compile Include="Entities\DTOs\OfferingDTO.cs" />
+    <Compile Include="Entities\DTOs\OfferDTO.cs" />
     <Compile Include="Entities\DTOs\PhotoDataDTO.cs" />
     <Compile Include="Entities\DTOs\PhotoDTO.cs" />
     <Compile Include="Entities\Events\ChangedPosition.cs" />
     <Compile Include="Entities\Events\IEvent.cs" />
-    <Compile Include="Entities\Events\OfferingCreated.cs" />
+    <Compile Include="Entities\Events\OfferCreated.cs" />
     <Compile Include="Entities\Events\LocationCreated.cs" />
-    <Compile Include="Entities\Events\OfferingDeleted.cs" />
+    <Compile Include="Entities\Events\OfferDeleted.cs" />
     <Compile Include="Entities\Events\LocationDeleted.cs" />
-    <Compile Include="Entities\Events\OfferingUpdated.cs" />
+    <Compile Include="Entities\Events\OfferUpdated.cs" />
     <Compile Include="Entities\Events\LocationUpdated.cs" />
     <Compile Include="Entities\Preferences.cs" />
     <Compile Include="Entities\PreferenceTypes.cs" />
     <Compile Include="Entities\ReflectiveEquals.cs" />
     <Compile Include="Entities\Location.cs" />
-    <Compile Include="Entities\Offering.cs" />
+    <Compile Include="Entities\Offer.cs" />
     <Compile Include="Entities\Photo.cs" />
     <Compile Include="Entities\Types.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

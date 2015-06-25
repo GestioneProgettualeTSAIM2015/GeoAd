@@ -11,9 +11,9 @@ namespace GeoAdServer.WebApi.Support
 {
     public static class DTOBuilder
     {
-        public static OfferingDTO BuildDTO(this Offering o, int id)
+        public static OfferDTO BuildDTO(this Offer o, int id)
         {
-            return new OfferingDTO
+            return new OfferDTO
             {
                 Id = id,
                 Name = o.Desc,
