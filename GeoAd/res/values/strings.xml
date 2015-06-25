@@ -19,6 +19,8 @@
     <string name="offers">Offerte</string>
     <string name="expire">Scadenza</string>
     
+    <string name="location_edit">Modifica Luogo</string>
+    
     <string name="location_state">Opzioni Luogo</string>
     <string name="favorite">Preferito</string>
     <string name="ignored">Ignorato</string>

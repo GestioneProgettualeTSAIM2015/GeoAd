@@ -17,18 +17,23 @@ public class DataFavContentProvider extends ContentProvider {
 
     public static final String FAVORITES_PATH = "favorites";
     public static final String IGNORED_PATH = "ignored";
-
+    public static final String MYLOC_PATH = "mylocations";
 
     public static final Uri FAVORITES_URI =
             Uri.parse(ContentResolver.SCHEME_CONTENT + "://" + AUTHORITY + "/" + FAVORITES_PATH);
     public static final Uri IGNORED_URI =
             Uri.parse(ContentResolver.SCHEME_CONTENT + "://" + AUTHORITY + "/" + IGNORED_PATH);
+    public static final Uri MYLOC_URI =
+            Uri.parse(ContentResolver.SCHEME_CONTENT + "://" + AUTHORITY + "/" + MYLOC_PATH);
 
     private static final int FULL_FAVORITES_TABLE = 0;
     private static final int SINGLE_FAVORITE = 1;
 
     private static final int FULL_IGNORED_TABLE = 2;
     private static final int SINGLE_IGNORED = 3;
+    
+    private static final int FULL_MYLOC_TABLE = 4;
+    private static final int SINGLE_MYLOC = 5;
 
     private static final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
@@ -38,6 +43,9 @@ public class DataFavContentProvider extends ContentProvider {
 
         uriMatcher.addURI(AUTHORITY, IGNORED_PATH, FULL_IGNORED_TABLE);
         uriMatcher.addURI(AUTHORITY, IGNORED_PATH + "/#", SINGLE_IGNORED);
+        
+        uriMatcher.addURI(AUTHORITY, MYLOC_PATH, FULL_MYLOC_TABLE);
+        uriMatcher.addURI(AUTHORITY, MYLOC_PATH + "/#", SINGLE_MYLOC);
     }
 
     private DBHelper dbHelper;
@@ -69,6 +77,15 @@ public class DataFavContentProvider extends ContentProvider {
                 queryBuilder.setTables(IgnoredHelper.TABLE_NAME);
                 queryBuilder.appendWhere(IgnoredHelper._ID + "=" + uri.getLastPathSegment());
                 break;
+                
+            case FULL_MYLOC_TABLE:
+                queryBuilder.setTables(MyLocationHelper.TABLE_NAME);
+                break;
+
+            case SINGLE_MYLOC:
+                queryBuilder.setTables(MyLocationHelper.TABLE_NAME);
+                queryBuilder.appendWhere(MyLocationHelper._ID + "=" + uri.getLastPathSegment());
+                break;
         }
 
         SQLiteDatabase db = dbHelper.getReadableDatabase();
@@ -84,6 +101,9 @@ public class DataFavContentProvider extends ContentProvider {
     public static final String MIME_TYPE_ALL_IGNORED = ContentResolver.CURSOR_DIR_BASE_TYPE + "/allignored";
     public static final String MIME_TYPE_SINGLE_IGNORED = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/singleignored";
 
+    public static final String MIME_TYPE_ALL_MYLOC = ContentResolver.CURSOR_DIR_BASE_TYPE + "/allmy";
+    public static final String MIME_TYPE_SINGLE_MYLOC = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/singlemy";
+
     @Override
     public String getType(Uri uri) {
         switch (uriMatcher.match(uri)) {
@@ -95,6 +115,10 @@ public class DataFavContentProvider extends ContentProvider {
                 return MIME_TYPE_ALL_IGNORED;
             case SINGLE_IGNORED:
                 return MIME_TYPE_SINGLE_IGNORED;
+            case FULL_MYLOC_TABLE:
+                return MIME_TYPE_ALL_MYLOC;
+            case SINGLE_MYLOC:
+                return MIME_TYPE_SINGLE_MYLOC;
         }
         return null;
     }
@@ -112,6 +136,10 @@ public class DataFavContentProvider extends ContentProvider {
                 result = db.insert(IgnoredHelper.TABLE_NAME, null, values);
                 getContext().getContentResolver().notifyChange(uri, null);
                 return Uri.parse(IGNORED_URI.toString() + "/" + result);
+            case FULL_MYLOC_TABLE:
+                result = db.insert(MyLocationHelper.TABLE_NAME, null, values);
+                getContext().getContentResolver().notifyChange(uri, null);
+                return Uri.parse(MYLOC_URI.toString() + "/" + result);
         }
         return null;
     }
@@ -126,14 +154,21 @@ public class DataFavContentProvider extends ContentProvider {
                 break;
             case SINGLE_FAVORITE:
                 String favUri = FavoritesHelper._ID + " = " + uri.getLastPathSegment();
-                deletedLines = db.delete(FavoritesHelper.TABLE_NAME, selection + " AND " + favUri, selectionArgs);
+                deletedLines = db.delete(FavoritesHelper.TABLE_NAME, favUri, selectionArgs);
                 break;
             case FULL_IGNORED_TABLE:
                 deletedLines = db.delete(IgnoredHelper.TABLE_NAME, selection, selectionArgs);
                 break;
             case SINGLE_IGNORED:
                 String ignoreUri = IgnoredHelper._ID + " = " + uri.getLastPathSegment();
-                deletedLines = db.delete(IgnoredHelper.TABLE_NAME, selection + " AND " + ignoreUri, selectionArgs);
+                deletedLines = db.delete(IgnoredHelper.TABLE_NAME, ignoreUri, selectionArgs);
+                break;
+            case FULL_MYLOC_TABLE:
+                deletedLines = db.delete(MyLocationHelper.TABLE_NAME, selection, selectionArgs);
+                break;
+            case SINGLE_MYLOC:
+                String myUri = MyLocationHelper._ID + " = " + uri.getLastPathSegment();
+                deletedLines = db.delete(MyLocationHelper.TABLE_NAME, myUri, selectionArgs);
                 break;
         }
         if (deletedLines > 0) {
@@ -154,14 +189,21 @@ public class DataFavContentProvider extends ContentProvider {
                 break;
             case SINGLE_FAVORITE:
                 String favUri = FavoritesHelper._ID + " = " + uri.getLastPathSegment();
-                updatedLines = db.update(FavoritesHelper.TABLE_NAME, values, selection + " AND " + favUri, selectionArgs);
+                updatedLines = db.update(FavoritesHelper.TABLE_NAME, values, favUri, selectionArgs);
                 break;
             case FULL_IGNORED_TABLE:
                 updatedLines = db.update(IgnoredHelper.TABLE_NAME, values, selection, selectionArgs);
                 break;
             case SINGLE_IGNORED:
                 String ignoreUri = IgnoredHelper._ID + " = " + uri.getLastPathSegment();
-                updatedLines = db.update(IgnoredHelper.TABLE_NAME, values, selection + " AND " + ignoreUri, selectionArgs);
+                updatedLines = db.update(IgnoredHelper.TABLE_NAME, values, ignoreUri, selectionArgs);
+                break;
+            case FULL_MYLOC_TABLE:
+                updatedLines = db.update(MyLocationHelper.TABLE_NAME, values, selection, selectionArgs);
+                break;
+            case SINGLE_MYLOC:
+                String myUri = MyLocationHelper._ID + " = " + uri.getLastPathSegment();
+                updatedLines = db.update(MyLocationHelper.TABLE_NAME, values, myUri, selectionArgs);
                 break;
         }
         if (updatedLines > 0) {

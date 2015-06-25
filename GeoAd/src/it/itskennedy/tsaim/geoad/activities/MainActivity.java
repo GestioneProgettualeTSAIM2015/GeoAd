@@ -65,7 +65,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		
 		isLogged = SettingsManager.get(this).isUserLogged();
 		
-		/*RequestParams vParams = new RequestParams();
+		RequestParams vParams = new RequestParams();
 		vParams.put("id", 580);
 		
 		ConnectionManager.obtain().get("api/locations", vParams, new JsonResponse()
@@ -78,7 +78,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 					loadFragment(Utils.TYPE_DETAIL, LocationModel.fromJSON(aResponse.toString()).getBundle());
 				}
 			}
-		});*/
+		});
 		
         mTitle = mDrawerTitle = getTitle();
         mPlanetTitles = new ArrayList<>();
@@ -296,7 +296,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 					{
 						aToken = ((JSONObject)aResponse).getString("access_token");
 						SettingsManager.get(MainActivity.this).saveToken(aToken);
-						Engine.get().setToken(aToken);
+						Engine.get().onLogin(aToken);
 						
 						selectItem(Utils.TYPE_ACTIVITIES);
 						Toast.makeText(MainActivity.this, "Loggato", Toast.LENGTH_SHORT).show();

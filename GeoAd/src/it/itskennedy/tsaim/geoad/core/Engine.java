@@ -7,6 +7,7 @@ import it.itskennedy.tsaim.geoad.localdb.DataFavContentProvider;
 import it.itskennedy.tsaim.geoad.localdb.DataOffersContentProvider;
 import it.itskennedy.tsaim.geoad.localdb.FavoritesHelper;
 import it.itskennedy.tsaim.geoad.localdb.IgnoredHelper;
+import it.itskennedy.tsaim.geoad.localdb.MyLocationHelper;
 import it.itskennedy.tsaim.geoad.localdb.OffersHelper;
 import it.itskennedy.tsaim.geoad.push.PushSignIn;
 import it.itskennedy.tsaim.geoad.push.PushSignIn.PushKeyReceiver;
@@ -133,9 +134,34 @@ public class Engine extends Application implements PushKeyReceiver
         }
 	}
 
-	public void setToken(String aToken) 
+	public void onLogin(String aToken) 
 	{
 		mToken = aToken;
+		ConnectionManager.obtain().get("api/locations/mylocations", null, new JsonResponse()
+		{	
+			@Override
+			public void onResponse(boolean aResult, Object aResponse) 
+			{
+				if(aResult && aResponse != null && aResponse instanceof JSONArray)
+				{
+					JSONArray vMyLoc = ((JSONArray)aResponse);
+					
+					for(int i = 0; i < vMyLoc.length(); ++i)
+					{
+						LocationModel vLoc;
+						try
+						{
+							vLoc = LocationModel.fromJSON(vMyLoc.getJSONObject(i));
+							getContentResolver().insert(DataFavContentProvider.MYLOC_URI, vLoc.getContentValues());
+						}
+						catch (JSONException e)
+						{
+							Log.e(APP_NAME, "JSON Error");
+						}
+					}
+				}
+			}
+		});
 	}
 	
 	public Base64Cache getCache()
@@ -148,51 +174,51 @@ public class Engine extends Application implements PushKeyReceiver
 		RequestParams vParams = new RequestParams();
 		vParams.put("Id", aLocation.getId());
 		
-		if(aState == LocationState.FAVORITE)
-		{	
-			ConnectionManager.obtain().post("api/usersettings/favorites", vParams, new JsonResponse()
-			{	
-				@Override
-				public void onResponse(boolean aResult, Object aResponse)
-				{
-					if(aResult)
-					{
-						deleteIgnored(aLocation.getId());
-						getContentResolver().insert(DataFavContentProvider.FAVORITES_URI, aLocation.getContentValues());
-					}
-				}
-			});
-		}
-		else if(aState == LocationState.IGNORED)
+		if(aState != getLocationState(aLocation.getId()))
 		{
-			ConnectionManager.obtain().post("api/usersettings/ignored", vParams, new JsonResponse()
+			if(aState == LocationState.FAVORITE)
 			{	
-				@Override
-				public void onResponse(boolean aResult, Object aResponse)
-				{
-					if(aResult)
+				ConnectionManager.obtain().post("api/usersettings/favorites", vParams, new JsonResponse()
+				{	
+					@Override
+					public void onResponse(boolean aResult, Object aResponse)
 					{
-						deleteFavorite(aLocation.getId());
-						getContentResolver().insert(DataFavContentProvider.IGNORED_URI, aLocation.getIgnoredContentValues());	
+						if(aResult)
+						{
+							deleteIgnored(aLocation.getId());
+							getContentResolver().insert(DataFavContentProvider.FAVORITES_URI, aLocation.getContentValues());
+						}
 					}
-				}
-			});
-		}
-		else if(aState == LocationState.NEUTRAL)
-		{
-			setNeutralLocationState(aLocation.getId());
+				});
+			}
+			else if(aState == LocationState.IGNORED)
+			{
+				ConnectionManager.obtain().post("api/usersettings/ignored", vParams, new JsonResponse()
+				{	
+					@Override
+					public void onResponse(boolean aResult, Object aResponse)
+					{
+						if(aResult)
+						{
+							deleteFavorite(aLocation.getId());
+							getContentResolver().insert(DataFavContentProvider.IGNORED_URI, aLocation.getIgnoredContentValues());	
+						}
+					}
+				});
+			}
+			else if(aState == LocationState.NEUTRAL)
+			{
+				setNeutralLocationState(aLocation.getId());
+			}
 		}
 	}
 	
 	public void setNeutralLocationState(final int aId)
 	{
-		RequestParams vParams = new RequestParams();
-		vParams.put("Id", aId);
-		
 		LocationState vActual = getLocationState(aId);
 		if(vActual == LocationState.IGNORED)
 		{	
-			ConnectionManager.obtain().delete("api/usersettings/ignored", vParams, new JsonResponse()
+			ConnectionManager.obtain().delete("api/usersettings/ignored?Id=" + aId + "&key=" + mKey, new JsonResponse()
 			{	
 				@Override
 				public void onResponse(boolean aResult, Object aResponse)
@@ -206,7 +232,7 @@ public class Engine extends Application implements PushKeyReceiver
 		}
 		else if(vActual == LocationState.FAVORITE)
 		{		
-			ConnectionManager.obtain().delete("api/usersettings/favorites", vParams, new JsonResponse()
+			ConnectionManager.obtain().delete("api/usersettings/ignored?Id=" + aId + "&key=" + mKey, new JsonResponse()
 			{	
 				@Override
 				public void onResponse(boolean aResult, Object aResponse)
@@ -247,6 +273,7 @@ public class Engine extends Application implements PushKeyReceiver
 			}	
 		}
 		
+		vCur.close();
 		return LocationState.NEUTRAL;
 	}
 	
@@ -301,5 +328,17 @@ public class Engine extends Application implements PushKeyReceiver
 				}
 			}
 		});
+	}
+	
+	public boolean imLocationOwner(int aLocId)
+	{
+		Cursor vCur = getContentResolver().query(DataFavContentProvider.MYLOC_URI, null, MyLocationHelper._ID + " = " + aLocId, null, null);
+		if(vCur.getCount() == 1)
+		{
+			return true;
+		}
+		
+		vCur.close();
+		return false;
 	}
 }

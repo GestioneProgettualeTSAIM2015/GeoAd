@@ -103,6 +103,15 @@ public class DetailFragment extends Fragment
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
 	{
         inflater.inflate(R.menu.detail_menu, menu);
+        
+        if(Engine.get().imLocationOwner(mLoc.getId()))
+        {
+        	menu.removeItem(R.id.action_mark);
+        }
+        else
+        {
+        	menu.removeItem(R.id.action_edit);
+        }
 	}
 
 	@Override
@@ -130,6 +139,10 @@ public class DetailFragment extends Fragment
 				MarkingDialogFragment vDial = MarkingDialogFragment.get(vActual, vIsIgnorable);
 				vDial.setTargetFragment(DetailFragment.this, LOCATION_STATE_RC);
 				vDial.show(getFragmentManager(), MarkingDialogFragment.TAG);
+				return true;
+			}
+			case R.id.action_edit:
+			{
 				return true;
 			}
 		}

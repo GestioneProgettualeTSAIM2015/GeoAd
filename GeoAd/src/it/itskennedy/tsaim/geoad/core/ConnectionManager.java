@@ -72,9 +72,9 @@ public class ConnectionManager extends BroadcastReceiver
     	send(HttpMethod.PUT, aUrl, vParams, jsonResponse);
     }
     
-    public void delete(String aUrl, RequestParams vParams, JsonResponse jsonResponse)
+    public void delete(String aUrl, JsonResponse jsonResponse)
     {
-    	send(HttpMethod.DELETE, aUrl, vParams, jsonResponse);
+    	send(HttpMethod.DELETE, aUrl, null, jsonResponse);
     }
 
     private void send(HttpMethod aType, String aUrl, RequestParams aParams, final JsonResponse aListener)
@@ -100,8 +100,8 @@ public class ConnectionManager extends BroadcastReceiver
                 switch(aType)
                 {
 					case DELETE:
-					{
-						mClient.delete(Engine.get(), Engine.SERVER_URL + aUrl, null, aParams, vResponseHandler);
+					{					
+						mClient.delete(Engine.SERVER_URL + aUrl, vResponseHandler);
 						break;
 					}
 					case GET:

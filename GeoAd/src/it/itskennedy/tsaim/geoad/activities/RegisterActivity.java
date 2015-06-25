@@ -107,7 +107,7 @@ public class RegisterActivity extends Activity
 							{
 								aToken = ((JSONObject)aResponse).getString("access_token");
 								SettingsManager.get(RegisterActivity.this).saveToken(aToken);
-								Engine.get().setToken(aToken);
+								Engine.get().onLogin(aToken);
 								
 								Intent vMainAct = new Intent(RegisterActivity.this, MainActivity.class);
 								startActivity(vMainAct);
