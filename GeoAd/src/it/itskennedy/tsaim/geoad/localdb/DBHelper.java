@@ -21,6 +21,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL(FavoritesHelper.CREATE_QUERY);
         db.execSQL(IgnoredHelper.CREATE_QUERY);
         db.execSQL(OffersHelper.CREATE_QUERY);
+        db.execSQL(MyLocationHelper.CREATE_QUERY);
     }
 
     @Override
@@ -28,6 +29,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + FavoritesHelper.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + IgnoredHelper.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + OffersHelper.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + MyLocationHelper.TABLE_NAME);
         onCreate(db);
     }
 

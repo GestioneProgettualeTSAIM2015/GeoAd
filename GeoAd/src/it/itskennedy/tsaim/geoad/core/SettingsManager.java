@@ -16,6 +16,8 @@ public class SettingsManager
     private static final String PREF_PUSH_ID = "pref_push_id";
     private static final String PREF_APP_VERSION = "pref_app_version";
     private static final String PREF_TOKEN = "pref_token";
+    private static final String PREF_HELP = "pref_help";
+    private static final String PREF_SYNC = "pref_sync";
 
     private SharedPreferences mPref;
     private Editor mEditor;
@@ -73,5 +75,27 @@ public class SettingsManager
 	public boolean isUserLogged() 
 	{
 		return mPref.getString(PREF_TOKEN, null) != null;
+	}
+
+	public boolean getHelpPref() 
+	{
+		return mPref.getBoolean(PREF_HELP, true);
+	}
+
+	public void saveHelpPref(boolean isChecked) 
+	{
+		mEditor.putBoolean(PREF_HELP, !isChecked);
+		mEditor.commit();
+	}
+
+	public boolean isMarkedSync() 
+	{
+		return mPref.getBoolean(PREF_SYNC, false);
+	}
+	
+	public void setMarkedSyncTrue()
+	{
+		mEditor.putBoolean(PREF_SYNC, true);
+		mEditor.commit();
 	}
 }

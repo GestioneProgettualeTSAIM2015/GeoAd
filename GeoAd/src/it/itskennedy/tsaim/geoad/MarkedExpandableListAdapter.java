@@ -27,13 +27,11 @@ public class MarkedExpandableListAdapter extends BaseExpandableListAdapter
 	{
 		super();
 		
-		TITLES[0] = context.getString(R.string.favourite);
-		TITLES[1] = context.getString(R.string.ignored);
+		TITLES[0] = context.getString(R.string.favorite_loc);
+		TITLES[1] = context.getString(R.string.ignored_loc);
 
 		mContents.add(new ArrayList<ElementHolder>());
 		mContents.add(new ArrayList<ElementHolder>());
-		
-		mContents.get(0).add(new ElementHolder(1, "FIGA"));
 		
 		Cursor vFav = context.getContentResolver().query(DataFavContentProvider.FAVORITES_URI, null, null, null, null);
 		
@@ -165,10 +163,12 @@ public class MarkedExpandableListAdapter extends BaseExpandableListAdapter
 		{
 			if(vElem.get(i).mId == aId)
 			{
-				vElem.remove(i);			
+				mContents.get(aGroup).remove(i);			
 				return;
 			}
 		}
+		
+		notifyDataSetChanged();
 	}
 
 	
@@ -183,4 +183,4 @@ public class MarkedExpandableListAdapter extends BaseExpandableListAdapter
 			mName = aName;
 		}
 	}
-	}
+}

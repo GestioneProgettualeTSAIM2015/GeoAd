@@ -6,7 +6,9 @@ import it.itskennedy.tsaim.geoad.core.ConnectionManager;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager.JsonResponse;
 import it.itskennedy.tsaim.geoad.core.Engine;
 import it.itskennedy.tsaim.geoad.core.SettingsManager;
+import it.itskennedy.tsaim.geoad.entity.LocationModel;
 import it.itskennedy.tsaim.geoad.fragment.AugmentedRealityFragment;
+import it.itskennedy.tsaim.geoad.fragment.DetailFragment;
 import it.itskennedy.tsaim.geoad.fragment.LoginDialogFragment;
 import it.itskennedy.tsaim.geoad.fragment.MarkedLocationFragment;
 import it.itskennedy.tsaim.geoad.fragment.SearchListFragment;
@@ -53,8 +55,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
     ArrayAdapter<String> mAdapter;
 	private boolean isLogged;
 	private int searchFragmentType;
-
-
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -62,6 +63,21 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		setContentView(R.layout.activity_main);
 		
 		isLogged = SettingsManager.get(this).isUserLogged();
+		
+		RequestParams vParams = new RequestParams();
+		vParams.put("id", 580);
+		
+		ConnectionManager.obtain().get("api/locations", vParams, new JsonResponse()
+		{	
+			@Override
+			public void onResponse(boolean aResult, Object aResponse)
+			{
+				if(aResult && aResponse != null && aResponse instanceof JSONObject)
+				{
+					loadFragment(Utils.TYPE_DETAIL, LocationModel.fromJSON(aResponse.toString()).getBundle());
+				}
+			}
+		});
 		
         mTitle = mDrawerTitle = getTitle();
         mPlanetTitles = new ArrayList<>();
@@ -145,9 +161,9 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
             return true;
         	case R.id.action_filter: 
             return true;
-        default:
-            return super.onOptionsItemSelected(item);
         }
+        
+        return super.onOptionsItemSelected(item);
     }
     
     /* The click listner for ListView in the navigation drawer */
@@ -207,18 +223,22 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 	public void loadFragment(int fragmentType, Bundle bundle)
 	{
 		Fragment vFragment = null;
+		String vTag = "";
 		
 		switch (fragmentType)
 		{
 			case Utils.TYPE_SEARCH_LIST:
 				searchFragmentType = Utils.TYPE_SEARCH_LIST;
 				vFragment = SearchListFragment.getInstance(bundle, this);
+				vTag = SearchListFragment.TAG;
 				break;
 			case Utils.TYPE_AUGMENTED_REALITY:
-				vFragment = AugmentedRealityFragment.getInstance(bundle);
-				break;
+				Intent i = new Intent(this, AugmentedRealityActivity.class);
+				vTag = AugmentedRealityFragment.TAG;
+				return;
 			case Utils.TYPE_PREFERENCE:
 				vFragment = MarkedLocationFragment.getInstance(bundle);
+				vTag = MarkedLocationFragment.TAG;
 				break;
 			case Utils.TYPE_LOCATIONS:
 				if(isLogged && false) //TODO
@@ -237,6 +257,12 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 				searchFragmentType = Utils.TYPE_SEARCH_MAP;
 				vFragment = SearchMapFragment.getInstance(bundle, this);
 				break;
+			case Utils.TYPE_DETAIL:
+			{
+				vFragment = DetailFragment.getInstance(bundle);
+				vTag = DetailFragment.TAG;
+				break;
+			}
 			case Utils.TYPE_FILTER:
 				LoginDialogFragment loginDialog = new LoginDialogFragment();
 				loginDialog.setCancelable(false);
@@ -244,8 +270,8 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 				return;
 		}
 		
-        FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_frame, vFragment).commit();
+		FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.content_frame, vFragment, vTag).commit();	
 	}
 
 	@Override
@@ -269,7 +295,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 					{
 						aToken = ((JSONObject)aResponse).getString("access_token");
 						SettingsManager.get(MainActivity.this).saveToken(aToken);
-						Engine.get().setToken(aToken);
+						Engine.get().onLogin(aToken);
 						
 						selectItem(Utils.TYPE_LOCATIONS);
 						Toast.makeText(MainActivity.this, "Loggato", Toast.LENGTH_SHORT).show();

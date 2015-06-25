@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/RelativeLayout1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true" >
+
+        <RelativeLayout
+            android:id="@+id/detailContent"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" >
+
+            <TextView
+                android:id="@+id/textViewPCat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TextView"
+                android:textSize="18sp" />
+
+            <RelativeLayout
+                android:id="@+id/thumbLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textViewPCat" >
+
+                <ProgressBar
+                    android:id="@+id/progressBarThumb"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:visibility="invisible" />
+
+                <HorizontalScrollView
+                    android:id="@+id/horizontalScrollThumb"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" >
+
+                    <LinearLayout
+                        android:id="@+id/thumbContainer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="135dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal" >
+                    </LinearLayout>
+                </HorizontalScrollView>
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/textViewSCat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true" />
+
+            <TextView
+                android:id="@+id/textViewDesc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/thumbLayout"
+                android:background="#DDDDDD"
+                android:padding="10dp"
+                android:text="TextView" />
+            
+            <TextView
+                android:id="@+id/textViewOffTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textViewDesc"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="10dp"
+                android:text="@string/offers"
+                android:textSize="18sp" />
+            
+            <TextView
+                android:id="@+id/textViewEmpty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textViewOffTitle"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="10dp"
+                android:text="@string/no_offer"
+                android:textSize="16sp" />
+
+            <ExpandableListView
+                android:id="@+id/expandableListViewOffer"
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:layout_below="@+id/textViewOffTitle" >
+
+            </ExpandableListView>
+        </RelativeLayout>
+    </ScrollView>
+
+</RelativeLayout>

@@ -2,8 +2,9 @@ package it.itskennedy.tsaim.geoad.services;
 
 import it.itskennedy.tsaim.geoad.R;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager;
-import it.itskennedy.tsaim.geoad.core.Engine;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager.JsonResponse;
+import it.itskennedy.tsaim.geoad.core.Engine;
+import it.itskennedy.tsaim.geoad.core.Engine.LocationState;
 import it.itskennedy.tsaim.geoad.core.LocationManager;
 import it.itskennedy.tsaim.geoad.core.LocationManager.LocationListener;
 import it.itskennedy.tsaim.geoad.core.NotificationManager;
@@ -58,6 +59,7 @@ public class GeoAdService extends Service implements LocationListener
 	
 	private Location mPosition;
 	private List<LocationModel> mNearLocations;
+	private List<Offer> mSuspendedOffers;
 
 	public interface GetLocationListener
 	{
@@ -73,7 +75,10 @@ public class GeoAdService extends Service implements LocationListener
 	  	
 	  	startForeground(NOTIFICATION, getNotify());
 	  	
+	  	mSuspendedOffers = new ArrayList<Offer>();
 		mNearLocations = new ArrayList<LocationModel>();
+//		mNearLocations.add(new LocationModel(1, "", "", "PROVA", 46, 13, "", ""));
+
 	}
 	
 	@Override
@@ -91,10 +96,15 @@ public class GeoAdService extends Service implements LocationListener
 					if(!vExtra.isEmpty())
 					{
 						String vJson = intent.getExtras().getString(DATA);
-						manageOffer(Offer.fromJSON(vJson));
+						
+						Offer vOff = Offer.fromJSON(vJson); 
+						if(Engine.get().getLocationState(vOff.getLocationId()) != LocationState.IGNORED)
+						{
+							manageOffer(vOff);
+						}
 					}
 				}
-				else if(vAction.equals(DELETE_OFFER))
+				else if(vAction.equals(DELETE_OFFER)) 
 				{
 					int vToRemove = intent.getIntExtra(DELETE_ID, 0);
 					getContentResolver().delete(DataOffersContentProvider.OFFERS_URI, OffersHelper.OFF_ID + " = " + vToRemove, null);
@@ -120,6 +130,7 @@ public class GeoAdService extends Service implements LocationListener
 		}
 		
 	    return START_STICKY;
+		
 	}
 	
 	private Notification getNotify()
@@ -165,22 +176,50 @@ public class GeoAdService extends Service implements LocationListener
 		}
 	}
 
-	private void manageOffer(Offer vOffer)
+	private void manageOffer(Offer aOffer)
 	{
-		Cursor vCur = getContentResolver().query(DataOffersContentProvider.OFFERS_URI, null, OffersHelper.OFF_ID + " = " + vOffer.getId(), null, null);
+		Cursor vCur = getContentResolver().query(DataOffersContentProvider.OFFERS_URI, null, OffersHelper.OFF_ID + " = " + aOffer.getId(), null, null);
 		
 		if(vCur.getCount() == 0)
 		{
-			getContentResolver().insert(DataOffersContentProvider.OFFERS_URI, vOffer.getContentValues());
-			NotificationManager.showOffer(GeoAdService.this, vOffer);
+			if(mPosition != null)
+			{
+				if(isLocationNear(aOffer.getLocationId()))
+				{
+					getContentResolver().insert(DataOffersContentProvider.OFFERS_URI, aOffer.getContentValues());
+					NotificationManager.showOffer(GeoAdService.this, aOffer);
+				}
+			}
+			else
+			{
+				suspendOfferForWaitLocations(aOffer);
+			}
 		}
 		else
 		{
-			getContentResolver().update(DataOffersContentProvider.OFFERS_URI, vOffer.getContentValues(), OffersHelper.OFF_ID + " = " + vOffer.getId(), null);
+			getContentResolver().update(DataOffersContentProvider.OFFERS_URI, aOffer.getContentValues(), OffersHelper.OFF_ID + " = " + aOffer.getId(), null);
 		}
 		
 		vCur.close();
 		sendWidgetBroadcast();		
+	}
+	
+	private void suspendOfferForWaitLocations(Offer aOffer)
+	{
+		mSuspendedOffers.add(aOffer);
+	}
+	
+	private boolean isLocationNear(int aId)
+	{
+		for(int i = 0; i < mNearLocations.size(); ++i)
+		{
+			if(mNearLocations.get(i).getId() == aId)
+			{
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	@Override
@@ -198,7 +237,7 @@ public class GeoAdService extends Service implements LocationListener
 
 	@Override
 	public void onLocationUpdated(Location aLocation) 
-	{
+	{	
 		if(mPosition != null)
 		{
 			float[] vResult = new float[1];
@@ -261,6 +300,12 @@ public class GeoAdService extends Service implements LocationListener
 					mNearLocations = LocationModel.getListFromJsonArray(vLocations);
 					
 					List<Offer> vOffersList = Offer.getListFromJsonArray(vOffers);
+					
+					for(int i = 0; i < mSuspendedOffers.size(); ++i)
+					{
+						vOffersList.add(mSuspendedOffers.remove(i));
+					}
+					
 					for(int i = 0; i < vOffersList.size(); ++i)
 					{
 						manageOffer(vOffersList.get(i));

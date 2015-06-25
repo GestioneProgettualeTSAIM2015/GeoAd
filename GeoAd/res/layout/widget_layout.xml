@@ -59,7 +59,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:gravity="center"
-            android:text="@string/widget_no_offer"
+            android:text="@string/no_offer"
             android:visibility="gone" />
 
         <ListView

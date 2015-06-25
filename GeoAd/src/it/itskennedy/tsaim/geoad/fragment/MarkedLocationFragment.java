@@ -2,15 +2,23 @@ package it.itskennedy.tsaim.geoad.fragment;
 
 import it.itskennedy.tsaim.geoad.MarkedExpandableListAdapter;
 import it.itskennedy.tsaim.geoad.R;
+import it.itskennedy.tsaim.geoad.Utils;
+import it.itskennedy.tsaim.geoad.core.Engine;
+import it.itskennedy.tsaim.geoad.core.SettingsManager;
+import it.itskennedy.tsaim.geoad.entity.LocationModel;
+import it.itskennedy.tsaim.geoad.interfaces.IFragment;
 import it.itskennedy.tsaim.geoad.localdb.DataFavContentProvider;
+import it.itskennedy.tsaim.geoad.localdb.FavoritesHelper;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
-import android.provider.BaseColumns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
@@ -18,13 +26,19 @@ import android.widget.ExpandableListView.OnGroupClickListener;
 public class MarkedLocationFragment extends Fragment
 {	
 	public static final int DELETE_CODE = 1;
+
+	public static final String TAG = "marked_loc";
 	
 	private ExpandableListView mExpandable;
 	private MarkedExpandableListAdapter mAdapter;
 
-	public static MarkedLocationFragment getInstance(Bundle aBundle) {
+	private IFragment mListener;
+
+	public static MarkedLocationFragment getInstance(Bundle aBundle) 
+	{
 		MarkedLocationFragment vFragment = new MarkedLocationFragment();
-		if (aBundle != null) {
+		if (aBundle != null) 
+		{
 			vFragment.setArguments(aBundle);
 		}
 		return vFragment;
@@ -36,6 +50,12 @@ public class MarkedLocationFragment extends Fragment
 		View view = inflater
 				.inflate(R.layout.fragment_marked, container, false);
 
+		if(SettingsManager.get(getActivity()).getHelpPref())
+		{
+			MarkedHelpDialog vD = MarkedHelpDialog.get();
+			vD.show(getFragmentManager(), MarkedHelpDialog.TAG);
+		}
+		
 		mExpandable = (ExpandableListView) view
 				.findViewById(R.id.expandableListViewMarked);
 
@@ -66,11 +86,58 @@ public class MarkedLocationFragment extends Fragment
 			@Override
 			public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id)
 			{
-				DialogDelete vDialogDelete = DialogDelete.getInstance(groupPosition, (int)id);
-				vDialogDelete.setTargetFragment(MarkedLocationFragment.this, DELETE_CODE);
-				vDialogDelete.show(getFragmentManager(), DialogDelete.TAG);
+				if(groupPosition == 0 && mListener != null)
+				{
+					Cursor vC = getActivity().getContentResolver().query(DataFavContentProvider.FAVORITES_URI, null, FavoritesHelper._ID + " = " + id, null, null);
+					
+					if(vC.moveToFirst())
+					{
+						int vDescIndex = vC.getColumnIndex(FavoritesHelper.DESC);
+						int vLatIndex = vC.getColumnIndex(FavoritesHelper.LAT);
+						int vLngIndex = vC.getColumnIndex(FavoritesHelper.LNG);
+						int vNameIndex = vC.getColumnIndex(FavoritesHelper.NAME);
+						int vPCatIndex = vC.getColumnIndex(FavoritesHelper.PCAT);
+						int vSCatIndex = vC.getColumnIndex(FavoritesHelper.SCAT);
+						int vTypeIndex = vC.getColumnIndex(FavoritesHelper.TYPE);
+						
+						String vDesc = vC.getString(vDescIndex);
+						double vLat = vC.getDouble(vLatIndex);
+						double vLng = vC.getDouble(vLngIndex);
+						String vName = vC.getString(vNameIndex);
+						String vPCat = vC.getString(vPCatIndex);
+						String vSCat = vC.getString(vSCatIndex);
+						String vType = vC.getString(vTypeIndex);
+						
+						vC.close();
+						
+						LocationModel vLoc = new LocationModel((int)id, vPCat,vSCat, vName, vLat, vLng, vDesc, vType);
+						
+						mListener.loadFragment(Utils.TYPE_DETAIL, vLoc.getBundle());
+					}
+				}
 				return true;
 			}
+		});
+		
+		
+		mExpandable.setOnItemLongClickListener(new OnItemLongClickListener()
+		{
+		    @Override
+		    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) 
+		    {
+		        if (ExpandableListView.getPackedPositionType(id) == ExpandableListView.PACKED_POSITION_TYPE_CHILD) 
+		        {
+		        	long packedPosition = ((ExpandableListView) mExpandable).getExpandableListPosition(position);
+		            int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
+		            
+		            DialogDelete vDialogDelete = DialogDelete.getInstance(groupPosition, (int)id);
+					vDialogDelete.setTargetFragment(MarkedLocationFragment.this, DELETE_CODE);
+					vDialogDelete.show(getFragmentManager(), DialogDelete.TAG);
+					return true;
+				}
+
+		        return false;
+		    }
 		});
 		
 		return view;
@@ -88,7 +155,6 @@ public class MarkedLocationFragment extends Fragment
 			
 			if(vGroup == 0)
 			{
-				getActivity().getContentResolver().delete(DataFavContentProvider.FAVORITES_URI, BaseColumns._ID + " = " + vId, null);
 				if(mAdapter.getFavourite() == 0)
 				{
 					mExpandable.collapseGroup(0);
@@ -96,14 +162,25 @@ public class MarkedLocationFragment extends Fragment
 			}
 			else
 			{
-				getActivity().getContentResolver().delete(DataFavContentProvider.IGNORED_URI, BaseColumns._ID + " = " + vId, null);
 				if(mAdapter.getIgnored() == 0)
 				{
 					mExpandable.collapseGroup(1);
 				}
 			}
-		
-			mAdapter.notifyDataSetChanged();
+			
+			Engine.get().setNeutralLocationState(vId);
 		}
+	}
+
+	@Override
+	public void onAttach(Activity aActivity)
+	{
+		if(aActivity instanceof IFragment)
+		{
+			mListener = (IFragment) aActivity;
+		}
+		super.onAttach(aActivity);
 	}	
+	
+	
 }

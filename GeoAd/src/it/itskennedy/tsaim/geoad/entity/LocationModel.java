@@ -1,17 +1,20 @@
 package it.itskennedy.tsaim.geoad.entity;
 
-import android.location.Location;
-import android.os.Bundle;
-import android.util.Log;
+import it.itskennedy.tsaim.geoad.core.Engine;
+import it.itskennedy.tsaim.geoad.localdb.FavoritesHelper;
+import it.itskennedy.tsaim.geoad.localdb.IgnoredHelper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import it.itskennedy.tsaim.geoad.core.Engine;
+import android.content.ContentValues;
+import android.location.Location;
+import android.os.Bundle;
+import android.util.Log;
 
 /**
  * Created by Marco Zeni on 18/05/2015.
@@ -38,6 +41,7 @@ public class LocationModel
     private String mDesc;
     private String mType;
 
+    
     public LocationModel(int aId, String aPCat, String aSCat, String aName, double aLat, double aLng, String aDesc, String aType)
     {
         mId = aId;
@@ -48,6 +52,7 @@ public class LocationModel
         mLng = aLng;
         mDesc = aDesc;
         mType = aType;
+        
     }
 
     public int getId()
@@ -58,6 +63,10 @@ public class LocationModel
     public String getName()
     {
         return mName;
+    }
+    
+    public String getDescription() {
+    	return mDesc;
     }
     
     public Location getLocation()
@@ -156,5 +165,61 @@ public class LocationModel
         }
 
         return null;
+	}
+
+	public String getPCat() 
+	{
+		return mPCat;
+	}
+
+	public String getSCat()
+	{
+		return mSCat;
+	}
+
+	public String getType() 
+	{
+		return mType;
+	}
+
+	public String getDesc() 
+	{
+		return mDesc;
+	}
+
+	public double getLat() 
+	{
+		return mLat;
+	}
+	
+	public double getLng()
+	{
+		return mLng;
+	}
+
+	public ContentValues getContentValues()
+	{
+		ContentValues vCont = new ContentValues();
+
+		vCont.put(FavoritesHelper._ID, mId);
+		vCont.put(FavoritesHelper.NAME, mName);
+        vCont.put(FavoritesHelper.PCAT, mPCat);
+        vCont.put(FavoritesHelper.SCAT, mSCat);
+        vCont.put(FavoritesHelper.LAT, mLat);
+        vCont.put(FavoritesHelper.LNG, mLng);
+        vCont.put(FavoritesHelper.DESC, mDesc);
+        vCont.put(FavoritesHelper.TYPE, mType);
+
+        return vCont;
+	}
+
+	public ContentValues getIgnoredContentValues()
+	{
+		ContentValues vCont = new ContentValues();
+
+		vCont.put(IgnoredHelper._ID, mId);
+		vCont.put(IgnoredHelper.COLUMN_NAME, mName);
+
+        return vCont;
 	}
 }
