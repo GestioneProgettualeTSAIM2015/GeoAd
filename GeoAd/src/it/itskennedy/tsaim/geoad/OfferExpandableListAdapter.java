@@ -8,18 +8,30 @@ import java.util.List;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 public class OfferExpandableListAdapter extends BaseExpandableListAdapter 
 {
+	
+	private ShareOfferListener mListener;
+	
+	public interface ShareOfferListener
+	{
+		void share(OfferDetail aToShare);
+	}
+	
 	private Context mContext;
 	private List<ArrayList<OfferDetail>> mContents = new ArrayList<ArrayList<OfferDetail>>();
 	
-	public OfferExpandableListAdapter(Context context, List<Offer> vList)
+	public OfferExpandableListAdapter(Context context, List<Offer> vList, ShareOfferListener aListener)
 	{
 		super();
+		
+		mListener = aListener;
 		
 		for(int i = 0; i < vList.size(); ++i)
 		{
@@ -43,7 +55,7 @@ public class OfferExpandableListAdapter extends BaseExpandableListAdapter
 	}
 
 	@Override
-	public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent)
+	public View getChildView(final int groupPosition, final int childPosition, boolean isLastChild, View convertView, ViewGroup parent)
 	{
 		if (convertView == null) 
 		{
@@ -56,7 +68,19 @@ public class OfferExpandableListAdapter extends BaseExpandableListAdapter
 
 	    TextView vExp = (TextView) convertView.findViewById(R.id.textViewChildExp);
 	    vExp.setText(mContext.getString(R.string.expire) + ": " + mContents.get(groupPosition).get(childPosition).mExp);
-	    
+	   
+	    ImageButton vShare = (ImageButton) convertView.findViewById(R.id.imageButtonShare);
+	    vShare.setOnClickListener(new OnClickListener()
+	    {	
+			@Override
+			public void onClick(View v)
+			{
+				if(mListener != null)
+				{
+					mListener.share(getChild(groupPosition, childPosition));
+				}
+			}
+		});
 	    return convertView;
 	}
 
@@ -124,7 +148,7 @@ public class OfferExpandableListAdapter extends BaseExpandableListAdapter
 		}
 	}
 	
-	class OfferDetail
+	public class OfferDetail
 	{
 		public final String mDesc;
 		public final String mName;
@@ -137,6 +161,11 @@ public class OfferExpandableListAdapter extends BaseExpandableListAdapter
 			mId = aId;
 			mDesc = aDesc;
 			mExp = aExp;
+		}
+		
+		public String toString()
+		{
+			return "toString " + mExp;
 		}
 	}
 }

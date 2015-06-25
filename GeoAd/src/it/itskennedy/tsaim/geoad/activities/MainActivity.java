@@ -9,6 +9,7 @@ import it.itskennedy.tsaim.geoad.core.SettingsManager;
 import it.itskennedy.tsaim.geoad.entity.LocationModel;
 import it.itskennedy.tsaim.geoad.fragment.AugmentedRealityFragment;
 import it.itskennedy.tsaim.geoad.fragment.DetailFragment;
+import it.itskennedy.tsaim.geoad.fragment.EditLocationFragment;
 import it.itskennedy.tsaim.geoad.fragment.LoginDialogFragment;
 import it.itskennedy.tsaim.geoad.fragment.MarkedLocationFragment;
 import it.itskennedy.tsaim.geoad.fragment.MyLocationFragment;
@@ -262,7 +263,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 				vTag = MarkedLocationFragment.TAG;
 				break;
 			case Utils.TYPE_LOCATIONS:
-				if(isLogged && false) //TODO
+				if(isLogged) //TODO
 				{
 					vFragment = MyLocationFragment.getInstance();
 				}
@@ -271,7 +272,6 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 					LoginDialogFragment loginDialog = new LoginDialogFragment();
 					loginDialog.setCancelable(false);
 					loginDialog.show(getFragmentManager(), "LoginDialog");
-					return;
 				}
 				break;
 			case Utils.TYPE_SEARCH_MAP:
@@ -280,8 +280,17 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 				break;
 			case Utils.TYPE_DETAIL:
 			{
-				vFragment = DetailFragment.getInstance(bundle);
-				vTag = DetailFragment.TAG;
+				if (!Engine.get().imLocationOwner(LocationModel.fromBundle(bundle).getId()))
+				{
+					vFragment = DetailFragment.getInstance(bundle);
+					vTag = DetailFragment.TAG;	
+				}
+				else 
+				{
+					vFragment = EditLocationFragment.getInstance(bundle);
+					vTag = EditLocationFragment.TAG;	
+				}
+			
 				break;
 			}
 			case Utils.TYPE_FILTER:

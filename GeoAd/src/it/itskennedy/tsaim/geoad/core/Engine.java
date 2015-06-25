@@ -16,6 +16,7 @@ import it.itskennedy.tsaim.geoad.services.GeoAdService;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,6 +42,8 @@ public class Engine extends Application implements PushKeyReceiver
 	private String mKey;
 	private String mToken;
 	private Base64Cache mCache;
+	
+	private ArrayList<Integer>  mMyLocIdList;
 
 	public enum LocationState
 	{
@@ -57,6 +60,7 @@ public class Engine extends Application implements PushKeyReceiver
         startService(vService);
 
         setVariables();
+        fillMyIdList();
         
         mToken = SettingsManager.get(this).getToken();
         mCache = new Base64Cache();
@@ -67,6 +71,19 @@ public class Engine extends Application implements PushKeyReceiver
     public static Engine get()
     {
     	return mInstance;
+    }
+    
+    private void fillMyIdList() 
+    {
+    	mMyLocIdList = new ArrayList<Integer>();
+    	Cursor vCur = getContentResolver().query(DataFavContentProvider.MYLOC_URI, null, null, null, null);
+		while (vCur.moveToNext()) 
+		{
+			int vIdIndex = vCur.getColumnIndex(MyLocationHelper._ID);
+			
+			mMyLocIdList.add(vCur.getInt(vIdIndex));
+		}
+		vCur.close();
     }
 
     public void setVariables()
@@ -284,14 +301,7 @@ public class Engine extends Application implements PushKeyReceiver
 	
 	public boolean imLocationOwner(int aLocId)
 	{
-		Cursor vCur = getContentResolver().query(DataFavContentProvider.MYLOC_URI, null, MyLocationHelper._ID + " = " + aLocId, null, null);
-		if(vCur.getCount() == 1)
-		{
-			return true;
-		}
-		
-		vCur.close();
-		return false;
+		return mMyLocIdList.contains(aLocId);
 	}
 
 	public void removeMyLocation(int vId) 

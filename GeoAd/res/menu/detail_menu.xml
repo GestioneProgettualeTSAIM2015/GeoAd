@@ -8,8 +8,4 @@
 	<item android:title="@string/location_state" 
 	    android:showAsAction="never" 
 	    android:id="@+id/action_mark"/>
-	
-	<item android:title="@string/location_edit" 
-	    android:showAsAction="ifRoom" 
-	    android:id="@+id/action_edit"/>
 </menu>

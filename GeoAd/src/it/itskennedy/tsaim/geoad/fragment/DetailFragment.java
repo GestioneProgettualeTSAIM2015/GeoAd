@@ -1,6 +1,8 @@
 package it.itskennedy.tsaim.geoad.fragment;
 
 import it.itskennedy.tsaim.geoad.OfferExpandableListAdapter;
+import it.itskennedy.tsaim.geoad.OfferExpandableListAdapter.OfferDetail;
+import it.itskennedy.tsaim.geoad.OfferExpandableListAdapter.ShareOfferListener;
 import it.itskennedy.tsaim.geoad.R;
 import it.itskennedy.tsaim.geoad.Utils;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager;
@@ -22,6 +24,7 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -103,15 +106,6 @@ public class DetailFragment extends Fragment
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
 	{
         inflater.inflate(R.menu.detail_menu, menu);
-        
-        if(Engine.get().imLocationOwner(mLoc.getId()))
-        {
-        	menu.removeItem(R.id.action_mark);
-        }
-        else
-        {
-        	menu.removeItem(R.id.action_edit);
-        }
 	}
 
 	@Override
@@ -139,10 +133,6 @@ public class DetailFragment extends Fragment
 				MarkingDialogFragment vDial = MarkingDialogFragment.get(vActual, vIsIgnorable);
 				vDial.setTargetFragment(DetailFragment.this, LOCATION_STATE_RC);
 				vDial.show(getFragmentManager(), MarkingDialogFragment.TAG);
-				return true;
-			}
-			case R.id.action_edit:
-			{
 				return true;
 			}
 		}
@@ -304,7 +294,19 @@ public class DetailFragment extends Fragment
 	private void fillOffersList(JSONArray aArray)
 	{
 		List<Offer> vList = Offer.getListFromJsonArray(aArray);
-		mAdapter = new OfferExpandableListAdapter(getActivity(), vList);
+		mAdapter = new OfferExpandableListAdapter(getActivity(), vList, new ShareOfferListener()
+		{	
+			@Override
+			public void share(OfferDetail aToShare)
+			{
+				Intent intent = new Intent();
+				intent.setAction(Intent.ACTION_SEND);
+
+				intent.setType("text/plain");
+				intent.putExtra(Intent.EXTRA_TEXT, "Location: " + mLoc.getName() + " aToShare: " + aToShare.toString());
+				startActivity(Intent.createChooser(intent, "Share"));
+			}
+		});
 		mExpandable.setAdapter(mAdapter);
 		mExpandable.setEmptyView(getView().findViewById(R.id.textViewEmpty));
 		

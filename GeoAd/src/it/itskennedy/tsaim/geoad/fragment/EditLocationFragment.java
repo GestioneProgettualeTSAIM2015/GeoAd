@@ -21,6 +21,8 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class EditLocationFragment extends Fragment implements INewOfferDialogFragment {
 	
+	public static final String TAG = "edit_fragment";
+	
 	public final static String NEW_OFFER_DIALOG_FRAGMENT_TAG = "newofferdialogfragmenttag",
 							   EDIT_LOCATION_NAME_FRAGMENT_TAG = "editlocationnamefragmenttag",
 							   EDIT_LOCATION_DESCRIPTION_FRAGMENT_TAG = "editlocationdescriptionfragmenttag",
@@ -34,6 +36,16 @@ public class EditLocationFragment extends Fragment implements INewOfferDialogFra
 		EditLocationFragment editLocationFragment = new EditLocationFragment();
 		if (aBundle != null) editLocationFragment.setArguments(aBundle);
 		return editLocationFragment;
+	}
+	
+	public static EditLocationFragment getInstance(Bundle aBundle)
+	{
+		EditLocationFragment vFragment = new EditLocationFragment();
+		if(aBundle != null)
+		{
+			vFragment.setArguments(aBundle);
+		}
+		return vFragment;
 	}
 	
 	@Override
