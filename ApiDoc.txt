@@ -8,14 +8,14 @@
 - /api/Locations [POST:AUTH]
 - /api/Locations/549 [GET][PUT:AUTH][DELETE:AUTH]
 
-	{
-		"PCat": "culture",
-		"SCat": "university",
-		"Name": "prova",
-		"Lat": "45.956446",
-		"Lng": "12.688282",
-		"Desc": "testprova123"
-	}
+    {
+        "PCat": "culture",
+        "SCat": "university",
+        "Name": "prova",
+        "Lat": "45.956446",
+        "Lng": "12.688282",
+        "Desc": "testprova123"
+    }
 
 
 --- LOCATIONS FILTER --------------------------------------
@@ -30,12 +30,12 @@
 - /api/Offers [POST:AUTH]
 - /api/Offers/576 [PUT:AUTH][DELETE:AUTH]
 
-	{
-		"Name": "prova",
-		"LocationId": 576,
-		"Desc": "testprova123",
-		"ExpDateMillis": 1234567890
-	}
+    {
+        "Name": "prova",
+        "LocationId": 576,
+        "Desc": "testprova123",
+        "ExpDateMillis": 1234567890
+    }
 
 
 --- PHOTOS ------------------------------------------------
@@ -45,27 +45,27 @@
 - /api/Photos/Data/147 [GET]
 - /api/Photos/147 [DELETE:AUTH]
 
-	{
-		"LocationId": 576,
-		"Base64Data": "asdfghjkl"
-	}
+    {
+        "LocationId": 576,
+        "Base64Data": "asdfghjkl"
+    }
 
 
 --- POSITIONS ---------------------------------------------
 
 - /api/Positions [POST]
 
-	{
-		"Key": "aabbcc",
-		"NWCoord": {
-			"Lat": "45.962294",
-			"Lng": "12.677039"
-		},
-		"SECoord": {
-			"Lat": "45.952030",
-			"Lng": "12.709139"
-		}
-	}
+    {
+        "Key": "aabbcc",
+        "NWCoord": {
+            "Lat": "45.962294",
+            "Lng": "12.677039"
+        },
+        "SECoord": {
+            "Lat": "45.952030",
+            "Lng": "12.709139"
+        }
+    }
 
 
 --- USER PREFERENCES --------------------------------------
@@ -74,7 +74,7 @@
 - /api/UserPreferences/Favorites [POST][DELETE]
 - /api/UserPreferences/Ignored [POST][DELETE]
 
-	{
-		"Id": 549,
-		"Key": "ijbao89h3"
-	}
+    {
+        "Id": 549,
+        "Key": "ijbao89h3"
+    }
