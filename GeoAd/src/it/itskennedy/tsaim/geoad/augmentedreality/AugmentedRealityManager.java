@@ -42,7 +42,6 @@ public class AugmentedRealityManager implements LocationListener
 		}
 	};
 	
-	
 	public interface AugmentedRealityListener
 	{
 		void onNewNearLocations(List<LocationModel> aToDraw);
@@ -56,20 +55,6 @@ public class AugmentedRealityManager implements LocationListener
 		mContext = aContext;
 		mNears = new ArrayList<LocationModel>();
 		
-		
-		mNears.add(new LocationModel(1, "", "", "roba 1", 46.0005, 13.0005, "Descrizione lunga lunga lunga ", "POI"));
-		mNears.add(new LocationModel(2, "", "", "roba 2", 46, 13.0005, "Descrizione lunga lunga lungaDescrizione lunga lunga lungaDescrizione lunga lunga lunga", "POI"));
-		mNears.add(new LocationModel(3, "", "", "roba 3", 45.9995, 13, "Descrizione lunga lunga lunga", "POI"));
-		mNears.add(new LocationModel(4, "", "", "roba 4", 45.9995, 13.0005, "Descrizione lunga lunga lungaDescrizione lunga lunga lunga", "CA"));
-		mNears.add(new LocationModel(5, "", "", "roba 5", 46, 12.9995, "Descrizione lunga lunga lunga", "POI"));
-		mNears.add(new LocationModel(6, "", "", "roba 6", 46.0005, 12.9995, "Descrizione lunga lunga lunga", "CA"));
-		mNears.add(new LocationModel(7, "", "", "roba 7", 46.0005, 13, "Descrizione lunga lunga lungaDescrizione lunga lunga lunga", "CA"));
-		mNears.add(new LocationModel(8, "", "", "roba 8", 45.9995, 12.9995, "Descrizione lunga lunga lungaDescrizione lunga lunga lunga", "CA"));
-		mNears.add(new LocationModel(9, "", "", "DUH", 46.01, 13.02, "Descrizione lunga lunga lunga", "CA"));
-		mNears.add(new LocationModel(10, "", "", "roba 10", 45.9981, 13.004, "Descrizione corta", "CA"));
-		
-		
-		
 		LocationManager.get(mContext).addListener(this);
 
 		onResume();
@@ -77,8 +62,8 @@ public class AugmentedRealityManager implements LocationListener
 
     public void onResume() 
 	{    	
-//    	Intent vBinding = new Intent(mContext, GeoAdService.class);
-//		mContext.bindService(vBinding, mServiceConnection, Context.BIND_AUTO_CREATE);
+    	Intent vBinding = new Intent(mContext, GeoAdService.class);
+		mContext.bindService(vBinding, mServiceConnection, Context.BIND_AUTO_CREATE);
     }
     
     public void onPause() 
@@ -97,23 +82,13 @@ public class AugmentedRealityManager implements LocationListener
 		
 		if(mService != null)
 		{
-//			List<LocationModel> mOldNears = mNears;
-////		TEST!!!!!!!
-////		mNears = mService.getNears();
-//		
-//		if (!mNears.equals(mOldNears)) {
-//			
-//		}
+			mNears = mService.getNears();
 		}
 		
-		////////////TEST
 		if(mListener != null)
 		{
-			aLocation.setLatitude(46);
-			aLocation.setLongitude(13);
 			mListener.onNewPosition(aLocation);
 			mListener.onNewNearLocations(mNears);
-
 		}
 	}
 	

@@ -96,7 +96,8 @@ public class GeoAdService extends Service implements LocationListener
 						manageOffer(Offer.fromJSON(vJson));
 					}
 				}
-				else if(vAction.equals(DELETE_OFFER))
+				else if(vAction.equals(DELETE_OFFER)) 
+				{
 					int vToRemove = intent.getIntExtra(DELETE_ID, 0);
 					getContentResolver().delete(DataOffersContentProvider.OFFERS_URI, OffersHelper.OFF_ID + " = " + vToRemove, null);
 					sendWidgetBroadcast();
@@ -116,10 +117,12 @@ public class GeoAdService extends Service implements LocationListener
 					getContentResolver().delete(DataOffersContentProvider.OFFERS_URI, OffersHelper.LOCATION_ID + " = " + vToRemove, null);
 					removeIfExist(vToRemove);
 					sendWidgetBroadcast();
+				}
 			}
 		}
 		
 	    return START_STICKY;
+		
 	}
 	
 	private Notification getNotify()
