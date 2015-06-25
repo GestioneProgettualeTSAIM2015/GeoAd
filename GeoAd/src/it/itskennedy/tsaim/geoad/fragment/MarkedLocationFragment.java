@@ -25,8 +25,6 @@ import android.widget.ExpandableListView.OnGroupClickListener;
 
 public class MarkedLocationFragment extends Fragment
 {	
-	public static final int DELETE_CODE = 1;
-
 	public static final String TAG = "marked_loc";
 	
 	private ExpandableListView mExpandable;
@@ -131,7 +129,7 @@ public class MarkedLocationFragment extends Fragment
 		            int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
 		            
 		            DialogDelete vDialogDelete = DialogDelete.getInstance(groupPosition, (int)id);
-					vDialogDelete.setTargetFragment(MarkedLocationFragment.this, DELETE_CODE);
+					vDialogDelete.setTargetFragment(MarkedLocationFragment.this, DialogDelete.DELETE_CODE);
 					vDialogDelete.show(getFragmentManager(), DialogDelete.TAG);
 					return true;
 				}
@@ -146,7 +144,7 @@ public class MarkedLocationFragment extends Fragment
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) 
 	{
-		if(requestCode == DELETE_CODE && resultCode == Activity.RESULT_OK && data != null)
+		if(requestCode == DialogDelete.DELETE_CODE && resultCode == Activity.RESULT_OK && data != null)
 		{
 			int vGroup = data.getIntExtra(DialogDelete.GROUP_ID, 0);
 			int vId = data.getIntExtra(DialogDelete.LOCATION_ID, 0);

@@ -10,7 +10,9 @@ import it.itskennedy.tsaim.geoad.core.LocationManager.LocationListener;
 import it.itskennedy.tsaim.geoad.core.NotificationManager;
 import it.itskennedy.tsaim.geoad.entity.LocationModel;
 import it.itskennedy.tsaim.geoad.entity.Offer;
+import it.itskennedy.tsaim.geoad.localdb.DataFavContentProvider;
 import it.itskennedy.tsaim.geoad.localdb.DataOffersContentProvider;
+import it.itskennedy.tsaim.geoad.localdb.MyLocationHelper;
 import it.itskennedy.tsaim.geoad.localdb.OffersHelper;
 import it.itskennedy.tsaim.geoad.widgets.WidgetProvider;
 
@@ -123,6 +125,7 @@ public class GeoAdService extends Service implements LocationListener
 				{
 					int vToRemove = intent.getIntExtra(DELETE_ID, 0);
 					getContentResolver().delete(DataOffersContentProvider.OFFERS_URI, OffersHelper.LOCATION_ID + " = " + vToRemove, null);
+					getContentResolver().delete(DataFavContentProvider.MYLOC_URI, MyLocationHelper._ID + " = " + vToRemove, null);
 					removeIfExist(vToRemove);
 					sendWidgetBroadcast();
 				}

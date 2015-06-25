@@ -16,6 +16,8 @@ public class DialogDelete extends DialogFragment {
 	public static final String GROUP_ID = "group";
 	public static final String TAG = "dialog_delete";
 	
+	public static final int DELETE_CODE = 1000;
+	
 	private int mId, mGroup;
 	
 	public static DialogDelete getInstance(int aGroup, int aId)

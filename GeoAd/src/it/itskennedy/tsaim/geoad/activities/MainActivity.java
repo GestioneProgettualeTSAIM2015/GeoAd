@@ -7,11 +7,11 @@ import it.itskennedy.tsaim.geoad.core.ConnectionManager.JsonResponse;
 import it.itskennedy.tsaim.geoad.core.Engine;
 import it.itskennedy.tsaim.geoad.core.SettingsManager;
 import it.itskennedy.tsaim.geoad.entity.LocationModel;
-import it.itskennedy.tsaim.geoad.fragment.ActivitiesFragment;
 import it.itskennedy.tsaim.geoad.fragment.AugmentedRealityFragment;
 import it.itskennedy.tsaim.geoad.fragment.DetailFragment;
 import it.itskennedy.tsaim.geoad.fragment.LoginDialogFragment;
 import it.itskennedy.tsaim.geoad.fragment.MarkedLocationFragment;
+import it.itskennedy.tsaim.geoad.fragment.MyLocationFragment;
 import it.itskennedy.tsaim.geoad.fragment.SearchListFragment;
 import it.itskennedy.tsaim.geoad.fragment.SearchMapFragment;
 import it.itskennedy.tsaim.geoad.interfaces.IFragment;
@@ -64,21 +64,6 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		setContentView(R.layout.activity_main);
 		
 		isLogged = SettingsManager.get(this).isUserLogged();
-		
-		RequestParams vParams = new RequestParams();
-		vParams.put("id", 580);
-		
-		ConnectionManager.obtain().get("api/locations", vParams, new JsonResponse()
-		{	
-			@Override
-			public void onResponse(boolean aResult, Object aResponse)
-			{
-				if(aResult && aResponse != null && aResponse instanceof JSONObject)
-				{
-					loadFragment(Utils.TYPE_DETAIL, LocationModel.fromJSON(aResponse.toString()).getBundle());
-				}
-			}
-		});
 		
         mTitle = mDrawerTitle = getTitle();
         mPlanetTitles = new ArrayList<>();
@@ -234,7 +219,6 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 				vTag = SearchListFragment.TAG;
 				break;
 			case Utils.TYPE_AUGMENTED_REALITY:
-				Intent i = new Intent(this, AugmentedRealityActivity.class);
 				vTag = AugmentedRealityFragment.TAG;
 				return;
 			case Utils.TYPE_PREFERENCE:
@@ -244,7 +228,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 			case Utils.TYPE_ACTIVITIES:
 				if(isLogged)
 				{
-					vFragment = ActivitiesFragment.getInstance(bundle);
+					vFragment = MyLocationFragment.getInstance();
 				}
 				else
 				{
