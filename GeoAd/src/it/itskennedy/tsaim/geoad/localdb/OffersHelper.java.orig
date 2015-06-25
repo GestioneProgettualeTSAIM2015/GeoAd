@@ -22,9 +22,14 @@ public class OffersHelper implements BaseColumns {
             + OFF_ID + " INTEGER, "
             + NAME + " TEXT, "
             + LOCATION_ID + " INTEGER NOT NULL, "
+<<<<<<< HEAD
+            + DESC + " TEXT, "
+            + EXP_DATE + " DATETIME "
+=======
             + LOCATION_NAME + " TEXT, "
             + DESC + " TEXT, "
             + EXP_DATE + " INTEGER, "
             + INS_DATE + " INTEGER "
+>>>>>>> android-app
             + "); ";
 }

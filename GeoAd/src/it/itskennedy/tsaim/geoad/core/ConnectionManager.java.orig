@@ -94,6 +94,85 @@ public class ConnectionManager extends BroadcastReceiver
     {
     	if(mIsConnection)
     	{
+<<<<<<< HEAD
+    		if(!mIsPending)
+            {	
+                mIsPending = true;
+                
+                if(aParams == null)
+                {
+                	aParams = new RequestParams();
+                }
+                
+                aParams.add("Key", vKey);
+
+                Log.d(Engine.APP_NAME, "URL: " + Engine.SERVER_URL + aUrl);
+
+                JsonHttpResponseHandler vResponseHandler = new JsonHttpResponseHandler()
+                {
+                    @Override
+					public void onSuccess(int statusCode, Header[] headers,	JSONObject response)
+                    {
+                    	if(aListener != null)
+                        {
+                            aListener.onResponse(true, response);
+                        }
+
+                        executeQueue();
+					}
+
+					@Override
+                    public void onSuccess(int statusCode, Header[] headers, JSONArray response)
+                    {
+                        if(aListener != null)
+                        {
+                            aListener.onResponse(true, response);
+                        }
+
+                        executeQueue();
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse)
+                    {
+                    	if(aListener != null)
+                    	{
+                    		aListener.onResponse(false, null);
+                    	}
+                    	
+                    	executeQueue();
+                    }
+                };
+                
+                switch(aType)
+                {
+					case DELETE:
+					{
+						mClient.delete(Engine.SERVER_URL + aUrl, vResponseHandler);
+						break;
+					}
+					case GET:
+					{
+						mClient.get(Engine.SERVER_URL + aUrl, aParams, vResponseHandler);
+						break;
+					}
+					case POST:
+					{
+						mClient.post(Engine.SERVER_URL + aUrl, aParams, vResponseHandler);
+						break;
+					}
+					case PUT:
+					{
+						mClient.put(Engine.SERVER_URL + aUrl, aParams, vResponseHandler);
+						break;
+					}
+                }
+            }
+            else
+            {
+                enqueue(aType, aUrl, aParams, aListener);
+            }
+=======
 	    	String vKey = Engine.get().getKey();
 	    	setAuthHeader();
 	    	
@@ -150,6 +229,7 @@ public class ConnectionManager extends BroadcastReceiver
 	    			aListener.onResponse(false, null);
 	    		}
 	    	}
+>>>>>>> android-app
     	}
     }
 

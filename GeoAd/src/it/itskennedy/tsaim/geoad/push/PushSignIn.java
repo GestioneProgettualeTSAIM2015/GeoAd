@@ -16,6 +16,8 @@ import it.itskennedy.tsaim.geoad.core.SettingsManager;
 
 public class PushSignIn
 {   
+	private static boolean mPending = false;
+	
     private String mPushId;
     private Context mContext;
 	private GoogleCloudMessaging mGoogleCloudMessaging;
@@ -37,7 +39,11 @@ public class PushSignIn
 
             if (mPushId.isEmpty())
             {
-                registerInBackground();
+            	if(!mPending)
+            	{
+            		mPending = true;
+                    registerInBackground();
+            	}
             }
             else
             {
@@ -45,6 +51,9 @@ public class PushSignIn
             	{
             		mReceiver.onKey(mPushId);
             	}
+            	
+            	Log.w(Engine.APP_NAME, mPushId);
+            	
             	Log.d(Engine.APP_NAME, "Push Key Already Stored");
             }    
         }
@@ -128,6 +137,8 @@ public class PushSignIn
 			@Override
 			protected void onPostExecute(Void result)
 			{
+				mPending = false;
+				
 				if(mReceiver != null)
 		    	{
 		    		mReceiver.onKey(mPushId);

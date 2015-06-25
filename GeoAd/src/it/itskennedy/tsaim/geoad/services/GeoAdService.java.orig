@@ -27,7 +27,10 @@ import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Binder;
+<<<<<<< HEAD
+=======
 import android.os.Build;
+>>>>>>> android-app
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
@@ -37,6 +40,12 @@ import com.loopj.android.http.RequestParams;
 
 public class GeoAdService extends Service implements LocationListener
 {
+<<<<<<< HEAD
+	public static final String OFFER_ACTION = "offer_action";
+	public static final String OFFER_DATA = "offer_data";
+	public static final String NEAR_ACTION = "near_action";
+	public static final String NEAR_DATA = "near_data";
+=======
 	public static final String NEW_OFFER = "new_offer_action";
 	public static final String DELETE_OFFER = "delete_offer";
 	
@@ -45,6 +54,7 @@ public class GeoAdService extends Service implements LocationListener
 	
 	public static final String DATA = "new_data";
 	public static final String DELETE_ID = "delete_id";
+>>>>>>> android-app
 	
 	public static final String NAME = "GeoAd Service";
 
@@ -74,8 +84,13 @@ public class GeoAdService extends Service implements LocationListener
 	  	startForeground(NOTIFICATION, getNotify());
 	  	
 		mNearLocations = new ArrayList<LocationModel>();
+<<<<<<< HEAD
+		
+		//TEST
 //		mNearLocations.add(new LocationModel(1, "", "", "PROVA", 46, 13, "", ""));
 
+=======
+>>>>>>> android-app
 	}
 	
 	@Override
@@ -97,6 +112,7 @@ public class GeoAdService extends Service implements LocationListener
 					}
 				}
 				else if(vAction.equals(DELETE_OFFER))
+				{
 					int vToRemove = intent.getIntExtra(DELETE_ID, 0);
 					getContentResolver().delete(DataOffersContentProvider.OFFERS_URI, OffersHelper.OFF_ID + " = " + vToRemove, null);
 					sendWidgetBroadcast();
@@ -110,12 +126,16 @@ public class GeoAdService extends Service implements LocationListener
 						addOrReplace(LocationModel.fromJSON(vJson));
 					}
 				}
+<<<<<<< HEAD
+=======
 				else if(vAction.equals(DELETE_LOCATION))
 				{
 					int vToRemove = intent.getIntExtra(DELETE_ID, 0);
 					getContentResolver().delete(DataOffersContentProvider.OFFERS_URI, OffersHelper.LOCATION_ID + " = " + vToRemove, null);
 					removeIfExist(vToRemove);
 					sendWidgetBroadcast();
+				}
+>>>>>>> android-app
 			}
 		}
 		
@@ -248,7 +268,11 @@ public class GeoAdService extends Service implements LocationListener
 		vParams.add("secoord.lat", (mPosition.getLatitude() - vLat) + "");
 		vParams.add("secoord.lng", (mPosition.getLongitude() + vLng) + "");
 
+<<<<<<< HEAD
+		ConnectionManager.obtain().post("locations/UpdatePosition", vParams, new ConnectionManager.JsonResponse()
+=======
 		ConnectionManager.obtain().post("api/positions", vParams, new ConnectionManager.JsonResponse()
+>>>>>>> android-app
 		{
 			@Override
 			public void onResponse(boolean aResult, Object aResponse)
@@ -319,5 +343,18 @@ public class GeoAdService extends Service implements LocationListener
 		Intent vIntent = new Intent(this, WidgetProvider.class);
 		vIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
 		sendBroadcast(vIntent);
+	}
+
+	public List<LocationModel> getNears() 
+	{
+		return mNearLocations;
+	}
+	
+	public class GeoAdBinder extends Binder
+	{
+		public GeoAdService getService()
+		{
+			return GeoAdService.this;
+		}
 	}
 }

@@ -83,28 +83,26 @@ public class LocationModel
     {
         List<LocationModel> vResult = new ArrayList<LocationModel>();
 
-        try
+        if(aServerData != null)
         {
-            for(int i = 0; i < aServerData.length(); ++i)
+        	for(int i = 0; i < aServerData.length(); ++i)
             {
-                JSONObject vActual = aServerData.getJSONObject(i);
-
-                int vId = vActual.getInt(ID);
-                String vName = vActual.getString(NAME);
-                String vPCat = vActual.getString(PCAT);
-                String vSCat = vActual.getString(SCAT);
-                double vLat = vActual.getDouble(LAT);
-                double vLng = vActual.getDouble(LNG);
-                String vDesc = vActual.getString(DESC);
-                String vType = vActual.getString(TYPE);
-
-                LocationModel vToAdd = new LocationModel(vId, vPCat, vSCat, vName, vLat, vLng, vDesc, vType);
-                vResult.add(vToAdd);
+            	LocationModel vToAdd = null;
+            	
+            	try
+            	{
+            		vToAdd = fromJSON(aServerData.getString(i));
+            	}
+    	        catch (JSONException e)
+    	        {
+    	            Log.e(Engine.APP_NAME, "Json Decode Error");
+    	        }
+            	
+                if(vToAdd != null)
+                {
+                	vResult.add(vToAdd);
+                }  
             }
-        }
-        catch (JSONException e)
-        {
-            Log.e(Engine.APP_NAME, "Json Decode Error");
         }
 
         return vResult;
@@ -139,4 +137,34 @@ public class LocationModel
 
         return new LocationModel(vId, vPCat, vSCat, vName, vLat, vLng, vDesc, vType);
     }
+    
+    public static LocationModel fromJSON(JSONObject aObj)
+    {
+    	return fromJSON(aObj.toString());
+    }
+
+	public static LocationModel fromJSON(String aJson) 
+	{
+		try
+        {
+            JSONObject vObj = new JSONObject(aJson);
+
+            int vId = vObj.getInt(ID);
+            String vName = vObj.getString(NAME);
+            String vDesc = vObj.getString(DESC);
+            String vPCat = vObj.getString(PCAT);
+            String vSCat = vObj.getString(SCAT);
+            double vLat = vObj.getDouble(LAT);
+            double vLng = vObj.getDouble(LNG);
+            String vType = vObj.getString(TYPE);
+
+            return new LocationModel(vId, vPCat, vSCat, vName, vLat, vLng, vDesc, vType);
+        }
+        catch (JSONException e)
+        {
+            Log.d(Engine.APP_NAME, "Json Parse Error");
+        }
+
+        return null;
+	}
 }
