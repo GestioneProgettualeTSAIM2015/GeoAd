@@ -128,7 +128,7 @@ public class MarkedLocationFragment extends Fragment
 		        	long packedPosition = ((ExpandableListView) mExpandable).getExpandableListPosition(position);
 		            int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
 		            
-		            DialogDelete vDialogDelete = DialogDelete.getInstance(groupPosition, (int)id);
+		            DialogDelete vDialogDelete = DialogDelete.getInstance(groupPosition, (int)id, null);
 					vDialogDelete.setTargetFragment(MarkedLocationFragment.this, DialogDelete.DELETE_CODE);
 					vDialogDelete.show(getFragmentManager(), DialogDelete.TAG);
 					return true;

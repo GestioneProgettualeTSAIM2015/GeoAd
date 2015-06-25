@@ -88,7 +88,7 @@ public class MyLocationFragment extends Fragment implements LoaderCallbacks<Curs
 			@Override
 			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int arg2, long aId)
 			{
-				DialogDelete vDialogDelete = DialogDelete.getInstance(0, (int)aId);
+				DialogDelete vDialogDelete = DialogDelete.getInstance(0, (int)aId, getString(R.string.remove_myloc));
 				vDialogDelete.setTargetFragment(MyLocationFragment.this, DialogDelete.DELETE_CODE);
 				vDialogDelete.show(getFragmentManager(), DialogDelete.TAG);
 				return true;

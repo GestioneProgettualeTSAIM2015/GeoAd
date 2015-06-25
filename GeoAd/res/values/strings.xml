@@ -22,6 +22,7 @@
     <string name="my_location">Le tue attività</string>
     <string name="my_location_empty">Non hai registrato nessuna attività</string>
     <string name="location_edit">Modifica Attività</string>
+    <string name="remove_myloc">Cancellare la tua attività?</string>
     
     <string name="location_state">Opzioni Luogo</string>
     <string name="favorite">Preferito</string>
