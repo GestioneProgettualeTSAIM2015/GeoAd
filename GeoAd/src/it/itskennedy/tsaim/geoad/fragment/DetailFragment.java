@@ -197,21 +197,6 @@ public class DetailFragment extends Fragment
 		}
 		
 		mDesc.setText(mLoc.getDesc());
-		
-		List<Thumb> vCachedThumb = Engine.get().getCache().getThumbs(mLoc.getId());
-		if(vCachedThumb == null || vCachedThumb.size() == 0)
-		{
-			mProgressThumb.setVisibility(ProgressBar.VISIBLE);
-		}
-		else
-		{
-			for(int i = 0; i < vCachedThumb.size(); ++i)
-			{
-				Thumb vT = vCachedThumb.get(i);
-				vT.setOnClickListener(mThumbClickListener);
-				mThumbScroll.addView(vT);
-			}
-		}
 				
 		if(mOffersString == null)
 		{
@@ -245,60 +230,74 @@ public class DetailFragment extends Fragment
 		
 		if(!mThumbUpdated)
 		{
-			RequestParams vParams = new RequestParams();
-			vParams.put("cache", Engine.get().getCache().getThumbIdList(mLoc.getId()).toString());
-			
-			ConnectionManager.obtain().get("api/photos/fromlocation/" + mLoc.getId(), vParams, new JsonResponse()
+			List<Thumb> vCachedThumb = Engine.get().getCache().getThumbs(mLoc.getId());
+			if(vCachedThumb == null || vCachedThumb.size() == 0)
 			{
-				@Override
-				public void onResponse(boolean aResult, Object aResponse) 
+				mProgressThumb.setVisibility(ProgressBar.VISIBLE);
+				RequestParams vParams = new RequestParams();
+				vParams.put("cache", Engine.get().getCache().getThumbIdList(mLoc.getId()).toString());
+				
+				ConnectionManager.obtain().get("api/photos/fromlocation/" + mLoc.getId(), vParams, new JsonResponse()
 				{
-					if(aResult && aResponse != null)
+					@Override
+					public void onResponse(boolean aResult, Object aResponse) 
 					{
-						JSONArray vThumbArray = (JSONArray) aResponse;
-						for(int i = 0; i < vThumbArray.length(); ++i)
+						if(aResult && aResponse != null)
 						{
-							int vId;
-							String vBase64;
-							
-							try
+							JSONArray vThumbArray = (JSONArray) aResponse;
+							for(int i = 0; i < vThumbArray.length(); ++i)
 							{
-								JSONObject vImage = vThumbArray.getJSONObject(i);
+								int vId;
+								String vBase64;
 								
-								vId = vImage.getInt("Id");
-							
-								if(vId > 0)
+								try
 								{
-									vBase64 = vImage.getString("Base64Thumbnail");
+									JSONObject vImage = vThumbArray.getJSONObject(i);
 									
-									if(!alreadyAdded(vId))
+									vId = vImage.getInt("Id");
+								
+									if(vId > 0)
 									{
-										Thumb vThumb = new Thumb(getActivity(), vId, vBase64);
-										vThumb.setOnClickListener(mThumbClickListener);
+										vBase64 = vImage.getString("Base64Thumbnail");
 										
-										Engine.get().getCache().cacheThumb(vThumb, mLoc.getId());
-										mThumbScroll.addView(vThumb);
+										if(!alreadyAdded(vId))
+										{
+											Thumb vThumb = new Thumb(getActivity(), vId, vBase64);
+											vThumb.setOnClickListener(mThumbClickListener);
+											
+											Engine.get().getCache().cacheThumb(vThumb, mLoc.getId());
+											mThumbScroll.addView(vThumb);
+										}
+									}
+									else
+									{
+										removeThumb(-vId);
 									}
 								}
-								else
+								catch (JSONException e)
 								{
-									removeThumb(-vId);
 								}
 							}
-							catch (JSONException e)
-							{
-							}
+							
+							mThumbUpdated = true;
+							mProgressThumb.setVisibility(ProgressBar.INVISIBLE);
 						}
-						
-						mThumbUpdated = true;
-						mProgressThumb.setVisibility(ProgressBar.INVISIBLE);
+						else
+						{
+							
+						}
 					}
-					else
-					{
-						
-					}
+				});
+			}
+			else
+			{
+				for(int i = 0; i < vCachedThumb.size(); ++i)
+				{
+					Thumb vT = vCachedThumb.get(i);
+					vT.setOnClickListener(mThumbClickListener);
+					mThumbScroll.addView(vT);
 				}
-			});
+			}
 		}
 	}
 	

@@ -43,6 +43,8 @@ import com.loopj.android.http.RequestParams;
 
 public class MainActivity extends Activity implements IFragment, ILoginDialogFragment
 {
+	public static final String DETAIL_ACTION = "detail_action";
+	public static final String DETAIL_DATA = "detail_data";
 	private Menu mMenu;
 	
     private DrawerLayout mDrawerLayout;
@@ -56,6 +58,8 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 	private boolean isLogged;
 	private int searchFragmentType;
 	
+	private boolean isClosingForAr = false;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -64,20 +68,20 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		
 		isLogged = SettingsManager.get(this).isUserLogged();
 		
-		RequestParams vParams = new RequestParams();
-		vParams.put("id", 580);
-		
-		ConnectionManager.obtain().get("api/locations", vParams, new JsonResponse()
-		{	
-			@Override
-			public void onResponse(boolean aResult, Object aResponse)
-			{
-				if(aResult && aResponse != null && aResponse instanceof JSONObject)
-				{
-					loadFragment(Utils.TYPE_DETAIL, LocationModel.fromJSON(aResponse.toString()).getBundle());
-				}
-			}
-		});
+//		RequestParams vParams = new RequestParams();
+//		vParams.put("id", 580);
+//		
+//		ConnectionManager.obtain().get("api/locations", vParams, new JsonResponse()
+//		{	
+//			@Override
+//			public void onResponse(boolean aResult, Object aResponse)
+//			{
+//				if(aResult && aResponse != null && aResponse instanceof JSONObject)
+//				{
+//					loadFragment(Utils.TYPE_DETAIL, LocationModel.fromJSON(aResponse.toString()).getBundle());
+//				}
+//			}
+//		});
 		
         mTitle = mDrawerTitle = getTitle();
         mPlanetTitles = new ArrayList<>();
@@ -117,6 +121,11 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
             public void onDrawerClosed(View view) {
                 getActionBar().setTitle(mTitle);
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+                if (isClosingForAr) {
+                	isClosingForAr = false;
+                	Intent i = new Intent(MainActivity.this, AugmentedRealityActivity.class);
+    				startActivity(i);
+                }
             }
 
             public void onDrawerOpened(View drawerView) {
@@ -126,12 +135,38 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
         };
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
-        if (savedInstanceState == null) {
+		Intent vLauncher = getIntent();
+		
+		if (vLauncher != null) 
+		{
+			switch (vLauncher.getAction()) {
+			case DETAIL_ACTION:
+				loadFragment(Utils.TYPE_DETAIL, vLauncher.getBundleExtra(DETAIL_DATA));
+				break;
+			default:
+				break;
+			}
+			
+		}
+		else if (savedInstanceState == null) {
             selectItem(0);
         }
 	}
 	
+
     @Override
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+		switch (intent.getAction()) {
+		case DETAIL_ACTION:
+			loadFragment(Utils.TYPE_DETAIL, intent.getBundleExtra(DETAIL_DATA));
+			break;
+		default:
+			break;
+		}
+	}
+
+	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
@@ -233,8 +268,8 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 				vTag = SearchListFragment.TAG;
 				break;
 			case Utils.TYPE_AUGMENTED_REALITY:
-				Intent i = new Intent(this, AugmentedRealityActivity.class);
-				vTag = AugmentedRealityFragment.TAG;
+				isClosingForAr = true;
+				mDrawerLayout.closeDrawer(mDrawerList);
 				return;
 			case Utils.TYPE_PREFERENCE:
 				vFragment = MarkedLocationFragment.getInstance(bundle);
@@ -243,7 +278,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 			case Utils.TYPE_LOCATIONS:
 				if(isLogged && false) //TODO
 				{
-					//vFragment = ActivitiesFragment.getInstance(bundle);
+				
 				}
 				else
 				{

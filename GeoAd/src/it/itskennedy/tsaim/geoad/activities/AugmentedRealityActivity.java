@@ -9,9 +9,11 @@ import it.itskennedy.tsaim.geoad.localdb.OffersHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Currency;
 import java.util.List;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -152,10 +154,14 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 			
 			@Override
 			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				//GO TO DETAIL ACTIVITY
-				Toast.makeText(AugmentedRealityActivity.this,"DETAILLLLLL ID: " + activeObj.getId() , 
-		                Toast.LENGTH_SHORT).show();
+				LocationModel current = findLocationFromId(activeObj.getId(), activeLocations);
+				if (current != null) {
+					Intent i = new Intent(AugmentedRealityActivity.this, MainActivity.class);
+					i.setAction(MainActivity.DETAIL_ACTION);
+					i.putExtra(MainActivity.DETAIL_DATA, current.getBundle());
+					startActivity(i);
+					finish();
+				}
 			}
 		});
 

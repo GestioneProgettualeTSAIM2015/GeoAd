@@ -5,6 +5,7 @@ import it.itskennedy.tsaim.geoad.fragment.dialogs.EditLocationDescriptionDialogF
 import it.itskennedy.tsaim.geoad.fragment.dialogs.EditLocationNameDialogFragment;
 import it.itskennedy.tsaim.geoad.fragment.dialogs.EditLocationPositionDialogFragment;
 import it.itskennedy.tsaim.geoad.fragment.dialogs.NewOfferDialogFragment;
+import it.itskennedy.tsaim.geoad.fragment.dialogs.NewOfferDialogFragment.INewOfferDialogFragment;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
@@ -18,7 +19,7 @@ import android.view.ViewGroup;
 
 import com.google.android.gms.maps.model.LatLng;
 
-public class EditLocationFragment extends Fragment {
+public class EditLocationFragment extends Fragment implements INewOfferDialogFragment {
 	
 	public final static String NEW_OFFER_DIALOG_FRAGMENT_TAG = "newofferdialogfragmenttag",
 							   EDIT_LOCATION_NAME_FRAGMENT_TAG = "editlocationnamefragmenttag",
@@ -61,13 +62,14 @@ public class EditLocationFragment extends Fragment {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		
 		FragmentTransaction ft = getActivity().getFragmentManager().beginTransaction();
+		Fragment vFrag = null;
 		
 	    switch (item.getItemId()) {
 	        case R.id.add_photo:
 	            break;
 	            
 	        case R.id.add_offering:
-	        	ft.add(NewOfferDialogFragment.getNewInstance(), NEW_OFFER_DIALOG_FRAGMENT_TAG);
+	        	ft.add((vFrag = NewOfferDialogFragment.getNewInstance()), NEW_OFFER_DIALOG_FRAGMENT_TAG);
 	            break;
 	            
 	        case R.id.edit_location_name:
@@ -89,6 +91,7 @@ public class EditLocationFragment extends Fragment {
             	return false;
 	    }
 	    
+	    vFrag.setTargetFragment(this, 0);
 	    ft.commit();
 	    return true;
 	}
@@ -123,5 +126,11 @@ public class EditLocationFragment extends Fragment {
 	public void onStop() {
 		// TODO Auto-generated method stub
 		super.onStop();
+	}
+
+	@Override
+	public void newOffer(String name, String desc, long expDate) {
+		// TODO Auto-generated method stub
+		
 	}
 }
