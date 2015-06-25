@@ -41,6 +41,7 @@ public class LocationModel
     private String mDesc;
     private String mType;
 
+    
     public LocationModel(int aId, String aPCat, String aSCat, String aName, double aLat, double aLng, String aDesc, String aType)
     {
         mId = aId;
@@ -51,6 +52,7 @@ public class LocationModel
         mLng = aLng;
         mDesc = aDesc;
         mType = aType;
+        
     }
 
     public int getId()
@@ -61,6 +63,10 @@ public class LocationModel
     public String getName()
     {
         return mName;
+    }
+    
+    public String getDescription() {
+    	return mDesc;
     }
     
     public Location getLocation()

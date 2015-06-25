@@ -22,7 +22,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Application;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.util.Log;
@@ -130,7 +129,7 @@ public class Engine extends Application implements PushKeyReceiver
 		mKey = aKey;
 		if(!SettingsManager.get(this).isMarkedSync())
         {
-        	updatePreferenceFromServer();
+        	resetPreferenceOnServer();
         }
 	}
 
@@ -277,9 +276,9 @@ public class Engine extends Application implements PushKeyReceiver
 		return LocationState.NEUTRAL;
 	}
 	
-	public void updatePreferenceFromServer()
+	public void resetPreferenceOnServer()
 	{
-		ConnectionManager.obtain().get("api/usersettings", null, new JsonResponse()
+		ConnectionManager.obtain().delete("api/usersettings", new JsonResponse()
 		{	
 			@Override
 			public void onResponse(boolean aResult, Object aResponse) 
@@ -287,44 +286,6 @@ public class Engine extends Application implements PushKeyReceiver
 				if(aResult && aResponse != null && aResponse instanceof JSONObject)
 				{
 					SettingsManager.get(mInstance).setMarkedSyncTrue();
-					
-					JSONArray vFav = ((JSONObject) aResponse).optJSONArray("FAVORITE");
-					JSONArray vIgn = ((JSONObject) aResponse).optJSONArray("IGNORED");
-					
-					if(vFav != null)
-					{
-						for(int i = 0; i < vFav.length(); ++i)
-						{
-							LocationModel vLoc;
-							try
-							{
-								vLoc = LocationModel.fromJSON(vFav.getJSONObject(i));
-								getContentResolver().insert(DataFavContentProvider.FAVORITES_URI, vLoc.getContentValues());
-							}
-							catch (JSONException e)
-							{
-								Log.e(APP_NAME, "JSON Error");
-							}
-						}
-					}
-					
-					if(vIgn != null)
-					{
-						for(int i = 0; i < vIgn.length(); ++i)
-						{
-							ContentValues vVal = new ContentValues();
-							try 
-							{
-								vVal.put(IgnoredHelper._ID, vIgn.getJSONObject(i).getString("Id"));
-								vVal.put(IgnoredHelper.COLUMN_NAME, vIgn.getJSONObject(i).getString("Name"));
-								getContentResolver().insert(DataFavContentProvider.IGNORED_URI, vVal);
-							}
-							catch (JSONException e)
-							{
-								Log.e(APP_NAME, "JSON Error");
-							}
-						}
-					}
 				}
 			}
 		});

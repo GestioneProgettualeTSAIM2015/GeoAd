@@ -53,7 +53,6 @@ public class PushSignIn
             	}
             	
             	Log.w(Engine.APP_NAME, mPushId);
-            	
             	Log.d(Engine.APP_NAME, "Push Key Already Stored");
             }    
         }
@@ -124,6 +123,8 @@ public class PushSignIn
 	                }
 	                
 	                mPushId = mGoogleCloudMessaging.register(Engine.PROJECT_NUMBER);
+	                
+	                Log.w(Engine.APP_NAME, mPushId);
 	                Log.d(Engine.APP_NAME, "App Registered for Push");
 	            } 
 	            catch (IOException ex) 

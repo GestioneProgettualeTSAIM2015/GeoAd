@@ -77,6 +77,8 @@ public class GeoAdService extends Service implements LocationListener
 	  	
 	  	mSuspendedOffers = new ArrayList<Offer>();
 		mNearLocations = new ArrayList<LocationModel>();
+//		mNearLocations.add(new LocationModel(1, "", "", "PROVA", 46, 13, "", ""));
+
 	}
 	
 	@Override
@@ -102,7 +104,7 @@ public class GeoAdService extends Service implements LocationListener
 						}
 					}
 				}
-				else if(vAction.equals(DELETE_OFFER))
+				else if(vAction.equals(DELETE_OFFER)) 
 				{
 					int vToRemove = intent.getIntExtra(DELETE_ID, 0);
 					getContentResolver().delete(DataOffersContentProvider.OFFERS_URI, OffersHelper.OFF_ID + " = " + vToRemove, null);
@@ -128,6 +130,7 @@ public class GeoAdService extends Service implements LocationListener
 		}
 		
 	    return START_STICKY;
+		
 	}
 	
 	private Notification getNotify()

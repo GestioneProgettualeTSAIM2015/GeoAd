@@ -234,9 +234,9 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 				vTag = SearchListFragment.TAG;
 				break;
 			case Utils.TYPE_AUGMENTED_REALITY:
-				vFragment = AugmentedRealityFragment.getInstance(bundle);
+				Intent i = new Intent(this, AugmentedRealityActivity.class);
 				vTag = AugmentedRealityFragment.TAG;
-				break;
+				return;
 			case Utils.TYPE_PREFERENCE:
 				vFragment = MarkedLocationFragment.getInstance(bundle);
 				vTag = MarkedLocationFragment.TAG;
