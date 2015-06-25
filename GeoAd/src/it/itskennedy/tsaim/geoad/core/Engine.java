@@ -129,14 +129,14 @@ public class Engine extends Application implements PushKeyReceiver
 		mKey = aKey;
 		if(!SettingsManager.get(this).isMarkedSync())
         {
-        	resetPreferenceOnServer();
+        	resetPreferenceOnServer(aKey);
         }
 	}
 
 	public void onLogin(String aToken) 
 	{
 		mToken = aToken;
-		ConnectionManager.obtain().get("api/locations/mylocations", null, new JsonResponse()
+		ConnectionManager.obtain().getNoKey("api/usersettings/mylocations", null, new JsonResponse()
 		{	
 			@Override
 			public void onResponse(boolean aResult, Object aResponse) 
@@ -276,19 +276,10 @@ public class Engine extends Application implements PushKeyReceiver
 		return LocationState.NEUTRAL;
 	}
 	
-	public void resetPreferenceOnServer()
+	public void resetPreferenceOnServer(String aKey)
 	{
-		ConnectionManager.obtain().delete("api/usersettings", new JsonResponse()
-		{	
-			@Override
-			public void onResponse(boolean aResult, Object aResponse) 
-			{
-				if(aResult && aResponse != null && aResponse instanceof JSONObject)
-				{
-					SettingsManager.get(mInstance).setMarkedSyncTrue();
-				}
-			}
-		});
+		ConnectionManager.obtain().delete("api/usersettings/clear/" + aKey, null);
+		SettingsManager.get(mInstance).setMarkedSyncTrue();
 	}
 	
 	public boolean imLocationOwner(int aLocId)
@@ -301,5 +292,10 @@ public class Engine extends Application implements PushKeyReceiver
 		
 		vCur.close();
 		return false;
+	}
+
+	public void removeMyLocation(int vId) 
+	{
+		getContentResolver().delete(DataFavContentProvider.MYLOC_URI, MyLocationHelper._ID + " = " + vId, null);
 	}
 }

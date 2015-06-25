@@ -57,27 +57,32 @@ public class ConnectionManager extends BroadcastReceiver
         Log.d(Engine.APP_NAME, "Connection State Change: " + mIsConnection);
 	}
 
+	public void getNoKey(String aUrl, RequestParams vParams, JsonResponse jsonResponse)
+    {
+    	send(HttpMethod.GET, aUrl, vParams, jsonResponse, false);
+    }
+	
 	public void get(String aUrl, RequestParams vParams, JsonResponse jsonResponse)
     {
-    	send(HttpMethod.GET, aUrl, vParams, jsonResponse);
+    	send(HttpMethod.GET, aUrl, vParams, jsonResponse, true);
     }
     
     public void post(String aUrl, RequestParams vParams, JsonResponse jsonResponse)
     {
-    	send(HttpMethod.POST, aUrl, vParams, jsonResponse);
+    	send(HttpMethod.POST, aUrl, vParams, jsonResponse, true);
     }
     
     public void put(String aUrl, RequestParams vParams, JsonResponse jsonResponse)
     {
-    	send(HttpMethod.PUT, aUrl, vParams, jsonResponse);
+    	send(HttpMethod.PUT, aUrl, vParams, jsonResponse, true);
     }
     
     public void delete(String aUrl, JsonResponse jsonResponse)
     {
-    	send(HttpMethod.DELETE, aUrl, null, jsonResponse);
+    	send(HttpMethod.DELETE, aUrl, null, jsonResponse, true);
     }
 
-    private void send(HttpMethod aType, String aUrl, RequestParams aParams, final JsonResponse aListener)
+    private void send(HttpMethod aType, String aUrl, RequestParams aParams, final JsonResponse aListener, boolean aSendKey)
     {
     	if(mIsConnection)
     	{
@@ -91,7 +96,10 @@ public class ConnectionManager extends BroadcastReceiver
                 	aParams = new RequestParams();
                 }
                 
-                aParams.add("key", vKey);
+                if(aSendKey)
+                {
+                	aParams.add("key", vKey);
+                }
 
                 Log.d(Engine.APP_NAME, "URL: " + Engine.SERVER_URL + aUrl);
 
@@ -134,7 +142,6 @@ public class ConnectionManager extends BroadcastReceiver
 	private void setAuthHeader() 
 	{
 		String vToken = Engine.get().getToken();
-    	
     	if(vToken != null)
     	{
     		mClient.addHeader("Authorization", "Bearer " + Engine.get().getToken());	
