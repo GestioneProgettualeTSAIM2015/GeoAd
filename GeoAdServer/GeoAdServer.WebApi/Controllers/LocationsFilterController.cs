@@ -10,6 +10,8 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using GeoAdServer.WebApi.Support;
+using System.Net.Http.Formatting;
+using System.Web.Http.OData;
 
 namespace GeoAdServer.WebApi.Controllers
 {
@@ -25,6 +27,7 @@ namespace GeoAdServer.WebApi.Controllers
         }
 
         [HttpGet]
+        [EnableQuery]
         [Route("Around")]
         public HttpResponseMessage Get([FromUri]SearchPosition pos)
         {
@@ -37,18 +40,19 @@ namespace GeoAdServer.WebApi.Controllers
             using (var repos = DataRepos.Instance)
             {
                 return Request.CreateResponse(HttpStatusCode.OK,
-                    repos.Locations.GetAllAround(pos.P.Lat, pos.P.Lng, pos.R).AsQueryable());
+                    repos.Locations.GetAllAround(pos.P.Lat, pos.P.Lng, pos.R));
             }
         }
 
         [HttpGet]
         [Authorize]
+        [EnableQuery]
         [Route("MyLocations")]
         public HttpResponseMessage Get()
         {
             using (var repos = DataRepos.Instance)
             {
-                return Request.CreateResponse(HttpStatusCode.OK, repos.Locations.GetByUserId(RequestContext.GetUserId()).AsQueryable());
+                return Request.CreateResponse(HttpStatusCode.OK, repos.Locations.GetByUserId(RequestContext.GetUserId()));
             }
         }
     }

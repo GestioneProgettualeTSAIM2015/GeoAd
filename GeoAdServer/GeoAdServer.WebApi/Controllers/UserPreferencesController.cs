@@ -14,50 +14,51 @@ using GeoAdServer.WebApi.Support;
 
 namespace GeoAdServer.WebApi.Controllers
 {
+    [RoutePrefix("api/UserPreferences")]
     public class UserPreferencesController : ApiController
     {
         [HttpPost]
-        [ActionName("Favorites")]
+        [Route("Favorites")]
         public HttpResponseMessage PostFav(LocationPreferenceModel prefModel)
         {
             if (!ModelState.IsValid) return Request.CreateResponseForInvalidModelState();
 
-            EventService.Instance.SetPreference(prefModel.Id, prefModel.Key, PreferenceTypes.FAVORITE);
-            return Request.CreateResponse(HttpStatusCode.NoContent);
+            var result = EventService.Instance.SetPreference(prefModel.Id, prefModel.Key, PreferenceTypes.FAVORITE);
+            return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.Conflict);
         }
 
         [HttpDelete]
-        [ActionName("Favorites")]
+        [Route("Favorites")]
         public HttpResponseMessage DeleteFav(LocationPreferenceModel prefModel)
         {
             if (!ModelState.IsValid) return Request.CreateResponseForInvalidModelState();
 
-            EventService.Instance.DeletePreference(prefModel.Id, prefModel.Key, PreferenceTypes.FAVORITE);
-            return Request.CreateResponse(HttpStatusCode.NoContent);
+            var result = EventService.Instance.DeletePreference(prefModel.Id, prefModel.Key, PreferenceTypes.FAVORITE);
+            return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.Conflict);
         }
 
         [HttpPost]
-        [ActionName("Ignored")]
+        [Route("Ignored")]
         public HttpResponseMessage PostIgn(LocationPreferenceModel prefModel)
         {
             if (!ModelState.IsValid) return Request.CreateResponseForInvalidModelState();
 
-            EventService.Instance.SetPreference(prefModel.Id, prefModel.Key, PreferenceTypes.IGNORED);
-            return Request.CreateResponse(HttpStatusCode.NoContent);
+            var result = EventService.Instance.SetPreference(prefModel.Id, prefModel.Key, PreferenceTypes.IGNORED);
+            return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.Conflict);
         }
 
         [HttpDelete]
-        [ActionName("Ignored")]
+        [Route("Ignored")]
         public HttpResponseMessage DeleteIgn(LocationPreferenceModel prefModel)
         {
             if (!ModelState.IsValid) return Request.CreateResponseForInvalidModelState();
 
-            EventService.Instance.DeletePreference(prefModel.Id, prefModel.Key, PreferenceTypes.IGNORED);
-            return Request.CreateResponse(HttpStatusCode.NoContent);
+            var result = EventService.Instance.DeletePreference(prefModel.Id, prefModel.Key, PreferenceTypes.IGNORED);
+            return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.Conflict);
         }
 
         [HttpGet]
-        [Route("api/UserPreferences/MyPreferences/{key}")]
+        [Route("MyPreferences/{key}")]
         public HttpResponseMessage Get(string key)
         {
             var userFavsIgn = new UserFavsIgn();

@@ -30,7 +30,8 @@ namespace GeoAdServer.WebApi.Controllers
         {
             using (var repos = DataRepos.Instance)
             {
-                return repos.Offers.GetByLocationId(locationId).AsQueryable();
+                var nowMillis = (DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds;
+                return repos.Offers.GetByLocationId(locationId, (long)nowMillis).AsQueryable();
             }
         }
 

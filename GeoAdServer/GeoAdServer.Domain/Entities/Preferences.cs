@@ -17,9 +17,10 @@ namespace GeoAdServer.Domain.Entities
             RawDataType = new ConcurrentDictionary<int, Dictionary<PreferenceTypes, List<string>>>();
         }
 
-        public void Add(int locationId, string key, PreferenceTypes pref)
+        public bool Add(int locationId, string key, PreferenceTypes pref)
         {
             GetSubscribedKeysOrInit(locationId, pref).Add(key);
+            return true;
         }
 
         public bool RemoveIfContains(int locationId, string key, PreferenceTypes pref)

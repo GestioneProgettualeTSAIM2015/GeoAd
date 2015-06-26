@@ -35,7 +35,7 @@ namespace GeoAdServer.EventsHandling
             _localChangesCount = 0;
         }
 
-        void IUserPreferencesHandler.SetPreference(int locationId, string key, PreferenceTypes pref)
+        bool IUserPreferencesHandler.SetPreference(int locationId, string key, PreferenceTypes pref)
         {
             foreach (PreferenceTypes prefType in Enum.GetValues(typeof(PreferenceTypes)))
             {
@@ -43,14 +43,16 @@ namespace GeoAdServer.EventsHandling
                 _preferences.RemoveIfContains(locationId, key, prefType);
             }
 
-            _preferences.Add(locationId, key, pref);
-            IncrLocalChanges();
+            bool result;
+            if (result = _preferences.Add(locationId, key, pref)) IncrLocalChanges();
+            return result;
         }
 
-        void IUserPreferencesHandler.DeletePreference(int locationId, string key, PreferenceTypes pref)
+        bool IUserPreferencesHandler.DeletePreference(int locationId, string key, PreferenceTypes pref)
         {
-            _preferences.RemoveIfContains(locationId, key, pref);
-            IncrLocalChanges();
+            bool result;
+            if (result = _preferences.RemoveIfContains(locationId, key, pref)) IncrLocalChanges();
+            return result;
         }
 
         IEnumerable<string> IUserPreferencesHandler.GetKeys(int locationId, PreferenceTypes pref)

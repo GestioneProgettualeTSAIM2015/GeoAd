@@ -77,14 +77,14 @@ namespace GeoAdServer.WebApi.Services
             }
         }
 
-        public void SetPreference(int locationId, string key, PreferenceTypes pref)
+        public bool SetPreference(int locationId, string key, PreferenceTypes pref)
         {
-            _userPrefsHandler.SetPreference(locationId, key, pref);
+            return _userPrefsHandler.SetPreference(locationId, key, pref);
         }
 
-        public void DeletePreference(int locationId, string key, PreferenceTypes pref)
+        public bool DeletePreference(int locationId, string key, PreferenceTypes pref)
         {
-            _userPrefsHandler.DeletePreference(locationId, key, pref);
+            return _userPrefsHandler.DeletePreference(locationId, key, pref);
         }
 
         public Dictionary<PreferenceTypes, List<int>> Get(string key)

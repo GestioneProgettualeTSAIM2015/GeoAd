@@ -11,9 +11,9 @@ namespace GeoAdServer.Domain.Contracts
     {
         IEnumerable<string> GetKeys(int locationId, PreferenceTypes pref);
 
-        void SetPreference(int locationId, string key, PreferenceTypes pref);
+        bool SetPreference(int locationId, string key, PreferenceTypes pref);
 
-        void DeletePreference(int locationId, string key, PreferenceTypes pref);
+        bool DeletePreference(int locationId, string key, PreferenceTypes pref);
 
         Dictionary<PreferenceTypes, List<int>> Get(string key);
 

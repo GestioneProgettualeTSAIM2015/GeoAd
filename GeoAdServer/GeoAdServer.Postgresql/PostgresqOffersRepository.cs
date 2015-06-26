@@ -21,10 +21,13 @@ namespace GeoAdServer.Postgresql
         {
         }
 
-        IEnumerable<OfferDTO> IOffersRepository.GetAll()
+        IEnumerable<OfferDTO> IOffersRepository.GetAll(long? currentUTCMillis = null)
         {
             string query = @"SELECT *
                              FROM ""Offers""";
+
+            if (currentUTCMillis.HasValue)
+                query += @" WHERE ""ExpDateMillis"" >= " + currentUTCMillis.Value;
 
             return ExecQuery<OfferDTO>(query, (dr) =>
             {
@@ -40,11 +43,14 @@ namespace GeoAdServer.Postgresql
             });
         }
 
-        IEnumerable<OfferDTO> IOffersRepository.GetByLocationId(int locationId)
+        IEnumerable<OfferDTO> IOffersRepository.GetByLocationId(int locationId, long? currentUTCMillis = null)
         {
             string query = @"SELECT *
                              FROM ""Offers""
                              WHERE ""LocationId"" = {0}";
+
+            if (currentUTCMillis.HasValue)
+                query += @" AND ""ExpDateMillis"" >= " + currentUTCMillis.Value;
 
             return ExecQuery<OfferDTO>(string.Format(query, locationId), (dr) =>
             {

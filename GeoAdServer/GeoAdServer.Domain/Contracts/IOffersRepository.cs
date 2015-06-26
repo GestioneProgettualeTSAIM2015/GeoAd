@@ -10,9 +10,9 @@ namespace GeoAdServer.Domain.Contracts
 {
     public interface IOffersRepository : IDisposable
     {
-        IEnumerable<OfferDTO> GetAll();
+        IEnumerable<OfferDTO> GetAll(long? currentUTCMillis = null);
 
-        IEnumerable<OfferDTO> GetByLocationId(int locationId);
+        IEnumerable<OfferDTO> GetByLocationId(int locationId, long? currentUTCMillis = null);
 
         OfferDTO GetById(int offerId);
 
