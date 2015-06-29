@@ -25,9 +25,8 @@ namespace GeoAdServer.Domain.Contracts
                 if (locationId.HasValue)
                 {
                     keysSet.UnionWith(me.UserPrefsHandler.GetKeys(locationId.Value, PreferenceTypes.FAVORITE)); //add favorites
+                    keysSet.ExceptWith(me.UserPrefsHandler.GetKeys(locationId.Value, PreferenceTypes.IGNORED)); //remove ignored
                 }
-
-                keysSet.ExceptWith(me.UserPrefsHandler.GetKeys(locationId.Value, PreferenceTypes.IGNORED)); //remove ignored
             }
 
             return keysSet.AsEnumerable();

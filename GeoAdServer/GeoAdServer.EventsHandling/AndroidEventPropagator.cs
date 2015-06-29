@@ -136,6 +136,7 @@ namespace GeoAdServer.EventsHandling
 
         private void NotifyAffected(string action, object dataObject, string lat, string lng, int? locationId = null)
         {
+            Log(string.Format("event {0} at position: {1},{2}", action, lat, lng));
             Push(action, dataObject,
                     ((IEventsHandler)this).GetKeysAffected(
                         double.Parse(lat, CultureInfo.InvariantCulture),
@@ -170,8 +171,6 @@ namespace GeoAdServer.EventsHandling
                 using (Stream pushStream = request.GetRequestStream())
                     pushStream.Write(byteArray, 0, byteArray.Length);
 
-                Log(string.Format("pushed {0} to {1} apps", action, keys.Count()));
-
                 //receive
                 try
                 {
@@ -199,6 +198,8 @@ namespace GeoAdServer.EventsHandling
                                 response.StatusCode.ToString(), responseStreamReader.ReadToEnd()));
                 }
             }
+
+            Log(string.Format("pushed to {0} apps", keys.Count()));
         }
     }
 }

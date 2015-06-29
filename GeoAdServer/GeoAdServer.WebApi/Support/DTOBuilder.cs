@@ -32,7 +32,7 @@ namespace GeoAdServer.WebApi.Support
                 SCat = locApi.SCat,
                 Name = locApi.Name,
                 Lat = locApi.Lat,
-                Lng = locApi.Lat,
+                Lng = locApi.Lng,
                 Desc = locApi.Desc,
                 Type = type
             };

@@ -24,7 +24,7 @@ namespace GeoAdServer.Domain.Contracts
 
         int Insert(Location location);
 
-        bool Update(int id, Location location);
+        bool Update(int id, Location location, bool allowPositionChange = true);
 
         bool DeleteById(int locationId);
 

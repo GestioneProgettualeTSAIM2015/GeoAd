@@ -45,8 +45,8 @@ namespace GeoAdServer.WebApi.Controllers
                 if (!offer.LocationId.IsLocationOwner(RequestContext.GetUserId()))
                     return Request.CreateResponseForNotOwner();
 
-                if (new DateTime(offer.ExpDateMillis) < DateTime.Today)
-                    return Request.CreateResponseForUnprocessableEntity();
+                /*if (new DateTime(offer.ExpDateMillis) < DateTime.Today)
+                    return Request.CreateResponseForUnprocessableEntity();*/
 
                 if (offer.Name.Length < 1)
                     return Request.CreateResponseForUnprocessableEntity("Offer must have a valid name");
@@ -89,8 +89,8 @@ namespace GeoAdServer.WebApi.Controllers
                     if (!dbOffer.LocationId.IsLocationOwner(RequestContext.GetUserId(), repos.Locations))
                         return Request.CreateResponseForNotOwner();
 
-                    if (new DateTime(offer.ExpDateMillis) < DateTime.Today)
-                        return Request.CreateResponseForUnprocessableEntity();
+                    /*if (new DateTime(offer.ExpDateMillis) < DateTime.Today)
+                        return Request.CreateResponseForUnprocessableEntity();*/
 
                     if (offer.Name.Length < 1)
                         return Request.CreateResponseForUnprocessableEntity("offer must have a valid name");

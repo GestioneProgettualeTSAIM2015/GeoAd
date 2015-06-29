@@ -12,7 +12,6 @@ namespace GeoAdServer.WebApi.Models
         [Required]
         public string PCat { get; set; }
 
-        [Required]
         public string SCat { get; set; }
 
         [Required]

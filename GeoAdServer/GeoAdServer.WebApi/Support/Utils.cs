@@ -72,6 +72,7 @@ namespace GeoAdServer.WebApi.Support
 
                     throw new ArgumentException(message);
                 }
+                else sCatId = sCat.Id;
             }
 
             var typeId = identity.IsAdmin() ? 1 : 0;

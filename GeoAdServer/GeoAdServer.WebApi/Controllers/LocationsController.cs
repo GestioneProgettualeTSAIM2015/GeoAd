@@ -99,7 +99,7 @@ namespace GeoAdServer.WebApi.Controllers
                 if (location.Desc.Length > _MAX_LOCATION_DESCRIPTION_LENGTH)
                     location.Desc = location.Desc.Substring(0, _MAX_LOCATION_DESCRIPTION_LENGTH);
 
-                var result = repos.Locations.Update(id, location);
+                var result = repos.Locations.Update(id, location, false);
 
                 if (result)
                 {

@@ -188,22 +188,25 @@ namespace GeoAdServer.Postgresql
             return (int)row;
         }
 
-        bool ILocationsRepository.Update(int id, Location location)
+        bool ILocationsRepository.Update(int id, Location location, bool allowPositionChange = true)
         {
             var templateCommand = @"UPDATE ""Locations""
                                     SET ""UserId"" = '{0}',
                                         ""PCatId"" = {1},
                                         ""SCatId"" = {2},
                                         ""Name"" = '{3}',
-                                        ""Lat"" = '{4}', 
-                                        ""Lng"" = '{5}',
-                                        ""Desc"" = '{6}',
-                                        ""Type"" = '{7}'
-                                    WHERE ""Id"" = {8}
-                                    RETURNING ""Id""";
+                                        ""Desc"" = '{4}',
+                                        ""Type"" = '{5}'";
+
+            if (allowPositionChange)
+                templateCommand += @",""Lat"" = '{7}', 
+                                      ""Lng"" = '{8}'";
+
+            templateCommand += @"WHERE ""Id"" = {6}
+                                 RETURNING ""Id""";
 
             object row = ExecCommand(string.Format(new NullFormat(), templateCommand,
-                location.UserId, location.PCatId, location.SCatId, location.Name, location.Lat, location.Lng, location.Desc, location.Type, id));
+                location.UserId, location.PCatId, location.SCatId, location.Name, location.Desc, location.Type, id, location.Lat, location.Lng));
 
             return row != null && (int)row == id;
         }

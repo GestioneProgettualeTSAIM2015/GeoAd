@@ -6,6 +6,12 @@
     <title>GeoAd Dashboard Application</title>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
+    <script type="text/javascript">
+        var headToken = "oauth2token";
+        function getToken() {
+            return localStorage.getItem(headToken);
+        }
+    </script>
     @Styles.Render("~/Content/Custom.css")
     @Styles.Render("~/Content/WPLoading.css")
     <meta name="description" content="GeoAd" />

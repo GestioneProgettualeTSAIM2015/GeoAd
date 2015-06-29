@@ -1,6 +1,4 @@
-﻿var headToken = "oauth2token";
-
-$(function () {
+﻿$(function () {
 
     var errorAlert = $("#errorAlert");
 
@@ -112,7 +110,3 @@ $(function () {
         dataDiv.find("fieldset").attr("disabled", false);
     }
 });
-
-function getToken() {
-    return localStorage.getItem(headToken);
-}

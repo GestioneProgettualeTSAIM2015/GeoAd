@@ -124,5 +124,15 @@ namespace GeoAdServer.Postgresql
             object row = ExecCommand(string.Format(templateCommand, offerId));
             return true;
         }
+
+        bool IOffersRepository.DeleteByLocationId(int locationId)
+        {
+            var templateCommand = @"DELETE FROM public.""Offers""
+                                    WHERE ""LocationId"" = {0}
+                                    RETURNING count";
+
+            object row = ExecCommand(string.Format(templateCommand, locationId));
+            return true;
+        }
     }
 }
