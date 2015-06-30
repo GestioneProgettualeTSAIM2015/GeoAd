@@ -110,7 +110,7 @@ public class MarkedLocationFragment extends Fragment
 						
 						LocationModel vLoc = new LocationModel((int)id, vPCat,vSCat, vName, vLat, vLng, vDesc, vType);
 						
-						mListener.loadFragment(Utils.TYPE_DETAIL, vLoc.getBundle());
+						mListener.loadFragment(Utils.TYPE_DETAIL, vLoc.getBundle(), null);
 					}
 				}
 				return true;

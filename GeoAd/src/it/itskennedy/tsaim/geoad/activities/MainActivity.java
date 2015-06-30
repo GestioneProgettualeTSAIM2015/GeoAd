@@ -152,38 +152,46 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 
 		Intent vLauncher = getIntent();
 		
-		if (vLauncher != null) 
-		{
+		if (savedInstanceState == null) {
+			selectItem(Utils.TYPE_SEARCH_LIST);
+			
+		} else if (vLauncher != null) {
 			switch (vLauncher.getAction()) {
 			case DETAIL_ACTION:
-				loadFragment(Utils.TYPE_DETAIL, vLauncher.getBundleExtra(DETAIL_DATA));
-				break;
-			default:
+				loadFragment(Utils.TYPE_DETAIL, vLauncher.getBundleExtra(DETAIL_DATA), null);
 				break;
 			}
-			
-		}
-		else if (savedInstanceState == null) {
-			selectItem(0);
 		}
 		
 		mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
-		
-		Location vLoc = LocationManager.get(this).getActualLocation();
+		mProgressBar.setVisibility(View.VISIBLE);
+
+	}
+	
+	
+
+
+    @Override
+	protected void onStart()
+	{
+    	Location vLoc = LocationManager.get(this).getActualLocation();
 		LocationManager.get(this).addListener(this);
 		if(vLoc != null)
 		{
 			setFilterLocation(null, vLoc);
 		}
+		super.onStart();
 	}
 
 
-    @Override
+
+
+	@Override
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
 		switch (intent.getAction()) {
 		case DETAIL_ACTION:
-			loadFragment(Utils.TYPE_DETAIL, intent.getBundleExtra(DETAIL_DATA));
+			loadFragment(Utils.TYPE_DETAIL, intent.getBundleExtra(DETAIL_DATA), null);
 			break;
 		default:
 			break;
@@ -215,8 +223,6 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 			default:
 				return super.onOptionsItemSelected(item);
 		}
-        
-        return super.onOptionsItemSelected(item);
 	}
 
 	/* The click listner for ListView in the navigation drawer */
@@ -409,10 +415,10 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 	}
 	
 	@Override
-	public void onPause()
+	public void onStop()
 	{
 		LocationManager.get(this).removeListener(this);
-		super.onPause();
+		super.onStop();
 	}
 	
 	@Override
@@ -420,7 +426,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 	{
 		mCurrentLocation = aLocation;
 		setFilterLocation(null, aLocation);
-		LocationManager.get(this).removeListener(this);
+//		LocationManager.get(this).removeListener(this);
 	}
 
 	@Override
@@ -502,11 +508,15 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 			@Override
 			public void onResponse(boolean aResult, Object aResponse)
 			{
-				JSONArray locationArray = (JSONArray) aResponse;
-				mLocationList.clear();
-				mLocationList.addAll(LocationModel.getListFromJsonArray(locationArray));
-				mLocationListListener.notifyLocationsListChanged(mLocationList);
-				mProgressBar.setVisibility(View.GONE);
+				if (aResult)
+				{
+					JSONArray locationArray = (JSONArray) aResponse;
+					mLocationList.clear();
+					mLocationList.addAll(LocationModel.getListFromJsonArray(locationArray));
+					mLocationListListener.notifyLocationsListChanged(mLocationList);
+					mProgressBar.setVisibility(View.GONE);
+				}
+
 			}
 		});
 	}

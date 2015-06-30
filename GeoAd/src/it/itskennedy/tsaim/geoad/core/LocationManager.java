@@ -3,7 +3,9 @@ package it.itskennedy.tsaim.geoad.core;
 import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 
+import com.google.android.gms.ads.a;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -53,8 +55,8 @@ public class LocationManager implements LocationListener, ConnectionCallbacks, O
 			mLocationRequest = LocationRequest.create();
 			mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
 			
-			mLocationRequest.setInterval(10000);
-			//mLocationRequest.setSmallestDisplacement(METER_DISPLACEMENT);
+//			mLocationRequest.setInterval(10000);
+			mLocationRequest.setSmallestDisplacement(METER_DISPLACEMENT);
 
 			mGoogleApiClient = new GoogleApiClient.Builder(aContext).addApi(LocationServices.API).addConnectionCallbacks(this)
 					.addOnConnectionFailedListener(this).build();
@@ -67,7 +69,7 @@ public class LocationManager implements LocationListener, ConnectionCallbacks, O
 	public void onLocationChanged(Location location)
 	{
 		mPosition = location;
-		
+		Log.d("LOCATION", "Location change - notify to " + mListeners.size() + " listeners");
 		if (mListeners != null)
 		{
 			for(int i = 0; i < mListeners.size(); ++i)
@@ -118,16 +120,20 @@ public class LocationManager implements LocationListener, ConnectionCallbacks, O
 
 	public void addListener(LocationListener aListener)
 	{
+		Log.d("LOCATION", "listener " + aListener);
 		if(mListeners == null)
 		{
 			mListeners = new ArrayList<LocationListener>();
 		}
 
+		if (mPosition != null)
+			aListener.onLocationUpdated(mPosition);
 		mListeners.add(aListener);
 	}
 
-	public void removeListener(LocationListener aListner)
+	public void removeListener(LocationListener aListener)
 	{
-		mListeners.remove(aListner);
+		Log.d("LOCATION", "unregister " + aListener);
+		mListeners.remove(aListener);
 	}
 }

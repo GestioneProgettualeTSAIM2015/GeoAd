@@ -120,7 +120,8 @@ public class FilterDialogFragment extends DialogFragment
 		distanceBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
 		    @Override
 		    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-		        seekBarValue.setText(String.valueOf(progress));
+		    	String vProgress = progress == 0 ? "0.5" : String.valueOf(progress);
+		        seekBarValue.setText(vProgress);
 		    }
 		    @Override
 		    public void onStartTrackingTouch(SeekBar seekBar) {
@@ -184,7 +185,7 @@ public class FilterDialogFragment extends DialogFragment
 				{
 					vBundle.putStringArrayList(Utils.PRIMARY_CATEGORY, vPrimaryCategory);
 				}
-				vBundle.putString(Utils.RADIUS, String.valueOf(distanceBar.getProgress()));
+				vBundle.putString(Utils.RADIUS, String.valueOf(distanceBar.getProgress() == 0 ? "0.5" : distanceBar.getProgress()));
 				if (nameFilter.getText().length() > 0) vBundle.putString(Utils.NAME, nameFilter.getText().toString());
 				mListener.onFilterSave(vBundle);
 			}

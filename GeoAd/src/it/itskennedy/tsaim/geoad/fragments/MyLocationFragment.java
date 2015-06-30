@@ -78,7 +78,7 @@ public class MyLocationFragment extends Fragment implements LoaderCallbacks<Curs
 					
 					LocationModel vLoc = new LocationModel((int)aId, vPCat,vSCat, vName, vLat, vLng, vDesc, vType);
 					
-					mListener.loadFragment(Utils.TYPE_DETAIL, vLoc.getBundle());
+					mListener.loadFragment(Utils.TYPE_DETAIL, vLoc.getBundle(), null);
 				}
 			}
 		});

@@ -54,7 +54,7 @@ public class GeoAdService extends Service implements LocationListener
 	private static final int EARTH_RADIUS = 6371;
 	private static final double LAT_SPLIT = 0.007;
 	private static final float SPEED_THRESHOLD = 5; //m/s
-	private static final int DISTANCE_THRESHOLD = 0; //0 ONLY FOR TEST
+	private static final int DISTANCE_THRESHOLD = 400; //0 ONLY FOR TEST
 	private double LNG_SPLIT;
 	
 	private static final int NOTIFICATION = 12345;
