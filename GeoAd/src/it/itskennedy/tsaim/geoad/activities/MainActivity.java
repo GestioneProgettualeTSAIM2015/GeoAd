@@ -9,7 +9,6 @@ import it.itskennedy.tsaim.geoad.core.LocationManager;
 import it.itskennedy.tsaim.geoad.core.LocationManager.LocationListener;
 import it.itskennedy.tsaim.geoad.core.SettingsManager;
 import it.itskennedy.tsaim.geoad.entity.LocationModel;
-import it.itskennedy.tsaim.geoad.fragments.AugmentedRealityFragment;
 import it.itskennedy.tsaim.geoad.fragments.DetailFragment;
 import it.itskennedy.tsaim.geoad.fragments.EditLocationFragment;
 import it.itskennedy.tsaim.geoad.fragments.MarkedLocationFragment;
@@ -23,9 +22,9 @@ import it.itskennedy.tsaim.geoad.interfaces.IFragment;
 import it.itskennedy.tsaim.geoad.interfaces.ILocationsList;
 import it.itskennedy.tsaim.geoad.interfaces.ILoginDialogFragment;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.json.JSONArray;
@@ -46,19 +45,23 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.loopj.android.http.RequestParams;
 
 public class MainActivity extends Activity implements IFragment, ILoginDialogFragment, LocationListener, IFilterDialogFragment
 {
 	public static final String DETAIL_ACTION = "detail_action";
 	public static final String DETAIL_DATA = "detail_data";
+	public static final String TAG = "tag";
+	private static final String LOCATION_LIST = "locationList";
+	private static final String POSITION_LAT = "positionlat";
+	private static final String POSITION_LNG = "positionlng";
 	private Menu mMenu;
 
 	private DrawerLayout mDrawerLayout;
@@ -152,10 +155,24 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 
 		Intent vLauncher = getIntent();
 		
-		if (savedInstanceState == null) {
+		if (savedInstanceState == null) 
+		{
 			selectItem(Utils.TYPE_SEARCH_LIST);
+			mCurrentLocation = LocationManager.get(this).getLocation();
+		}
+		else if (vLauncher != null) 
+		{
+			double vLat = savedInstanceState.getDouble(POSITION_LAT);
+			double vLng = savedInstanceState.getDouble(POSITION_LNG);
+			mCurrentLocation = new Location("");
+			mCurrentLocation.setLatitude(vLat);
+			mCurrentLocation.setLongitude(vLng);
+			Serializable vList = savedInstanceState.getSerializable(LOCATION_LIST);
+			if(vList != null)
+			{
+				mLocationList = (ArrayList<LocationModel>) vList;
+			}
 			
-		} else if (vLauncher != null) {
 			switch (vLauncher.getAction()) {
 			case DETAIL_ACTION:
 				loadFragment(Utils.TYPE_DETAIL, vLauncher.getBundleExtra(DETAIL_DATA), null);
@@ -164,37 +181,31 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		}
 		
 		mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
-		mProgressBar.setVisibility(View.VISIBLE);
-
+		
+		if(mCurrentLocation != null)
+		{
+			setFilterLocation(null, mCurrentLocation);
+		}
 	}
-	
-	
-
 
     @Override
 	protected void onStart()
 	{
-    	Location vLoc = LocationManager.get(this).getActualLocation();
-		LocationManager.get(this).addListener(this);
-		if(vLoc != null)
-		{
-			setFilterLocation(null, vLoc);
-		}
+		LocationManager.get(this).addListener(this);		
 		super.onStart();
 	}
 
-
-
-
 	@Override
-	protected void onNewIntent(Intent intent) {
+	protected void onNewIntent(Intent intent) 
+	{
 		super.onNewIntent(intent);
-		switch (intent.getAction()) {
-		case DETAIL_ACTION:
-			loadFragment(Utils.TYPE_DETAIL, intent.getBundleExtra(DETAIL_DATA), null);
-			break;
-		default:
-			break;
+		switch (intent.getAction())
+		{
+			case DETAIL_ACTION:
+				loadFragment(Utils.TYPE_DETAIL, intent.getBundleExtra(DETAIL_DATA), null);
+				break;
+			default:
+				break;
 		}
 	}
 
@@ -294,7 +305,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		{
 			case Utils.TYPE_SEARCH_LIST:
 				searchFragmentType = Utils.TYPE_SEARCH_LIST;
-				vFragment = SearchListFragment.getInstance(bundle, this);
+				vFragment = SearchListFragment.getInstance(bundle);
 				mLocationListListener = null;
 				mLocationListListener = (ILocationsList) vFragment;
 				break;
@@ -320,7 +331,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 				break;
 			case Utils.TYPE_SEARCH_MAP:
 				searchFragmentType = Utils.TYPE_SEARCH_MAP;
-				vFragment = SearchMapFragment.getInstance(bundle, this);
+				vFragment = SearchMapFragment.getInstance(bundle);
 				mLocationListListener = null;
 				mLocationListListener = (ILocationsList) vFragment;
 				break;
@@ -346,7 +357,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		}
 
 		FragmentManager fragmentManager = getFragmentManager();
-		fragmentManager.beginTransaction().replace(R.id.content_frame, vFragment, vFragment.getClass().toString()).commit();
+		fragmentManager.beginTransaction().replace(R.id.content_frame, vFragment, vFragment.getClass().toString()).addToBackStack(TAG).commit();
 	}
 
 	@Override
@@ -443,7 +454,6 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 			setFilterLocation(vFilterMap, mCurrentLocation);
 		}
 		mFilterMap = vFilterMap;
-		mProgressBar.setVisibility(View.VISIBLE);
 	}
 
 	@Override
@@ -453,7 +463,6 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		mLocationListListener.notifyLocationsListChanged(mLocationList);
 		setFilterLocation(null, mCurrentLocation);
 		mFilterMap = null;
-		mProgressBar.setVisibility(View.VISIBLE);
 	}
 	
 	private void setFilterLocation(Map<String, Object> aFilterMap, Location aLocation)
@@ -502,6 +511,8 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 				vFilter += String.format("startswith(tolower(Name), tolower('%s'))", aFilterMap.get(Utils.NAME).toString());
 			}
 		}
+		
+		mProgressBar.setVisibility(View.VISIBLE);
 		String vUrl = String.format(Utils.LOCATION_URL_TEMPLATE, vLat, vLng, vR, vFilter);
 		ConnectionManager.obtain().get(vUrl, null, new JsonResponse()
 		{
@@ -516,14 +527,13 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 					mLocationListListener.notifyLocationsListChanged(mLocationList);
 					mProgressBar.setVisibility(View.GONE);
 				}
-
 			}
 		});
 	}
 	
 	private void setAllCategory()
 	{
-		ConnectionManager.obtain().get("http://geoad.somee.com/api/categories", null, new JsonResponse()
+		ConnectionManager.obtain().get("api/categories", null, new JsonResponse()
 		{
 			@Override
 			public void onResponse(boolean aResult, Object aResponse)
@@ -542,6 +552,15 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		return mLocationList;
 	}
 	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) 
+	{
+		outState.putSerializable(LOCATION_LIST, mLocationList);
+		outState.putSerializable(POSITION_LAT, mCurrentLocation.getLatitude());
+		outState.putSerializable(POSITION_LNG, mCurrentLocation.getLongitude());
+		super.onSaveInstanceState(outState);
+	}
+
 	public Location getCurrentLocation()
 	{
 		return mCurrentLocation;

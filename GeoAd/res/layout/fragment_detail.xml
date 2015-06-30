@@ -28,6 +28,14 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/textViewPCat" >
 
+                <TextView
+                    android:id="@+id/no_image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:text="@string/no_image" 
+                    android:visibility="invisible"/>
+
                 <ProgressBar
                     android:id="@+id/progressBarThumb"
                     android:layout_width="wrap_content"

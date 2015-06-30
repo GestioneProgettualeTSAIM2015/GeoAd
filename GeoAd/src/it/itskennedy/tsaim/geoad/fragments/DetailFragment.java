@@ -24,7 +24,6 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -181,7 +180,7 @@ public class DetailFragment extends Fragment
 		getActivity().getActionBar().setSubtitle(vSub);
 		
 		mPCat.setText(mLoc.getPCat());
-		if(!mLoc.getSCat().isEmpty())
+		if(mLoc.getSCat() != null && !mLoc.getSCat().isEmpty())
 		{
 			mSCat.setText("(" + mLoc.getSCat() + ")");	
 		}
@@ -218,76 +217,88 @@ public class DetailFragment extends Fragment
 			}
 		}
 		
+		List<Thumb> vCachedThumb = Engine.get().getCache().getThumbs(mLoc.getId());
+		if(vCachedThumb != null)
+		{
+			for(int i = 0; i < vCachedThumb.size(); ++i)
+			{
+				Thumb vT = vCachedThumb.get(i);
+				vT.setOnClickListener(mThumbClickListener);
+				mThumbScroll.addView(vT);
+			}
+		}
+		else
+		{
+			TextView vView = (TextView) getView().findViewById(R.id.no_image);
+			vView.setVisibility(TextView.VISIBLE);
+		}
+		
 		if(!mThumbUpdated)
 		{
-			List<Thumb> vCachedThumb = Engine.get().getCache().getThumbs(mLoc.getId());
-			if(vCachedThumb == null || vCachedThumb.size() == 0)
+			if(vCachedThumb == null)
 			{
 				mProgressThumb.setVisibility(ProgressBar.VISIBLE);
-				RequestParams vParams = new RequestParams();
-				vParams.put("cache", Engine.get().getCache().getThumbIdList(mLoc.getId()).toString());
-				
-				ConnectionManager.obtain().get("api/photos/fromlocation/" + mLoc.getId(), vParams, new JsonResponse()
+				TextView vView = (TextView) getView().findViewById(R.id.no_image);
+				vView.setVisibility(TextView.INVISIBLE);
+			}
+			
+			RequestParams vParams = new RequestParams();
+			vParams.put("cache", Engine.get().getCache().getThumbIdList(mLoc.getId()).toString());
+			
+			ConnectionManager.obtain().get("api/photos/fromlocation/" + mLoc.getId(), vParams, new JsonResponse()
+			{
+				@Override
+				public void onResponse(boolean aResult, Object aResponse) 
 				{
-					@Override
-					public void onResponse(boolean aResult, Object aResponse) 
+					if(aResult && aResponse != null)
 					{
-						if(aResult && aResponse != null)
+						JSONArray vThumbArray = (JSONArray) aResponse;
+						
+						if(vThumbArray.length() == 0)
 						{
-							JSONArray vThumbArray = (JSONArray) aResponse;
-							for(int i = 0; i < vThumbArray.length(); ++i)
+							TextView vView = (TextView) getView().findViewById(R.id.no_image);
+							vView.setVisibility(TextView.VISIBLE);
+						}
+						
+						for(int i = 0; i < vThumbArray.length(); ++i)
+						{
+							int vId;
+							String vBase64;
+							
+							try
 							{
-								int vId;
-								String vBase64;
+								JSONObject vImage = vThumbArray.getJSONObject(i);
 								
-								try
+								vId = vImage.getInt("Id");
+							
+								if(vId > 0)
 								{
-									JSONObject vImage = vThumbArray.getJSONObject(i);
+									vBase64 = vImage.getString("Base64Thumbnail");
 									
-									vId = vImage.getInt("Id");
-								
-									if(vId > 0)
+									if(!alreadyAdded(vId))
 									{
-										vBase64 = vImage.getString("Base64Thumbnail");
+										Thumb vThumb = new Thumb(getActivity(), vId, vBase64);
+										vThumb.setOnClickListener(mThumbClickListener);
 										
-										if(!alreadyAdded(vId))
-										{
-											Thumb vThumb = new Thumb(getActivity(), vId, vBase64);
-											vThumb.setOnClickListener(mThumbClickListener);
-											
-											Engine.get().getCache().cacheThumb(vThumb, mLoc.getId());
-											mThumbScroll.addView(vThumb);
-										}
-									}
-									else
-									{
-										removeThumb(-vId);
+										Engine.get().getCache().cacheThumb(vThumb, mLoc.getId());
+										mThumbScroll.addView(vThumb);
 									}
 								}
-								catch (JSONException e)
+								else
 								{
+									removeThumb(-vId);
 								}
 							}
-							
-							mThumbUpdated = true;
-							mProgressThumb.setVisibility(ProgressBar.INVISIBLE);
+							catch (JSONException e)
+							{
+							}
 						}
-						else
-						{
-							
-						}
+						
+						mThumbUpdated = true;
+						mProgressThumb.setVisibility(ProgressBar.INVISIBLE);
 					}
-				});
-			}
-			else
-			{
-				for(int i = 0; i < vCachedThumb.size(); ++i)
-				{
-					Thumb vT = vCachedThumb.get(i);
-					vT.setOnClickListener(mThumbClickListener);
-					mThumbScroll.addView(vT);
 				}
-			}
+			});
 		}
 	}
 	

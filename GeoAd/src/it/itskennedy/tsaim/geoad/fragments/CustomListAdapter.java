@@ -31,7 +31,7 @@ public class CustomListAdapter extends BaseAdapter
 	}
 
 	@Override
-	public Object getItem(int position)
+	public LocationModel getItem(int position)
 	{
 		return mLocationList.get(position);
 	}

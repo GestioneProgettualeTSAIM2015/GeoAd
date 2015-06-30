@@ -28,7 +28,7 @@ public class Utils
 	public static final String RADIUS = "RADIUS";
 	public static final String NAME = "NAME";
 	public static final String FILTER_CATEGORY = "FILTER_CATEGORY";
-	public static final String LOCATION_URL_TEMPLATE = "http://geoad.somee.com/api/locationsfilter/around?P.Lat=%s&P.Lng=%s&R=%s%s";
+	public static final String LOCATION_URL_TEMPLATE = "api/locationsfilter/around?P.Lat=%s&P.Lng=%s&R=%s%s";
 	public static final int DEFAULT_RADIUS = 8;
 	
 	public static final String LOCATIONS_LIST = "LOCATIONS_LIST";

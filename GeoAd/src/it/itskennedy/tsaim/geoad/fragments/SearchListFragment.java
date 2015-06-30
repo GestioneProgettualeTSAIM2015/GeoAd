@@ -1,79 +1,51 @@
 package it.itskennedy.tsaim.geoad.fragments;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import it.itskennedy.tsaim.geoad.R;
 import it.itskennedy.tsaim.geoad.Utils;
 import it.itskennedy.tsaim.geoad.activities.MainActivity;
-import it.itskennedy.tsaim.geoad.core.ConnectionManager;
-import it.itskennedy.tsaim.geoad.core.ConnectionManager.JsonResponse;
-import it.itskennedy.tsaim.geoad.core.LocationManager;
-import it.itskennedy.tsaim.geoad.core.LocationManager.LocationListener;
-import it.itskennedy.tsaim.geoad.customview.MultiSelectSpinner;
 import it.itskennedy.tsaim.geoad.entity.LocationModel;
-import it.itskennedy.tsaim.geoad.interfaces.IFilterDialogFragment;
 import it.itskennedy.tsaim.geoad.interfaces.IFragment;
 import it.itskennedy.tsaim.geoad.interfaces.ILocationsList;
-import it.itskennedy.tsaim.geoad.services.GeoAdService;
+
+import java.util.ArrayList;
+
+import android.app.Activity;
 import android.app.Fragment;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import it.itskennedy.tsaim.geoad.services.GeoAdService.GeoAdBinder;
-import android.location.Location;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
-import android.widget.Spinner;
-import android.widget.TextView;
 
 public class SearchListFragment extends Fragment implements ILocationsList
 {
 	public static final String TAG = "search_list_fragment";
-	private static IFragment mListener;
+	private IFragment mListener;
 
-	public static SearchListFragment getInstance(Bundle aBundle, IFragment listener)
+	public static SearchListFragment getInstance(Bundle aBundle)
 	{
 		SearchListFragment vFragment = new SearchListFragment();
 		if (aBundle != null)
 		{
 			vFragment.setArguments(aBundle);
 		}
-		if (listener instanceof IFragment)
-		{
-			mListener = listener;
-		}
+		
 		return vFragment;
 	}
 
 	private CustomListAdapter adapter;
 	private ArrayList<LocationModel> mLocationList;
-	private Location mCurrentLocation;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
-
 	}
 
 	@Override
@@ -118,6 +90,18 @@ public class SearchListFragment extends Fragment implements ILocationsList
 		adapter = new CustomListAdapter(getActivity(), mLocationList);
 		list.setAdapter(adapter);
 		
+		list.setOnItemClickListener(new OnItemClickListener()
+		{
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int aPos, long arg3)
+			{
+				if(mListener != null)
+				{
+					mListener.loadFragment(Utils.TYPE_DETAIL, adapter.getItem(aPos).getBundle(), null);
+				}
+			}
+		});
+		
 		return view;
 	}
 	
@@ -127,5 +111,15 @@ public class SearchListFragment extends Fragment implements ILocationsList
 		mLocationList.clear();
 		mLocationList.addAll(aLocationsList);
 		adapter.notifyDataSetChanged();
+	}
+	
+	@Override
+	public void onAttach(Activity aActivity)
+	{
+		if(aActivity instanceof IFragment)
+		{
+			mListener = (IFragment) aActivity;
+		}
+		super.onAttach(aActivity);
 	}
 }

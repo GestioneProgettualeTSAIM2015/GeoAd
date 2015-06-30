@@ -76,5 +76,7 @@
     <string name="primary">Primaria</string>
     <string name="secondary">Secondaria</string>
     <string name="distance">Distanza</string>
+    
+    <string name="no_image">Non sono presenti immagini</string>
 
 </resources>

@@ -298,7 +298,7 @@ public class GeoAdService extends Service implements LocationListener
 				if(aResult && aResponse != null && aResponse instanceof JSONObject)
 				{
 					JSONArray vLocations = ((JSONObject)aResponse).optJSONArray("Locations");
-					JSONArray vOffers = ((JSONObject)aResponse).optJSONArray("Offerings");
+					JSONArray vOffers = ((JSONObject)aResponse).optJSONArray("Offers");
 					
 					mNearLocations = LocationModel.getListFromJsonArray(vLocations);
 					

@@ -1,11 +1,12 @@
 package it.itskennedy.tsaim.geoad.core;
 
+import java.util.ArrayList;
+
 import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.google.android.gms.ads.a;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -14,8 +15,6 @@ import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListe
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-
-import java.util.ArrayList;
 
 public class LocationManager implements LocationListener, ConnectionCallbacks, OnConnectionFailedListener
 {
@@ -120,20 +119,21 @@ public class LocationManager implements LocationListener, ConnectionCallbacks, O
 
 	public void addListener(LocationListener aListener)
 	{
-		Log.d("LOCATION", "listener " + aListener);
 		if(mListeners == null)
 		{
 			mListeners = new ArrayList<LocationListener>();
 		}
-
-		if (mPosition != null)
-			aListener.onLocationUpdated(mPosition);
+		
 		mListeners.add(aListener);
+	}
+	
+	public Location getLocation()
+	{
+		return mPosition;
 	}
 
 	public void removeListener(LocationListener aListener)
 	{
-		Log.d("LOCATION", "unregister " + aListener);
 		mListeners.remove(aListener);
 	}
 }
