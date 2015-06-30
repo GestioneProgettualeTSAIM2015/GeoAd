@@ -227,6 +227,7 @@
     <Compile Include="Controllers\LocationsFilterController.cs" />
     <Compile Include="Controllers\LocationsController.cs" />
     <Compile Include="Controllers\LoginController.cs" />
+    <Compile Include="Controllers\OfferDetailController.cs" />
     <Compile Include="Controllers\OffersController.cs" />
     <Compile Include="Controllers\PhotosController.cs" />
     <Compile Include="Controllers\PositionsController.cs" />
@@ -259,6 +260,8 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\Custom.css" />
     <Content Include="Content\images\animated-overlay.gif" />
+    <Content Include="Content\images\apstore.png" />
+    <Content Include="Content\images\gpstore.png" />
     <Content Include="Content\images\loader.GIF" />
     <Content Include="Content\images\ui-bg_flat_0_aaaaaa_40x100.png" />
     <Content Include="Content\images\ui-bg_flat_75_ffffff_40x100.png" />
@@ -273,6 +276,7 @@
     <Content Include="Content\images\ui-icons_454545_256x240.png" />
     <Content Include="Content\images\ui-icons_888888_256x240.png" />
     <Content Include="Content\images\ui-icons_cd0a0a_256x240.png" />
+    <Content Include="Content\images\wpstore.png" />
     <Content Include="Content\WPLoading.css" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
@@ -311,7 +315,6 @@
       <DependentUpon>jquery-1.10.2.min.js</DependentUpon>
     </Content>
     <None Include="Scripts\jquery.validate-vsdoc.js" />
-    <Content Include="Scripts\jquery-ui-1.10.4.js" />
     <Content Include="Scripts\jquery.validate.js" />
     <Content Include="Scripts\jquery.validate.min.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
@@ -356,6 +359,7 @@
     <Content Include="Scripts\respond.min.js.map">
       <DependentUpon>respond.min.js</DependentUpon>
     </Content>
+    <Content Include="Views\OfferDetail\Show.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
