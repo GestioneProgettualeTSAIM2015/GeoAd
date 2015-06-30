@@ -1,4 +1,4 @@
-package it.itskennedy.tsaim.geoad.fragment;
+package it.itskennedy.tsaim.geoad.fragments;
 
 import java.util.ArrayList;
 import java.util.HashMap;

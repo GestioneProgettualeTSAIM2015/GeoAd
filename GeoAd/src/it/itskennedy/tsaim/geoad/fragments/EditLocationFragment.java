@@ -1,11 +1,11 @@
-package it.itskennedy.tsaim.geoad.fragment;
+package it.itskennedy.tsaim.geoad.fragments;
 
 import it.itskennedy.tsaim.geoad.R;
-import it.itskennedy.tsaim.geoad.fragment.dialogs.EditLocationDescriptionDialogFragment;
-import it.itskennedy.tsaim.geoad.fragment.dialogs.EditLocationNameDialogFragment;
-import it.itskennedy.tsaim.geoad.fragment.dialogs.EditLocationPositionDialogFragment;
-import it.itskennedy.tsaim.geoad.fragment.dialogs.NewOfferDialogFragment;
-import it.itskennedy.tsaim.geoad.fragment.dialogs.NewOfferDialogFragment.INewOfferDialogFragment;
+import it.itskennedy.tsaim.geoad.fragments.dialogs.EditLocationDescriptionDialogFragment;
+import it.itskennedy.tsaim.geoad.fragments.dialogs.EditLocationNameDialogFragment;
+import it.itskennedy.tsaim.geoad.fragments.dialogs.EditLocationPositionDialogFragment;
+import it.itskennedy.tsaim.geoad.fragments.dialogs.NewOfferDialogFragment;
+import it.itskennedy.tsaim.geoad.fragments.dialogs.NewOfferDialogFragment.INewOfferDialogFragment;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;

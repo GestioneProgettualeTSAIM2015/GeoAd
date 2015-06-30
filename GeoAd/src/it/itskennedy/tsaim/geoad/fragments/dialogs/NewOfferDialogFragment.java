@@ -1,4 +1,4 @@
-package it.itskennedy.tsaim.geoad.fragment.dialogs;
+package it.itskennedy.tsaim.geoad.fragments.dialogs;
 
 import java.util.Calendar;
 

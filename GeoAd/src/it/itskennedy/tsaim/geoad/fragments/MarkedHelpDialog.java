@@ -1,4 +1,4 @@
-package it.itskennedy.tsaim.geoad.fragment;
+package it.itskennedy.tsaim.geoad.fragments;
 
 import it.itskennedy.tsaim.geoad.R;
 import it.itskennedy.tsaim.geoad.core.SettingsManager;

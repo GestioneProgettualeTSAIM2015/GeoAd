@@ -1,4 +1,4 @@
-package it.itskennedy.tsaim.geoad.fragment.dialogs;
+package it.itskennedy.tsaim.geoad.fragments.dialogs;
 
 import it.itskennedy.tsaim.geoad.R;
 import android.app.AlertDialog;

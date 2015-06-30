@@ -1,4 +1,4 @@
-package it.itskennedy.tsaim.geoad.fragment.dialog;
+package it.itskennedy.tsaim.geoad.fragments.dialogs;
 
 import it.itskennedy.tsaim.geoad.R;
 import it.itskennedy.tsaim.geoad.interfaces.ILoginDialogFragment;
