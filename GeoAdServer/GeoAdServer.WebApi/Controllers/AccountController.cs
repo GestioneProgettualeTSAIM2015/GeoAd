@@ -16,6 +16,7 @@ using Microsoft.Owin.Security.OAuth;
 using GeoAdServer.WebApi.Models;
 using GeoAdServer.WebApi.Providers;
 using GeoAdServer.WebApi.Results;
+using System.Net;
 
 namespace GeoAdServer.WebApi.Controllers
 {
@@ -28,6 +29,13 @@ namespace GeoAdServer.WebApi.Controllers
 
         public AccountController()
         {
+        }
+
+        [HttpGet]
+        [Route("IsTokenValid")]
+        public HttpResponseMessage IsTokenValid()
+        {
+            return Request.CreateResponse(HttpStatusCode.NoContent);
         }
 
         public AccountController(ApplicationUserManager userManager,
