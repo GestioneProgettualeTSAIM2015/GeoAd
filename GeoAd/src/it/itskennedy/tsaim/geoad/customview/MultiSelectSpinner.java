@@ -36,6 +36,7 @@ public class MultiSelectSpinner extends Spinner implements OnMultiChoiceClickLis
         
         _proxyAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_dropdown_item);
         super.setAdapter(_proxyAdapter);
+        buildSelectedItemString();
     }
 
     /**
@@ -48,6 +49,7 @@ public class MultiSelectSpinner extends Spinner implements OnMultiChoiceClickLis
         
         _proxyAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_dropdown_item);
         super.setAdapter(_proxyAdapter);
+        buildSelectedItemString();
     }
 
     /**
@@ -213,6 +215,7 @@ public class MultiSelectSpinner extends Spinner implements OnMultiChoiceClickLis
     private String buildSelectedItemString() {
         StringBuilder sb = new StringBuilder();
         boolean foundOne = false;
+        if (_items == null || _selection == null) return sb.toString();
         
         for (int i = 0; i < _items.length; ++i) {
             if (_selection[i]) {

@@ -60,7 +60,17 @@ public class LocationModel
         return mName;
     }
     
-    public Location getLocation()
+    public String getmPCat()
+	{
+		return mPCat;
+	}
+
+	public String getmSCat()
+	{
+		return mSCat;
+	}
+
+	public Location getLocation()
     {
     	Location vToReturn = new Location("");
     	vToReturn.setLatitude(mLat);
@@ -140,13 +150,13 @@ public class LocationModel
             JSONObject vObj = new JSONObject(aJson);
 
             int vId = vObj.getInt(ID);
-            String vName = vObj.getString(NAME);
-            String vDesc = vObj.getString(DESC);
-            String vPCat = vObj.getString(PCAT);
-            String vSCat = vObj.getString(SCAT);
-            double vLat = vObj.getDouble(LAT);
-            double vLng = vObj.getDouble(LNG);
-            String vType = vObj.getString(TYPE);
+            String vName = vObj.optString(NAME);
+            String vDesc = vObj.optString(DESC);
+            String vPCat = vObj.optString(PCAT);
+            String vSCat = vObj.optString(SCAT).equals("null") ? null : vObj.optString(SCAT);
+            double vLat = vObj.optDouble(LAT);
+            double vLng = vObj.optDouble(LNG);
+            String vType = vObj.optString(TYPE);
 
             return new LocationModel(vId, vPCat, vSCat, vName, vLat, vLng, vDesc, vType);
         }

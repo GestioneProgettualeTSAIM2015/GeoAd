@@ -32,6 +32,8 @@ public class LocationManager implements LocationListener, ConnectionCallbacks, O
 	
 	private GoogleApiClient mGoogleApiClient;
 
+	private Location mPosition;
+
 	public static LocationManager get(Context aContext)
 	{
 		if(mInstance == null)
@@ -64,6 +66,8 @@ public class LocationManager implements LocationListener, ConnectionCallbacks, O
 	@Override
 	public void onLocationChanged(Location location)
 	{
+		mPosition = location;
+		
 		if (mListeners != null)
 		{
 			for(int i = 0; i < mListeners.size(); ++i)
@@ -71,6 +75,11 @@ public class LocationManager implements LocationListener, ConnectionCallbacks, O
 				mListeners.get(i).onLocationUpdated(location);
 			}
 		}
+	}
+	
+	public Location getActualLocation()
+	{
+		return mPosition;
 	}
 
 	@Override

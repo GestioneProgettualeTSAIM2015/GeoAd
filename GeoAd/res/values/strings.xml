@@ -19,5 +19,18 @@
     <string name="widget_title">Offerte GeoAd</string>
     <string name="widget_button">Gestisci le tue attività</string>
     <string name="widget_no_offer">Non sono presenti offerte</string>
+    
+    <string name="filter">Filtra</string>
+    <string name="cancel">Annulla</string>
+    <string name="reset">Reset</string>
+    
+    <string name="login">Login</string>
+    <string name="my_activities">Le mie attività</string>
+    
+    <string name="category">Categoria</string>
+    <string name="primary">Primaria</string>
+    <string name="secondary">Secondaria</string>
+    <string name="distance">Distanza</string>
+    <string name="name">Nome</string>
 
 </resources>

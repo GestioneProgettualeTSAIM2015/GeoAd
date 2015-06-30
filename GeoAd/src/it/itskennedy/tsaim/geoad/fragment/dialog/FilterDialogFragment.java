@@ -22,6 +22,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.Fragment;
 import android.content.DialogInterface;
 import android.opengl.Visibility;
 import android.os.Bundle;
@@ -35,8 +36,11 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.SeekBar;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -47,19 +51,32 @@ public class FilterDialogFragment extends DialogFragment
 
 	MultiSelectSpinner primarySpinner;
 	MultiSelectSpinner secondarySpinner;
-
+	SeekBar distanceBar;
+	EditText nameFilter;
+	
 	private Map<String, ArrayList<String>> mAllCategory;
 	private ArrayList<String> mPrimaryCategory;
 	private ArrayList<String> mSecondaryCategory;
 
+	private String mCategoryJson;
+	private Map<String, Object> mFilterMap;
+	
+	CheckBox mCategoryCheckBox;
+	CheckBox mDistanceCheckBox;
+	CheckBox mNameCheckBox;
+
+	public FilterDialogFragment(String aCategoryJson, Map<String, Object> aFilterMap)
+	{
+		mCategoryJson = aCategoryJson;
+		mFilterMap = aFilterMap;
+	}
+
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState)
 	{
-		AlertDialog.Builder createProjectAlert = new AlertDialog.Builder(getActivity());
+		AlertDialog.Builder createFilterDialog = new AlertDialog.Builder(getActivity());
 		LayoutInflater inflater = getActivity().getLayoutInflater();
 		View view = inflater.inflate(R.layout.fragment_dialog_filter, null);
-
-		setAllCategory();
 
 		final LinearLayout vCategoryLayout = (LinearLayout) view.findViewById(R.id.layoutCategory);
 		primarySpinner = (MultiSelectSpinner) view.findViewById(R.id.spinnerPrimaria);
@@ -72,9 +89,10 @@ public class FilterDialogFragment extends DialogFragment
 				setSecondaryCategory(mAllCategory, selectedStrings);
 			}
 		});
+		primarySpinner.setEnabled(false);
 		secondarySpinner = (MultiSelectSpinner) view.findViewById(R.id.spinnerSecondaria);
-		final CheckBox vCategoryCheckBox = (CheckBox) view.findViewById(R.id.checkBoxCategory);
-		vCategoryCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener()
+		mCategoryCheckBox = (CheckBox) view.findViewById(R.id.checkBoxCategory);
+		mCategoryCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener()
 		{
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
@@ -89,10 +107,31 @@ public class FilterDialogFragment extends DialogFragment
 				}
 			}
 		});
-
+		secondarySpinner.setEnabled(false);
+		
+		setAllCategory(mCategoryJson);
+		
+		distanceBar = (SeekBar) view.findViewById(R.id.seekBar);
+		distanceBar.setProgress(8);
+		distanceBar.incrementProgressBy(1);
+		distanceBar.setMax(15);
+		final TextView seekBarValue = (TextView)view.findViewById(R.id.seekbarValue);
+		seekBarValue.setText("8");
+		distanceBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+		    @Override
+		    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+		        seekBarValue.setText(String.valueOf(progress));
+		    }
+		    @Override
+		    public void onStartTrackingTouch(SeekBar seekBar) {
+		    }
+		    @Override
+		    public void onStopTrackingTouch(SeekBar seekBar) {
+		    }
+		});
 		final LinearLayout vDistanceLayout = (LinearLayout) view.findViewById(R.id.layoutDistance);
-		final CheckBox vDistanceCheckBox = (CheckBox) view.findViewById(R.id.checkBoxDistance);
-		vDistanceCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener()
+		mDistanceCheckBox = (CheckBox) view.findViewById(R.id.checkBoxDistance);
+		mDistanceCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener()
 		{
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
@@ -108,11 +147,11 @@ public class FilterDialogFragment extends DialogFragment
 			}
 		});
 
+		nameFilter = (EditText)view.findViewById(R.id.editText);
 		final LinearLayout vNameLayout = (LinearLayout) view.findViewById(R.id.layoutName);
-		final CheckBox vNameCheckBox = (CheckBox) view.findViewById(R.id.checkBoxName);
-		vNameCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener()
+		mNameCheckBox = (CheckBox) view.findViewById(R.id.checkBoxName);
+		mNameCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener()
 		{
-
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
 			{
@@ -127,19 +166,29 @@ public class FilterDialogFragment extends DialogFragment
 			}
 		});
 
-		createProjectAlert.setView(view)
-		.setPositiveButton("Filtra", new DialogInterface.OnClickListener()
+		createFilterDialog.setView(view)
+		.setPositiveButton(R.string.filter, new DialogInterface.OnClickListener()
 		{
-
 			@Override
 			public void onClick(DialogInterface dialog, int id)
 			{
+				FilterDialogFragment.this.setCancelable(false);
 				Bundle vBundle = new Bundle();
-				vBundle.putStringArrayList(Utils.PRIMARY_CATEGORY, (ArrayList<String>)primarySpinner.getSelectedStrings());
-				vBundle.putStringArrayList(Utils.SECONDARY_CATEGORY, (ArrayList<String>)secondarySpinner.getSelectedStrings());
+				ArrayList<String> vPrimaryCategory = new ArrayList<>(primarySpinner.getSelectedStrings());
+				ArrayList<String> vSecondaryCategory = new ArrayList<>(secondarySpinner.getSelectedStrings());
+				if (vSecondaryCategory.size() > 0)
+				{
+					vBundle.putStringArrayList(Utils.SECONDARY_CATEGORY, vSecondaryCategory);
+				}
+				else if (vPrimaryCategory.size() > 0)
+				{
+					vBundle.putStringArrayList(Utils.PRIMARY_CATEGORY, vPrimaryCategory);
+				}
+				vBundle.putString(Utils.RADIUS, String.valueOf(distanceBar.getProgress()));
+				if (nameFilter.getText().length() > 0) vBundle.putString(Utils.NAME, nameFilter.getText().toString());
 				mListener.onFilterSave(vBundle);
 			}
-		}).setNegativeButton("Annulla", new DialogInterface.OnClickListener()
+		}).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener()
 		{
 
 			@Override
@@ -147,7 +196,7 @@ public class FilterDialogFragment extends DialogFragment
 			{
 				dismiss();
 			}
-		}).setNeutralButton("Reset", new DialogInterface.OnClickListener()
+		}).setNeutralButton(R.string.reset, new DialogInterface.OnClickListener()
 		{
 			@Override
 			public void onClick(DialogInterface dialog, int which)
@@ -156,13 +205,51 @@ public class FilterDialogFragment extends DialogFragment
 			}
 		}).setCancelable(false);
 
-		return createProjectAlert.create();
+		return createFilterDialog.create();
+	}
+	
+	
+
+	@Override
+	public void onResume()
+	{
+		if (mFilterMap != null)
+		{
+			if (mFilterMap.containsKey(Utils.PRIMARY_CATEGORY))
+			{
+				ArrayList<String> vPrimary = (ArrayList<String>) mFilterMap.get(Utils.PRIMARY_CATEGORY);
+				primarySpinner.setSelection(vPrimary);
+				primarySpinner.setEnabled(true);
+				mCategoryCheckBox.setChecked(true);
+			}
+			if (mFilterMap.containsKey(Utils.SECONDARY_CATEGORY))
+			{
+				ArrayList<String> vSecondary = (ArrayList<String>) mFilterMap.get(Utils.SECONDARY_CATEGORY);
+				secondarySpinner.setSelection(vSecondary);
+				secondarySpinner.setEnabled(true);
+				mCategoryCheckBox.setChecked(true);
+			}
+			if (mFilterMap.containsKey(Utils.RADIUS))
+			{
+				int vRadius = Integer.valueOf(mFilterMap.get(Utils.RADIUS).toString());
+				distanceBar.setProgress(vRadius);
+				mDistanceCheckBox.setChecked(true);
+			}
+			if (mFilterMap.containsKey(Utils.NAME))
+			{
+				String vName = mFilterMap.get(Utils.NAME).toString();
+				nameFilter.setText(vName);
+				mNameCheckBox.setChecked(true);
+			}
+		}
+		super.onResume();
 	}
 
 	private void setPrimaryCategory(Map<String, ArrayList<String>> aAllCategory)
 	{
 		mPrimaryCategory = new ArrayList<String>(aAllCategory.keySet());
 		primarySpinner.setItems(mPrimaryCategory);
+		primarySpinner.setEnabled(true);
 	}
 
 	private void setSecondaryCategory(Map<String, ArrayList<String>> aAllCategory, List<String> primaryCategory)
@@ -190,66 +277,65 @@ public class FilterDialogFragment extends DialogFragment
 		}
 		mSecondaryCategory = secondaryCategory;
 		secondarySpinner.setItems(mSecondaryCategory);
-		
+		secondarySpinner.setEnabled(true);
 	}
 
-	private void setAllCategory()
+	private void setAllCategory(String aCategoryJson)
 	{
 		final Map<String, ArrayList<String>> categoryMap = new HashMap<String, ArrayList<String>>();
-		Log.i("GET", "chiamata get");
-		ConnectionManager.obtain().get("http://geoad.somee.com/api/categories", null, new JsonResponse()
+		JSONObject categoryJson = null;
+		try
 		{
-			@Override
-			public void onResponse(boolean aResult, Object aResponse)
+			categoryJson = new JSONObject(aCategoryJson);
+		}
+		catch (JSONException e1)
+		{
+			e1.printStackTrace();
+		}
+		
+		Iterator<String> iter = categoryJson.keys();
+		while (iter.hasNext())
+		{
+			String key = iter.next();
+			try
 			{
-				Log.i("GET", "risposta get");
-				if (aResult)
+				ArrayList<String> listdata = new ArrayList<String>();
+				JSONArray jArray = categoryJson.getJSONArray(key);
+				if (jArray != null)
 				{
-					JSONObject categoryJson = (JSONObject) aResponse;
-
-					Iterator<String> iter = categoryJson.keys();
-					while (iter.hasNext())
+					for (int i = 0; i < jArray.length(); i++)
 					{
-						String key = iter.next();
-						try
-						{
-							ArrayList<String> listdata = new ArrayList<String>();
-							JSONArray jArray = categoryJson.getJSONArray(key);
-							if (jArray != null)
-							{
-								for (int i = 0; i < jArray.length(); i++)
-								{
-									listdata.add(jArray.get(i).toString());
-								}
-							}
-							categoryMap.put(key, listdata);
-						}
-						catch (JSONException e)
-						{
-							Log.e("JSON", e.getMessage());
-						}
+						listdata.add(jArray.get(i).toString());
 					}
-					mAllCategory = categoryMap;
-					setPrimaryCategory(mAllCategory);
-					setSecondaryCategory(mAllCategory, null);
-					// for (Map.Entry<String, ArrayList<String>> pair :
-					// categoryMap.entrySet()) {
-					// Log.d("map", pair.getKey());
-					// for (String s : pair.getValue())
-					// Log.d("map", "- " + s);
-					// }
 				}
+				categoryMap.put(key, listdata);
 			}
-		});
+			catch (JSONException e)
+			{
+				Log.e("JSON", e.getMessage());
+			}
+		}
+		mAllCategory = categoryMap;
+		setPrimaryCategory(mAllCategory);
+		setSecondaryCategory(mAllCategory, null);
 	}
 
 	@Override
 	public void onAttach(Activity activity)
 	{
-		super.onAttach(activity);
 		if (activity instanceof IFilterDialogFragment)
 		{
 			mListener = (IFilterDialogFragment) activity;
 		}
+		super.onAttach(activity);
 	}
+
+	@Override
+	public void onDetach()
+	{
+		mListener = null;
+		super.onDetach();
+	}
+	
+	
 }

@@ -7,8 +7,8 @@
         android:id="@+id/textViewName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Nome"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:padding="5dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,17 +16,15 @@
 
         <TextView
             android:id="@+id/textViewFirstCategory"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Primaria:" />
+            android:padding="5dp"/>
 
         <TextView
             android:id="@+id/textViewSecondaCategory"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Secondaria:" />
+            android:padding="5dp" />
 
     </LinearLayout>
 
