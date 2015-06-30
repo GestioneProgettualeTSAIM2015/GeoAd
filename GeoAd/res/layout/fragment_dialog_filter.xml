@@ -3,6 +3,142 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-    
+
+    <CheckBox
+        android:id="@+id/checkBoxCategory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/category" />
+
+    <LinearLayout
+        android:id="@+id/layoutCategory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="50dp"
+        android:visibility="gone" >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/primaryCatLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:text="@string/primary" />
+
+            <it.itskennedy.tsaim.geoad.customview.MultiSelectSpinner
+                android:id="@+id/spinnerPrimaria"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/primaryCatLabel"
+                android:gravity="right"
+                android:spinnerMode="dropdown" />
+        </RelativeLayout>
+
+        <!--
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="Primaria" />
+
+            <it.itskennedy.tsaim.geoad.customview.MultiSelectSpinner
+                android:id="@+id/spinnerPrimaria"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:layout_gravity="right"
+                android:spinnerMode="dropdown" />
+        </LinearLayout>
+        -->
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/secondaryCatLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:text="@string/secondary" />
+
+            <it.itskennedy.tsaim.geoad.customview.MultiSelectSpinner
+                android:id="@+id/spinnerSecondaria"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/secondaryCatLabel"
+                android:gravity="right"
+                android:spinnerMode="dropdown" />
+        </RelativeLayout>
+    </LinearLayout>
+
+    <CheckBox
+        android:id="@+id/checkBoxDistance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/distance" />
+
+    <LinearLayout
+        android:id="@+id/layoutDistance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="50dp"
+        android:visibility="gone" >
+
+        <TextView
+            android:id="@+id/seekbarValue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content" 
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:gravity="center"
+            android:textColor="@android:color/black"/>
+
+        <SeekBar
+            android:id="@+id/seekBar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="6"
+            android:layout_gravity="center_vertical"/>
+    </LinearLayout>
+
+    <CheckBox
+        android:id="@+id/checkBoxName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/name" />
+
+    <LinearLayout
+        android:id="@+id/layoutName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="50dp"
+        android:visibility="gone" >
+
+        <EditText
+            android:id="@+id/editText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/name" />
+    </LinearLayout>
 
 </LinearLayout>

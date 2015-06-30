@@ -5,4 +5,6 @@ import android.os.Bundle;
 public interface IFilterDialogFragment
 {
 	void onFilterSave(Bundle aFilter);
+
+	void onFilterReset();
 }

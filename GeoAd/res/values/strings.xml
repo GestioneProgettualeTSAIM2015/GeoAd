@@ -65,5 +65,18 @@
     <string name="edit_name">Modifica nome</string>
     <string name="edit_description">Modifica descrizione</string>
     <string name="edit_position">Modifica posizione</string>
+    
+    <string name="filter">Filtra</string>
+    <string name="cancel">Annulla</string>
+    <string name="reset">Reset</string>
+    
+    <string name="login">Login</string>
+    <string name="my_activities">Le mie attività</string>
+    
+    <string name="category">Categoria</string>
+    <string name="primary">Primaria</string>
+    <string name="secondary">Secondaria</string>
+    <string name="distance">Distanza</string>
+    <string name="name">Nome</string>
 
 </resources>
