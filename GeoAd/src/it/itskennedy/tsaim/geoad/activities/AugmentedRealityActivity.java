@@ -93,10 +93,8 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 				GeoObject go = new GeoObject(lm.getId());
 				go.setGeoPosition(lm.getLocation().getLatitude(), lm.getLocation().getLongitude());
 				go.setName(lm.getName());
-				switch (lm.getType()) {
-				case "POI":
+				switch (lm.getType().toLowerCase()) {
 				case "poi":
-				case "Poi":
 					if (activeOffersLocationIDs.contains(lm.getId()))
 						go.setImageResource(R.drawable.poi_o);
 					else

@@ -177,6 +177,7 @@ public class Utils
 	public static final String SECONDARY_CATEGORY = "SECONDARY_CATEGORY";
 	public static final String RADIUS = "RADIUS";
 	public static final String NAME = "NAME";
+	public static final String TYPE = "TYPE";
 	public static final String FILTER_CATEGORY = "FILTER_CATEGORY";
 	public static final String LOCATION_URL_TEMPLATE = "api/locationsfilter/around?P.Lat=%s&P.Lng=%s&R=%s%s";
 	public static final int DEFAULT_RADIUS = 8;

@@ -25,6 +25,7 @@ import it.itskennedy.tsaim.geoad.interfaces.ILoginDialogFragment;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,14 +53,12 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.loopj.android.http.RequestParams;
 
 public class MainActivity extends Activity implements IFragment, ILoginDialogFragment, LocationListener, IFilterDialogFragment
 {
 	public static final String DETAIL_ACTION = "detail_action";
 	public static final String DETAIL_DATA = "detail_data";
-	public static final String TAG = "tag";
 	public static final String MY_LOCATION_ACTION = "location_action";
 	private static final String LOCATION_LIST = "locationList";
 	private static final String POSITION_LAT = "positionlat";
@@ -72,7 +71,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 
 	private CharSequence mDrawerTitle;
 	private CharSequence mTitle;
-	private ArrayList<String> mPlanetTitles;
+	private ArrayList<String> mNavActions;
 	ArrayAdapter<String> mAdapter;
 	private boolean isLogged;
 	private int searchFragmentType;
@@ -100,34 +99,21 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		isLogged = SettingsManager.get(this).isUserLogged();
 
 		mTitle = mDrawerTitle = getTitle();
-		mPlanetTitles = new ArrayList<>();
-		for (String title : getResources().getStringArray(R.array.navigation_drawer_strings))
-		{
-			if (title.equals(getResources().getString(R.string.my_activities)) && isLogged)
-			{
-				title = getResources().getString(R.string.my_activities);
-			}
-
-			mPlanetTitles.add(title);
-		}
+		mNavActions = new ArrayList<>();
+		Collections.addAll(mNavActions, getResources().getStringArray(R.array.navigation_drawer_strings));
+		mNavActions.add(getResources().getString(isLogged ? R.string.my_activities : R.string.login));
+		
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
-		// set a custom shadow that overlays the main content when the drawer
-		// opens
-		// mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow,
-		// GravityCompat.START);
-		// set up the drawer's list view with items and click listener
-		mAdapter = new ArrayAdapter<String>(this, R.layout.drawer_list_item, mPlanetTitles);
+		
+		mAdapter = new ArrayAdapter<String>(this, R.layout.drawer_list_item, mNavActions);
 		mDrawerList.setAdapter(mAdapter);
 		mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
-		// enable ActionBar app icon to behave as action to toggle nav drawer
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 		getActionBar().setHomeButtonEnabled(true);
 
-		// ActionBarDrawerToggle ties together the the proper interactions
-		// between the sliding drawer and the action bar app icon
 		mDrawerToggle = new ActionBarDrawerToggle(this, /* host Activity */
 		mDrawerLayout, /* DrawerLayout object */
 		R.drawable.ic_launcher, /* nav drawer image to replace 'Up' caret */
@@ -161,20 +147,16 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		{
 			selectItem(Utils.TYPE_SEARCH_LIST);
 			mCurrentLocation = LocationManager.get(this).getLocation();
-		}
-		else if (vLauncher != null) 
-		{
+		} else {
 			double vLat = savedInstanceState.getDouble(POSITION_LAT);
 			double vLng = savedInstanceState.getDouble(POSITION_LNG);
 			mCurrentLocation = new Location("");
 			mCurrentLocation.setLatitude(vLat);
 			mCurrentLocation.setLongitude(vLng);
 			Serializable vList = savedInstanceState.getSerializable(LOCATION_LIST);
-			if(vList != null)
-			{
-				mLocationList = (ArrayList<LocationModel>) vList;
-			}
+			if(vList != null) mLocationList = (ArrayList<LocationModel>) vList;
 			
+			if (vLauncher.getAction().equals(MainActivity.DETAIL_ACTION))
 				loadFragment(Utils.TYPE_DETAIL, vLauncher.getBundleExtra(DETAIL_DATA), null);
 		}
 		
@@ -183,6 +165,13 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		if(mCurrentLocation != null)
 		{
 			setFilterLocation(null, mCurrentLocation);
+		}
+		
+		Fragment search = getFragmentManager().findFragmentByTag(SearchListFragment.class.toString());
+		if (search != null && search.isVisible()) mLocationListListener = (ILocationsList) search;
+		else {
+			search = getFragmentManager().findFragmentByTag(SearchMapFragment.class.toString());
+			if (search != null && search.isVisible()) mLocationListListener = (ILocationsList) search;
 		}
 	}
 
@@ -251,16 +240,10 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 
 		// update selected item and title, then close the drawer
 		mDrawerList.setItemChecked(position, true);
-		if (isLogged && (position == 3))
-		{
-			String att = getResources().getString(R.string.my_activities);
-			mPlanetTitles.set(position, att);
-			setTitle(att);
+		
+		if (position != mNavActions.size() - 1 || isLogged) {
+			setTitle(mNavActions.get(position));
 			mAdapter.notifyDataSetChanged();
-		}
-		else
-		{
-			setTitle(mPlanetTitles.get(position));
 		}
 
 		mDrawerLayout.closeDrawer(mDrawerList);
@@ -272,11 +255,6 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		mTitle = title;
 		getActionBar().setTitle(mTitle);
 	}
-
-	/**
-	 * When using the ActionBarDrawerToggle, you must call it during
-	 * onPostCreate() and onConfigurationChanged()...
-	 */
 
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState)
@@ -305,17 +283,19 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 			case Utils.TYPE_SEARCH_LIST:
 				searchFragmentType = Utils.TYPE_SEARCH_LIST;
 				vFragment = SearchListFragment.getInstance(bundle);
-				mLocationListListener = null;
 				mLocationListListener = (ILocationsList) vFragment;
 				break;
+				
 			case Utils.TYPE_AUGMENTED_REALITY:
 				isClosingForAr = true;
 				mDrawerLayout.closeDrawer(mDrawerList);
 				return;
+				
 			case Utils.TYPE_PREFERENCE:
 				vFragment = MarkedLocationFragment.getInstance(bundle);
 				vTag = MarkedLocationFragment.TAG;
 				break;
+				
 			case Utils.TYPE_LOCATIONS:
 				if(isLogged)
 				{
@@ -329,26 +309,25 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 					return;
 				}
 				break;
+				
 			case Utils.TYPE_SEARCH_MAP:
 				searchFragmentType = Utils.TYPE_SEARCH_MAP;
 				vFragment = SearchMapFragment.getInstance(bundle);
-				mLocationListListener = null;
 				mLocationListListener = (ILocationsList) vFragment;
 				break;
+				
 			case Utils.TYPE_DETAIL:
 			{
-				vFragment = EditLocationFragment.getInstance(bundle);
-				vTag = EditLocationFragment.TAG;
-//				if (!Engine.get().imLocationOwner(LocationModel.fromBundle(bundle).getId()))
-//				{
-//					vFragment = DetailFragment.getInstance(bundle);
-//					vTag = DetailFragment.TAG;	
-//				}
-//				else 
-//				{
-//					vFragment = EditLocationFragment.getInstance(bundle);
-//					vTag = EditLocationFragment.TAG;	
-//				}
+				if (!Engine.get().imLocationOwner(LocationModel.fromBundle(bundle).getId()))
+				{
+					vFragment = DetailFragment.getInstance(bundle);
+					vTag = DetailFragment.TAG;	
+				}
+				else 
+				{
+					vFragment = EditLocationFragment.getInstance(bundle);
+					vTag = EditLocationFragment.TAG;	
+				}
 			
 				break;
 			}
@@ -359,7 +338,8 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		}
 
 		FragmentManager fragmentManager = getFragmentManager();
-		fragmentManager.beginTransaction().replace(R.id.content_frame, vFragment, vFragment.getClass().toString()).addToBackStack(TAG).commit();
+		String TAG = vFragment.getClass().toString();
+		fragmentManager.beginTransaction().replace(R.id.content_frame, vFragment, TAG).addToBackStack(TAG).commit();
 	}
 
 	@Override
@@ -385,9 +365,10 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 						SettingsManager.get(MainActivity.this).saveToken(aToken);
 						Engine.get().onLogin(aToken);
 
-						selectItem(Utils.TYPE_LOCATIONS);
 						Toast.makeText(MainActivity.this, "Loggato", Toast.LENGTH_SHORT).show();
 						isLogged = true;
+						mNavActions.set(mNavActions.size() - 1, getResources().getString(R.string.my_activities));
+						mAdapter.notifyDataSetChanged();
 					}
 					catch (JSONException e)
 					{
@@ -477,13 +458,18 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		String vFilter = "";
 		if(aFilterMap != null)
 		{
-			if (aFilterMap.containsKey(Utils.PRIMARY_CATEGORY) || aFilterMap.containsKey(Utils.SECONDARY_CATEGORY) || aFilterMap.containsKey(Utils.NAME))
+			if (aFilterMap.containsKey(Utils.RADIUS))
 			{
-				vFilter += "&$filter=";
+				vR = aFilterMap.get(Utils.RADIUS).toString();
 			}
+			
+			boolean appendAnd = false;
 			
 			if (aFilterMap.containsKey(Utils.SECONDARY_CATEGORY))
 			{
+				if (!appendAnd) vFilter += "&$filter=";
+				appendAnd = true;
+				
 				vFilter += "(";
 				ArrayList<String> vCategoryList = (ArrayList<String>) aFilterMap.get(Utils.SECONDARY_CATEGORY);
 				for (String cat : vCategoryList)
@@ -495,6 +481,9 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 			}
 			else if (aFilterMap.containsKey(Utils.PRIMARY_CATEGORY))
 			{
+				if (!appendAnd) vFilter += "&$filter=";
+				appendAnd = true;
+				
 				vFilter += "(";
 				ArrayList<String> vCategoryList = (ArrayList<String>) aFilterMap.get(Utils.PRIMARY_CATEGORY);
 				for (String cat : vCategoryList)
@@ -504,15 +493,23 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 				vFilter = vFilter.substring(0, (vFilter.length() - 4));
 				vFilter += ")";
 			}
-
-			if (aFilterMap.containsKey(Utils.RADIUS))
+			
+			if (aFilterMap.containsKey(Utils.TYPE))
 			{
-				vR = aFilterMap.get(Utils.RADIUS).toString();
+				if (!appendAnd) vFilter += "&$filter=";
+				else vFilter += " and ";
+				
+				vFilter += String.format("Type eq '%s'", aFilterMap.get(Utils.TYPE).toString());
+				appendAnd = true;
 			}
+			
 			if (aFilterMap.containsKey(Utils.NAME))
 			{
-				if (aFilterMap.containsKey(Utils.PRIMARY_CATEGORY) || aFilterMap.containsKey(Utils.SECONDARY_CATEGORY)) vFilter += " and ";
+				if (!appendAnd) vFilter += "&$filter=";
+				else vFilter += " and ";
+				
 				vFilter += String.format("startswith(tolower(Name), tolower('%s'))", aFilterMap.get(Utils.NAME).toString());
+				appendAnd = true;
 			}
 		}
 		
@@ -528,7 +525,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 					JSONArray locationArray = (JSONArray) aResponse;
 					mLocationList.clear();
 					mLocationList.addAll(LocationModel.getListFromJsonArray(locationArray));
-					mLocationListListener.notifyLocationsListChanged(mLocationList);
+					if (mLocationListListener != null) mLocationListListener.notifyLocationsListChanged(mLocationList);
 					mProgressBar.setVisibility(View.GONE);
 				}
 			}
@@ -559,8 +556,10 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 	@Override
 	protected void onSaveInstanceState(Bundle outState) 
 	{
-		if (mLocationList != null) {
+		if (mLocationList != null)
 			outState.putSerializable(LOCATION_LIST, mLocationList);
+		
+		if (mCurrentLocation != null) {
 			outState.putSerializable(POSITION_LAT, mCurrentLocation.getLatitude());
 			outState.putSerializable(POSITION_LNG, mCurrentLocation.getLongitude());
 		}
@@ -572,9 +571,9 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		return mCurrentLocation;
 	}
 	
-	public int getCurrentRadiusFilter()
+	public double getCurrentRadiusFilter()
 	{
-		return mFilterMap != null ? Integer.parseInt(mFilterMap.get(Utils.RADIUS).toString()) : 8;
+		return mFilterMap != null ? Double.parseDouble(mFilterMap.get(Utils.RADIUS).toString()) : 8;
 	}
 
 	@Override
@@ -589,6 +588,8 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 				{
 					Toast.makeText(MainActivity.this, getString(R.string.unauthorized), Toast.LENGTH_SHORT).show();
 					isLogged = false;
+					mNavActions.set(mNavActions.size() - 1, getResources().getString(R.string.login));
+					mAdapter.notifyDataSetChanged();
 					SettingsManager.get(MainActivity.this).saveToken(null);
 					loadFragment(Utils.TYPE_LOCATIONS, null, null);
 				}

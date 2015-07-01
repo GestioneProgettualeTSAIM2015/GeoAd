@@ -10,7 +10,6 @@
         <item>Ricerca</item>
         <item>Realtà Aumentata</item>
         <item>Preferiti/Ignorati</item>
-        <item>Login</item>
     </string-array>
     
     <string name="poi">Punto d\'interesse</string>

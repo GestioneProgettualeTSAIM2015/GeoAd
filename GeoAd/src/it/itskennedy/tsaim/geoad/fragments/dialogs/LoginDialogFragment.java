@@ -18,10 +18,10 @@ public class LoginDialogFragment extends DialogFragment
 	
 	@Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-         AlertDialog.Builder createProjectAlert = new AlertDialog.Builder(getActivity());
+         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
          LayoutInflater inflater = getActivity().getLayoutInflater();
          
-         createProjectAlert.setView(inflater.inflate(R.layout.fragment_dialog_login, null))
+         builder.setView(inflater.inflate(R.layout.fragment_dialog_login, null))
             .setPositiveButton("Login", new DialogInterface.OnClickListener() {
 
                 @Override
@@ -48,7 +48,7 @@ public class LoginDialogFragment extends DialogFragment
             })
             .setCancelable(false);
          
-         return createProjectAlert.create();
+         return builder.create();
     }
 	
     @Override

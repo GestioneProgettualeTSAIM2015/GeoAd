@@ -37,6 +37,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout;
@@ -53,6 +54,7 @@ public class FilterDialogFragment extends DialogFragment
 	MultiSelectSpinner secondarySpinner;
 	SeekBar distanceBar;
 	EditText nameFilter;
+	RadioGroup mRadioGroup;
 	
 	private Map<String, ArrayList<String>> mAllCategory;
 	private ArrayList<String> mPrimaryCategory;
@@ -64,6 +66,7 @@ public class FilterDialogFragment extends DialogFragment
 	CheckBox mCategoryCheckBox;
 	CheckBox mDistanceCheckBox;
 	CheckBox mNameCheckBox;
+	CheckBox mTypeCheckBox;
 
 	public FilterDialogFragment(String aCategoryJson, Map<String, Object> aFilterMap)
 	{
@@ -166,6 +169,24 @@ public class FilterDialogFragment extends DialogFragment
 				}
 			}
 		});
+		
+		mRadioGroup = (RadioGroup) view.findViewById(R.id.layoutRadioGroupType);
+		mTypeCheckBox = (CheckBox) view.findViewById(R.id.checkBoxType);
+		mTypeCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener()
+		{
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+			{
+				if (isChecked)
+				{
+					mRadioGroup.setVisibility(View.VISIBLE);
+				}
+				else
+				{
+					mRadioGroup.setVisibility(View.GONE);
+				}
+			}
+		});
 
 		createFilterDialog.setView(view)
 		.setPositiveButton(R.string.filter, new DialogInterface.OnClickListener()
@@ -175,18 +196,35 @@ public class FilterDialogFragment extends DialogFragment
 			{
 				FilterDialogFragment.this.setCancelable(false);
 				Bundle vBundle = new Bundle();
-				ArrayList<String> vPrimaryCategory = new ArrayList<>(primarySpinner.getSelectedStrings());
-				ArrayList<String> vSecondaryCategory = new ArrayList<>(secondarySpinner.getSelectedStrings());
-				if (vSecondaryCategory.size() > 0)
-				{
-					vBundle.putStringArrayList(Utils.SECONDARY_CATEGORY, vSecondaryCategory);
-				}
-				else if (vPrimaryCategory.size() > 0)
-				{
-					vBundle.putStringArrayList(Utils.PRIMARY_CATEGORY, vPrimaryCategory);
-				}
+				
 				vBundle.putString(Utils.RADIUS, String.valueOf(distanceBar.getProgress() == 0 ? "0.5" : distanceBar.getProgress()));
-				if (nameFilter.getText().length() > 0) vBundle.putString(Utils.NAME, nameFilter.getText().toString());
+				
+				if (mCategoryCheckBox.isChecked()) {
+					ArrayList<String> vPrimaryCategory = new ArrayList<>(primarySpinner.getSelectedStrings());
+					ArrayList<String> vSecondaryCategory = new ArrayList<>(secondarySpinner.getSelectedStrings());
+					
+					if (vSecondaryCategory.size() > 0)
+						vBundle.putStringArrayList(Utils.SECONDARY_CATEGORY, vSecondaryCategory);
+					else if (vPrimaryCategory.size() > 0)
+						vBundle.putStringArrayList(Utils.PRIMARY_CATEGORY, vPrimaryCategory);
+				}
+				
+				String name = nameFilter.getText().toString();
+				if (mNameCheckBox.isChecked() && name.length() > 0)
+					vBundle.putString(Utils.NAME, name);
+				
+				if(mTypeCheckBox.isChecked())
+					switch (mRadioGroup.getCheckedRadioButtonId())
+					{
+						case R.id.radioButtonCA:
+							vBundle.putString(Utils.TYPE, Utils.LOC_TYPE_CA);
+							break;
+						case R.id.radioButtonPOI:
+							vBundle.putString(Utils.TYPE, Utils.LOC_TYPE_POI);
+							break;
+					}
+				
+				
 				mListener.onFilterSave(vBundle);
 			}
 		}).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener()
@@ -232,8 +270,8 @@ public class FilterDialogFragment extends DialogFragment
 			}
 			if (mFilterMap.containsKey(Utils.RADIUS))
 			{
-				int vRadius = Integer.valueOf(mFilterMap.get(Utils.RADIUS).toString());
-				distanceBar.setProgress(vRadius);
+				double vRadius = Double.valueOf(mFilterMap.get(Utils.RADIUS).toString());
+				distanceBar.setProgress((int)vRadius);
 				mDistanceCheckBox.setChecked(true);
 			}
 			if (mFilterMap.containsKey(Utils.NAME))
@@ -241,6 +279,22 @@ public class FilterDialogFragment extends DialogFragment
 				String vName = mFilterMap.get(Utils.NAME).toString();
 				nameFilter.setText(vName);
 				mNameCheckBox.setChecked(true);
+			}
+			if (mFilterMap.containsKey(Utils.TYPE))
+			{
+				String vType = mFilterMap.get(Utils.TYPE).toString();
+				int vId = 0;
+				switch (vType)
+				{
+					case Utils.LOC_TYPE_CA:
+						vId = R.id.radioButtonCA;
+						break;
+					case Utils.LOC_TYPE_POI:
+						vId = R.id.radioButtonPOI;
+						break;
+				}
+				mRadioGroup.check(vId);
+				mTypeCheckBox.setChecked(true);
 			}
 		}
 		super.onResume();

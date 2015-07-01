@@ -82,18 +82,18 @@
         <TextView
             android:id="@+id/seekbarValue"
             android:layout_width="0dp"
-            android:layout_height="wrap_content" 
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
+            android:layout_weight="1"
             android:gravity="center"
-            android:textColor="@android:color/black"/>
+            android:textColor="@android:color/black" />
 
         <SeekBar
             android:id="@+id/seekBar"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="6"
-            android:layout_gravity="center_vertical"/>
+            android:layout_gravity="center_vertical"
+            android:layout_weight="6" />
     </LinearLayout>
 
     <CheckBox
@@ -115,7 +115,35 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="@string/name" />
+            android:hint="@string/name"
+            android:singleLine="true" />
     </LinearLayout>
+
+    <CheckBox
+        android:id="@+id/checkBoxType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/type" />
+
+    <RadioGroup
+        android:id="@+id/layoutRadioGroupType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="50dp"
+        android:visibility="gone" >
+
+        <RadioButton
+            android:id="@+id/radioButtonCA"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ca" />
+
+        <RadioButton
+            android:id="@+id/radioButtonPOI"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/poi" />
+    </RadioGroup>
 
 </LinearLayout>

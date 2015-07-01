@@ -24,6 +24,7 @@ import android.view.ViewGroup;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -115,7 +116,8 @@ public class SearchMapFragment extends Fragment implements ILocationsList
 	@Override
 	public void onSaveInstanceState(Bundle outState) 
 	{
-		mMapView.onSaveInstanceState(outState);
+		if (mMapView != null)
+			mMapView.onSaveInstanceState(outState);
 		super.onSaveInstanceState(outState);
 	}
 
@@ -124,6 +126,7 @@ public class SearchMapFragment extends Fragment implements ILocationsList
 	{
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
+		MapsInitializer.initialize(getActivity().getApplicationContext());
 	}
 
 	@Override
@@ -183,7 +186,7 @@ public class SearchMapFragment extends Fragment implements ILocationsList
 		});
 
 		Location currentLocation = ((MainActivity) getActivity()).getCurrentLocation();
-		int radius = ((MainActivity) getActivity()).getCurrentRadiusFilter() * 1000;
+		double radius = ((MainActivity) getActivity()).getCurrentRadiusFilter() * 1000;
 		if (currentLocation != null)
 		{
 			LatLng latlngCenter = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
@@ -198,9 +201,11 @@ public class SearchMapFragment extends Fragment implements ILocationsList
 	@Override
 	public void notifyLocationsListChanged(ArrayList<LocationModel> aLocationsList)
 	{
-		mLocationList.clear();
-		mLocationList.addAll(aLocationsList);
-		populateMap();
+		if (mLocationList != null) {
+			mLocationList.clear();
+			mLocationList.addAll(aLocationsList);
+			populateMap();
+		}
 	}
 	
 	@Override

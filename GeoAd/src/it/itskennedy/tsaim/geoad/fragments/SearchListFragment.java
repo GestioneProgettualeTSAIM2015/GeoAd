@@ -108,9 +108,11 @@ public class SearchListFragment extends Fragment implements ILocationsList
 	@Override
 	public void notifyLocationsListChanged(ArrayList<LocationModel> aLocationsList)
 	{
-		mLocationList.clear();
-		mLocationList.addAll(aLocationsList);
-		adapter.notifyDataSetChanged();
+		if (mLocationList != null) {
+			mLocationList.clear();
+			mLocationList.addAll(aLocationsList);
+			adapter.notifyDataSetChanged();
+		}
 	}
 	
 	@Override
