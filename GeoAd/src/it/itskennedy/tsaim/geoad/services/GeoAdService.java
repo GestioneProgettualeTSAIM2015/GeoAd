@@ -13,6 +13,7 @@ import it.itskennedy.tsaim.geoad.entity.LocationModel;
 import it.itskennedy.tsaim.geoad.entity.Offer;
 import it.itskennedy.tsaim.geoad.localdb.DataFavContentProvider;
 import it.itskennedy.tsaim.geoad.localdb.DataOffersContentProvider;
+import it.itskennedy.tsaim.geoad.localdb.FavoritesHelper;
 import it.itskennedy.tsaim.geoad.localdb.MyLocationHelper;
 import it.itskennedy.tsaim.geoad.localdb.OffersHelper;
 import it.itskennedy.tsaim.geoad.widgets.WidgetProvider;
@@ -80,8 +81,6 @@ public class GeoAdService extends Service implements LocationListener
 	  	
 	  	mSuspendedOffers = new ArrayList<Offer>();
 		mNearLocations = new ArrayList<LocationModel>();
-//		mNearLocations.add(new LocationModel(1, "", "", "PROVA", 46, 13, "", ""));
-
 	}
 	
 	@Override
@@ -188,7 +187,7 @@ public class GeoAdService extends Service implements LocationListener
 		{
 			if(mPosition != null)
 			{
-				if(isLocationNear(aOffer.getLocationId()) || true)
+				if(isLocationNearOrFavorite(aOffer.getLocationId()) || true)
 				{
 					getContentResolver().insert(DataOffersContentProvider.OFFERS_URI, aOffer.getContentValues());
 					NotificationManager.showOffer(GeoAdService.this, aOffer);
@@ -213,7 +212,7 @@ public class GeoAdService extends Service implements LocationListener
 		mSuspendedOffers.add(aOffer);
 	}
 	
-	private boolean isLocationNear(int aId)
+	private boolean isLocationNearOrFavorite(int aId)
 	{
 		for(int i = 0; i < mNearLocations.size(); ++i)
 		{
@@ -222,6 +221,15 @@ public class GeoAdService extends Service implements LocationListener
 				return true;
 			}
 		}
+		
+		Cursor vCur = getContentResolver().query(DataFavContentProvider.FAVORITES_URI, null, FavoritesHelper._ID + " = " + aId, null, null);
+		if(vCur.getCount() == 1)
+		{
+			vCur.close();
+			return true;
+		}
+		
+		vCur.close();
 		
 		return false;
 	}
@@ -338,6 +346,26 @@ public class GeoAdService extends Service implements LocationListener
 			}
 		}
 		
+		Cursor vC = getContentResolver().query(DataFavContentProvider.FAVORITES_URI, null, FavoritesHelper._ID + " = " + aId, null, null);
+		
+		if(vC.moveToFirst())
+		{
+			LocationModel vLoc = locationFromCursor(aId, vC);
+			aListener.onLoad(vLoc);
+			return;
+		}
+		vC.close();
+		
+		vC = getContentResolver().query(DataFavContentProvider.MYLOC_URI, null, MyLocationHelper._ID + " = " + aId, null, null);
+		
+		if(vC.moveToFirst())
+		{
+			LocationModel vLoc = locationFromCursor(aId, vC);
+			aListener.onLoad(vLoc);
+			return;
+		}
+		vC.close();
+		
 		RequestParams vParams = new RequestParams();
 		vParams.put("id", aId);
 		
@@ -353,6 +381,28 @@ public class GeoAdService extends Service implements LocationListener
 				}
 			}
 		});
+	}
+
+	private LocationModel locationFromCursor(long aId, Cursor vC)
+	{
+		int vDescIndex = vC.getColumnIndex(FavoritesHelper.DESC);
+		int vLatIndex = vC.getColumnIndex(FavoritesHelper.LAT);
+		int vLngIndex = vC.getColumnIndex(FavoritesHelper.LNG);
+		int vNameIndex = vC.getColumnIndex(FavoritesHelper.NAME);
+		int vPCatIndex = vC.getColumnIndex(FavoritesHelper.PCAT);
+		int vSCatIndex = vC.getColumnIndex(FavoritesHelper.SCAT);
+		int vTypeIndex = vC.getColumnIndex(FavoritesHelper.TYPE);
+		
+		String vDesc = vC.getString(vDescIndex);
+		double vLat = vC.getDouble(vLatIndex);
+		double vLng = vC.getDouble(vLngIndex);
+		String vName = vC.getString(vNameIndex);
+		String vPCat = vC.getString(vPCatIndex);
+		String vSCat = vC.getString(vSCatIndex);
+		String vType = vC.getString(vTypeIndex);
+		
+		LocationModel vLoc = new LocationModel((int)aId, vPCat,vSCat, vName, vLat, vLng, vDesc, vType);
+		return vLoc;
 	}
 	
 	public class GeoAdBinder extends Binder

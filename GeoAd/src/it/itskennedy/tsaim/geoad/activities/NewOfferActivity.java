@@ -78,17 +78,17 @@ public class NewOfferActivity extends Activity
     
 	private void onServiceBinded()
     {
-    	
     	setTitle(getResources().getString(R.string.actvity_offer_detail_title) + " " + mOffer.getName());
     	mLocationName.setText(mLocation.getName());
     	mOfferDescription.setText(getResources().getString(R.string.offer_title) + mOffer.getDesc());
     	mOfferValidUntil.setText(getResources().getString(R.string.offer_exp_date) + mOffer.getExpTime());
     	mLocationCat.setText(getResources().getString(R.string.location_cat) + mLocation.getPCat());
     	mBtnGoToDetails.setText(getResources().getString(R.string.location_button_goto));
-    	mBtnGoToDetails.setOnClickListener(new OnClickListener() {
-			
+    	mBtnGoToDetails.setOnClickListener(new OnClickListener()
+    	{	
 			@Override
-			public void onClick(View v) {
+			public void onClick(View v)
+			{
 				Intent i = new Intent(NewOfferActivity.this, MainActivity.class);
 				i.setAction(MainActivity.DETAIL_ACTION);
 				i.putExtra(MainActivity.DETAIL_DATA, mLocation.getBundle());
@@ -99,7 +99,8 @@ public class NewOfferActivity extends Activity
     	hideLoader();
     }
 		
-	private void hideLoader() {
+	private void hideLoader()
+	{
 		mProgressBar.setVisibility(View.GONE);
 		mLocationName.setVisibility(View.VISIBLE);
 		mOfferDescription.setVisibility(View.VISIBLE);

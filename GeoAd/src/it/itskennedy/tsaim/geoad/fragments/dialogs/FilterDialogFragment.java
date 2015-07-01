@@ -67,7 +67,12 @@ public class FilterDialogFragment extends DialogFragment
 	CheckBox mDistanceCheckBox;
 	CheckBox mNameCheckBox;
 	CheckBox mTypeCheckBox;
-
+	
+	public FilterDialogFragment()
+	{
+		
+	}
+	
 	public FilterDialogFragment(String aCategoryJson, Map<String, Object> aFilterMap)
 	{
 		mCategoryJson = aCategoryJson;
@@ -391,6 +396,4 @@ public class FilterDialogFragment extends DialogFragment
 		mListener = null;
 		super.onDetach();
 	}
-	
-	
 }

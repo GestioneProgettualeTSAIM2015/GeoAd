@@ -155,10 +155,9 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 			mCurrentLocation.setLongitude(vLng);
 			Serializable vList = savedInstanceState.getSerializable(LOCATION_LIST);
 			if(vList != null) mLocationList = (ArrayList<LocationModel>) vList;
-			
-			if (vLauncher.getAction().equals(MainActivity.DETAIL_ACTION))
-				loadFragment(Utils.TYPE_DETAIL, vLauncher.getBundleExtra(DETAIL_DATA), null);
 		}
+		
+		manageIntent(vLauncher);
 		
 		mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
 		
@@ -179,6 +178,11 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 	protected void onNewIntent(Intent intent) 
 	{
 		super.onNewIntent(intent);
+		manageIntent(intent);
+	}
+
+	private void manageIntent(Intent intent)
+	{
 		switch (intent.getAction())
 		{
 		case DETAIL_ACTION:

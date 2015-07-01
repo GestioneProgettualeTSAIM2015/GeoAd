@@ -248,7 +248,7 @@ public class Engine extends Application implements PushKeyReceiver
 		}
 		else if(vActual == LocationState.FAVORITE)
 		{		
-			ConnectionManager.obtain().delete(Routes.MY_IGNORED + "?Id=" + aId + "&key=" + mKey, new JsonResponse()
+			ConnectionManager.obtain().delete(Routes.MY_FAVORITES + "?Id=" + aId + "&key=" + mKey, new JsonResponse()
 			{	
 				@Override
 				public void onResponse(boolean aResult, Object aResponse)
