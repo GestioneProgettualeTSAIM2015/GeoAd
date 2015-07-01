@@ -5,6 +5,7 @@ import it.itskennedy.tsaim.geoad.Utils;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager.JsonResponse;
 import it.itskennedy.tsaim.geoad.core.Engine;
+import it.itskennedy.tsaim.geoad.core.Routes;
 import it.itskennedy.tsaim.geoad.core.SettingsManager;
 import it.itskennedy.tsaim.geoad.entity.LocationModel;
 import it.itskennedy.tsaim.geoad.fragment.AugmentedRealityFragment;
@@ -47,6 +48,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 {
 	public static final String DETAIL_ACTION = "detail_action";
 	public static final String DETAIL_DATA = "detail_data";
+	public static final String MY_LOCATION_ACTION = "location_action";
 	private Menu mMenu;
 	
     private DrawerLayout mDrawerLayout;
@@ -126,14 +128,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		
 		if (vLauncher != null) 
 		{
-			switch (vLauncher.getAction()) {
-			case DETAIL_ACTION:
-				loadFragment(Utils.TYPE_DETAIL, vLauncher.getBundleExtra(DETAIL_DATA));
-				break;
-			default:
-				break;
-			}
-			
+			checkIntent(vLauncher);
 		}
 		else if (savedInstanceState == null) {
             selectItem(0);
@@ -144,9 +139,17 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
     @Override
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
+		checkIntent(intent);
+	}
+
+
+	private void checkIntent(Intent intent) {
 		switch (intent.getAction()) {
 		case DETAIL_ACTION:
 			loadFragment(Utils.TYPE_DETAIL, intent.getBundleExtra(DETAIL_DATA));
+			break;
+		case MY_LOCATION_ACTION:
+			loadFragment(Utils.TYPE_LOCATIONS, null);
 			break;
 		default:
 			break;
@@ -263,7 +266,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 				vTag = MarkedLocationFragment.TAG;
 				break;
 			case Utils.TYPE_LOCATIONS:
-				if(isLogged) //TODO
+				if(isLogged)
 				{
 					vFragment = MyLocationFragment.getInstance();
 				}
@@ -272,6 +275,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 					LoginDialogFragment loginDialog = new LoginDialogFragment();
 					loginDialog.setCancelable(false);
 					loginDialog.show(getFragmentManager(), "LoginDialog");
+					return;
 				}
 				break;
 			case Utils.TYPE_SEARCH_MAP:
@@ -280,16 +284,18 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 				break;
 			case Utils.TYPE_DETAIL:
 			{
-				if (!Engine.get().imLocationOwner(LocationModel.fromBundle(bundle).getId()))
-				{
-					vFragment = DetailFragment.getInstance(bundle);
-					vTag = DetailFragment.TAG;	
-				}
-				else 
-				{
-					vFragment = EditLocationFragment.getInstance(bundle);
-					vTag = EditLocationFragment.TAG;	
-				}
+				vFragment = EditLocationFragment.getInstance(bundle);
+				vTag = EditLocationFragment.TAG;
+//				if (!Engine.get().imLocationOwner(LocationModel.fromBundle(bundle).getId()))
+//				{
+//					vFragment = DetailFragment.getInstance(bundle);
+//					vTag = DetailFragment.TAG;	
+//				}
+//				else 
+//				{
+//					vFragment = EditLocationFragment.getInstance(bundle);
+//					vTag = EditLocationFragment.TAG;	
+//				}
 			
 				break;
 			}
@@ -313,7 +319,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		vParams.put("password", password);
 		vParams.put("grant_type", "password");
 		
-		ConnectionManager.obtain().post("Token", vParams, new JsonResponse()
+		ConnectionManager.obtain().post(Routes.TOKEN, vParams, new JsonResponse()
 		{	
 			@Override
 			public void onResponse(boolean aResult, Object aResponse)
@@ -329,7 +335,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 						
 						selectItem(Utils.TYPE_LOCATIONS);
 						Toast.makeText(MainActivity.this, "Loggato", Toast.LENGTH_SHORT).show();
-					
+						isLogged = true;
 					} 
 					catch (JSONException e)
 					{
@@ -366,5 +372,24 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
 		for (int optionId : options)
 			mMenu.findItem(optionId).setVisible(!drawerOpen);
+	}
+	
+	@Override
+	public void checkAuth()
+	{
+		ConnectionManager.obtain().get(Routes.AUTH, null, new JsonResponse()
+		{	
+			@Override
+			public void onResponse(boolean aResult, Object aResponse) 
+			{
+				if(!aResult)
+				{
+					Toast.makeText(MainActivity.this, getString(R.string.unauthorized), Toast.LENGTH_SHORT).show();
+					isLogged = false;
+					SettingsManager.get(MainActivity.this).saveToken(null);
+					loadFragment(Utils.TYPE_LOCATIONS, null);
+				}
+			}
+		});
 	}
 }

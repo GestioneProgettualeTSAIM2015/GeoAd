@@ -196,7 +196,7 @@ public class LocationModel
 	{
 		return mLng;
 	}
-
+	
 	public ContentValues getContentValues()
 	{
 		ContentValues vCont = new ContentValues();

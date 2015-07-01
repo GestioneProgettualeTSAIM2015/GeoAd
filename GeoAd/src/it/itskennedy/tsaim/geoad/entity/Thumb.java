@@ -2,6 +2,7 @@ package it.itskennedy.tsaim.geoad.entity;
 
 import it.itskennedy.tsaim.geoad.Utils;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.widget.ImageView;
 
 public class Thumb extends ImageView

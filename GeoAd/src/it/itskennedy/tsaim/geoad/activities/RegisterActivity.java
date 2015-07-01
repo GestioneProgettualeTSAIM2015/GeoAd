@@ -8,6 +8,7 @@ import com.loopj.android.http.RequestParams;
 import it.itskennedy.tsaim.geoad.R;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager;
 import it.itskennedy.tsaim.geoad.core.Engine;
+import it.itskennedy.tsaim.geoad.core.Routes;
 import it.itskennedy.tsaim.geoad.core.SettingsManager;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager.JsonResponse;
 import android.app.Activity;
@@ -83,7 +84,7 @@ public class RegisterActivity extends Activity
 		
 		final ConnectionManager vCM = ConnectionManager.obtain();
 		
-		vCM.post("api/Account/Register", v, new JsonResponse()
+		vCM.post(Routes.REGISTER_ACCOUNT, v, new JsonResponse()
 		{	
 			@Override
 			public void onResponse(boolean aResult, Object aResponse)
@@ -95,7 +96,7 @@ public class RegisterActivity extends Activity
 				vParams.put("password", mPassword.getText().toString());
 				vParams.put("grant_type", "password");
 				
-				vCM.post("Token", vParams, new JsonResponse()
+				vCM.post(Routes.TOKEN, vParams, new JsonResponse()
 				{	
 					@Override
 					public void onResponse(boolean aResult, Object aResponse)

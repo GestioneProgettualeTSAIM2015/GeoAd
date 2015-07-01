@@ -14,16 +14,12 @@
     <item android:id="@+id/edit_location_name"
           android:icon="@drawable/ic_edit"
           android:title="@string/edit_name"
-          android:showAsAction="never|withText" />
+          android:showAsAction="never" />
     
     <item android:id="@+id/edit_location_description"
           android:icon="@drawable/ic_edit"
           android:title="@string/edit_description"
           android:showAsAction="never|withText" />
     
-    <item android:id="@+id/edit_location_position"
-          android:icon="@drawable/ic_edit_map"
-          android:title="@string/edit_position"
-          android:showAsAction="never|withText" />
 
 </menu>

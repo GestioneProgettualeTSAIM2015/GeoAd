@@ -153,7 +153,7 @@ public class Engine extends Application implements PushKeyReceiver
 	public void onLogin(String aToken) 
 	{
 		mToken = aToken;
-		ConnectionManager.obtain().getNoKey("api/usersettings/mylocations", null, new JsonResponse()
+		ConnectionManager.obtain().getNoKey(Routes.MY_LOCATIONS, null, new JsonResponse()
 		{	
 			@Override
 			public void onResponse(boolean aResult, Object aResponse) 
@@ -194,7 +194,7 @@ public class Engine extends Application implements PushKeyReceiver
 		{
 			if(aState == LocationState.FAVORITE)
 			{	
-				ConnectionManager.obtain().post("api/usersettings/favorites", vParams, new JsonResponse()
+				ConnectionManager.obtain().post(Routes.MY_FAVORITES, vParams, new JsonResponse()
 				{	
 					@Override
 					public void onResponse(boolean aResult, Object aResponse)
@@ -209,7 +209,7 @@ public class Engine extends Application implements PushKeyReceiver
 			}
 			else if(aState == LocationState.IGNORED)
 			{
-				ConnectionManager.obtain().post("api/usersettings/ignored", vParams, new JsonResponse()
+				ConnectionManager.obtain().post(Routes.MY_IGNORED, vParams, new JsonResponse()
 				{	
 					@Override
 					public void onResponse(boolean aResult, Object aResponse)
@@ -234,7 +234,7 @@ public class Engine extends Application implements PushKeyReceiver
 		LocationState vActual = getLocationState(aId);
 		if(vActual == LocationState.IGNORED)
 		{	
-			ConnectionManager.obtain().delete("api/usersettings/ignored?Id=" + aId + "&key=" + mKey, new JsonResponse()
+			ConnectionManager.obtain().delete(Routes.MY_IGNORED + "?Id=" + aId + "&key=" + mKey, new JsonResponse()
 			{	
 				@Override
 				public void onResponse(boolean aResult, Object aResponse)
@@ -248,7 +248,7 @@ public class Engine extends Application implements PushKeyReceiver
 		}
 		else if(vActual == LocationState.FAVORITE)
 		{		
-			ConnectionManager.obtain().delete("api/usersettings/ignored?Id=" + aId + "&key=" + mKey, new JsonResponse()
+			ConnectionManager.obtain().delete(Routes.MY_IGNORED + "?Id=" + aId + "&key=" + mKey, new JsonResponse()
 			{	
 				@Override
 				public void onResponse(boolean aResult, Object aResponse)
@@ -295,7 +295,7 @@ public class Engine extends Application implements PushKeyReceiver
 	
 	public void resetPreferenceOnServer(String aKey)
 	{
-		ConnectionManager.obtain().delete("api/usersettings/clear/" + aKey, null);
+		ConnectionManager.obtain().delete(Routes.MY_PREFERENCES + aKey, null);
 		SettingsManager.get(mInstance).setMarkedSyncTrue();
 	}
 	

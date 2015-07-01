@@ -13,10 +13,10 @@ public class PushReceiver extends WakefulBroadcastReceiver
 {
 	public static final String NEW_LOCATION = "LocationCreated";
 	public static final String UPDATE_LOCATION = "LocationUpdated";
-	public static final String NEW_OFFER = "OfferingCreated";
-	public static final String UPDATE_OFFER = "OfferingUpdated";
+	public static final String NEW_OFFER = "OfferCreated";
+	public static final String UPDATE_OFFER = "OfferUpdated";
 	public static final String DELETE_LOCATION = "LocationDeleted";
-	public static final String DELETE_OFFER = "OfferingDeleted";
+	public static final String DELETE_OFFER = "OfferDeleted";
 	
     @Override
     public void onReceive(Context context, Intent intent) 

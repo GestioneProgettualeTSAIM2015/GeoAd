@@ -17,7 +17,7 @@ import com.loopj.android.http.RequestParams;
  */
 public class ConnectionManager extends BroadcastReceiver
 {
-    private static ConnectionManager mInstance;
+	private static ConnectionManager mInstance;
     private static AsyncHttpClient mClient;
 
     private boolean mIsConnection = true;

@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.Fragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -53,9 +54,19 @@ public class LoginDialogFragment extends DialogFragment
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        if (activity instanceof ILoginDialogFragment)
+        if (mListener == null && activity instanceof ILoginDialogFragment)
         {
         	mListener = (ILoginDialogFragment) activity;
         }
     }
+
+	@Override
+	public void setTargetFragment(Fragment fragment, int requestCode) {
+		super.setTargetFragment(fragment, requestCode);
+		
+		if (fragment instanceof ILoginDialogFragment)
+        {
+        	mListener = (ILoginDialogFragment) fragment;
+        }
+	}
 }

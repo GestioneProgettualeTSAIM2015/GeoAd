@@ -51,8 +51,8 @@ public class LocationManager implements LocationListener, ConnectionCallbacks, O
 			mLocationRequest = LocationRequest.create();
 			mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
 			
-			mLocationRequest.setInterval(10000);
-			//mLocationRequest.setSmallestDisplacement(METER_DISPLACEMENT);
+			//mLocationRequest.setInterval(10000);
+			mLocationRequest.setSmallestDisplacement(METER_DISPLACEMENT);
 
 			mGoogleApiClient = new GoogleApiClient.Builder(aContext).addApi(LocationServices.API).addConnectionCallbacks(this)
 					.addOnConnectionFailedListener(this).build();

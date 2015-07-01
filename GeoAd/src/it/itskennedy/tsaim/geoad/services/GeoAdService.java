@@ -8,6 +8,7 @@ import it.itskennedy.tsaim.geoad.core.Engine.LocationState;
 import it.itskennedy.tsaim.geoad.core.LocationManager;
 import it.itskennedy.tsaim.geoad.core.LocationManager.LocationListener;
 import it.itskennedy.tsaim.geoad.core.NotificationManager;
+import it.itskennedy.tsaim.geoad.core.Routes;
 import it.itskennedy.tsaim.geoad.entity.LocationModel;
 import it.itskennedy.tsaim.geoad.entity.Offer;
 import it.itskennedy.tsaim.geoad.localdb.DataFavContentProvider;
@@ -54,7 +55,7 @@ public class GeoAdService extends Service implements LocationListener
 	private static final int EARTH_RADIUS = 6371;
 	private static final double LAT_SPLIT = 0.007;
 	private static final float SPEED_THRESHOLD = 5; //m/s
-	private static final int DISTANCE_THRESHOLD = 0; //0 ONLY FOR TEST
+	private static final int DISTANCE_THRESHOLD = 400; //0 ONLY FOR TEST
 	private double LNG_SPLIT;
 	
 	private static final int NOTIFICATION = 12345;
@@ -187,7 +188,7 @@ public class GeoAdService extends Service implements LocationListener
 		{
 			if(mPosition != null)
 			{
-				if(isLocationNear(aOffer.getLocationId()))
+				if(isLocationNear(aOffer.getLocationId()) || true)
 				{
 					getContentResolver().insert(DataOffersContentProvider.OFFERS_URI, aOffer.getContentValues());
 					NotificationManager.showOffer(GeoAdService.this, aOffer);
@@ -290,7 +291,7 @@ public class GeoAdService extends Service implements LocationListener
 		vParams.add("secoord.lat", (mPosition.getLatitude() - vLat) + "");
 		vParams.add("secoord.lng", (mPosition.getLongitude() + vLng) + "");
 
-		ConnectionManager.obtain().post("api/positions", vParams, new ConnectionManager.JsonResponse()
+		ConnectionManager.obtain().post(Routes.POSITIONS, vParams, new ConnectionManager.JsonResponse()
 		{
 			@Override
 			public void onResponse(boolean aResult, Object aResponse)
@@ -298,7 +299,7 @@ public class GeoAdService extends Service implements LocationListener
 				if(aResult && aResponse != null && aResponse instanceof JSONObject)
 				{
 					JSONArray vLocations = ((JSONObject)aResponse).optJSONArray("Locations");
-					JSONArray vOffers = ((JSONObject)aResponse).optJSONArray("Offerings");
+					JSONArray vOffers = ((JSONObject)aResponse).optJSONArray("Offers");
 					
 					mNearLocations = LocationModel.getListFromJsonArray(vLocations);
 					
@@ -340,7 +341,7 @@ public class GeoAdService extends Service implements LocationListener
 		RequestParams vParams = new RequestParams();
 		vParams.put("id", aId);
 		
-		ConnectionManager.obtain().get("api/locations", vParams, new JsonResponse()
+		ConnectionManager.obtain().get(Routes.POSITIONS, vParams, new JsonResponse()
 		{	
 			@Override
 			public void onResponse(boolean aResult, Object aResponse)
