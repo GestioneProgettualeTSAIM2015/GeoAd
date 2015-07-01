@@ -130,7 +130,6 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 		mThumbScroll = (LinearLayout) view.findViewById(R.id.thumbContainer);
 		mExpandable = (ExpandableListView) view.findViewById(R.id.expandableListViewOffer);
 		mProgressThumb = (ProgressBar) view.findViewById(R.id.progressBarThumb);
-		mButtonImageGoToMap = (ImageButton) view.findViewById(R.id.btnGoToMap);
 		
 		setHasOptionsMenu(true);
 		
@@ -144,19 +143,6 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 					int groupPosition, long id) {
 				Utils.setListViewHeight(parent, groupPosition);
 				return false;
-			}
-		});
-		
-		mButtonImageGoToMap.setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				if (mLoc != null) {
-					double lat = mLoc.getLat();
-					double lng = mLoc.getLng();
-					Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("geo:" + lat + "," + lng + "?q= " + lat + "," + lng + "( " + mLoc.getName() + ")"));
-					getActivity().startActivity(intent);
-				}
 			}
 		});
 		
@@ -185,6 +171,17 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 	        	ft.add((vFrag = NewOfferDialogFragment.getNewInstance()), NEW_OFFER_DIALOG_FRAGMENT_TAG);
 	            break;
 	            
+	        case R.id.action_map: 
+				String vName = mLoc.getName();  
+				String uriBegin = "geo:" + mLoc.getLat() + "," + mLoc.getLng();  
+				String query = mLoc.getLat() + "," + mLoc.getLng() + "(" + vName + ")";  
+				String encodedQuery = Uri.encode(query);  
+				String uriString = uriBegin + "?q=" + encodedQuery + "&z=16";  
+				Uri uri = Uri.parse(uriString);  
+				Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+				getActivity().startActivity(intent);
+				return true;
+	            
 	        case R.id.edit_location_name:
 	        	ft.add(vFrag = EditLocationNameDialogFragment.getNewInstance(getArguments().getString(LocationModel.NAME)),
 	        		   EDIT_LOCATION_NAME_FRAGMENT_TAG);
@@ -195,7 +192,7 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 	            break;
 	           	            
             default:
-            	return false;
+            	return super.onOptionsItemSelected(item);
 	    }
 	    
 	    vFrag.setTargetFragment(this, 0);

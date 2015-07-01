@@ -166,13 +166,6 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		{
 			setFilterLocation(null, mCurrentLocation);
 		}
-		
-		Fragment search = getFragmentManager().findFragmentByTag(SearchListFragment.class.toString());
-		if (search != null && search.isVisible()) mLocationListListener = (ILocationsList) search;
-		else {
-			search = getFragmentManager().findFragmentByTag(SearchMapFragment.class.toString());
-			if (search != null && search.isVisible()) mLocationListListener = (ILocationsList) search;
-		}
 	}
 
     @Override
@@ -283,20 +276,27 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 			case Utils.TYPE_SEARCH_LIST:
 				searchFragmentType = Utils.TYPE_SEARCH_LIST;
 				vFragment = SearchListFragment.getInstance(bundle);
-				mLocationListListener = (ILocationsList) vFragment;
+				break;
+				
+			case Utils.TYPE_SEARCH_MAP:
+				searchFragmentType = Utils.TYPE_SEARCH_MAP;
+				vFragment = SearchMapFragment.getInstance(bundle);
 				break;
 				
 			case Utils.TYPE_AUGMENTED_REALITY:
+				mLocationListListener = null;
 				isClosingForAr = true;
 				mDrawerLayout.closeDrawer(mDrawerList);
 				return;
 				
 			case Utils.TYPE_PREFERENCE:
+				mLocationListListener = null;
 				vFragment = MarkedLocationFragment.getInstance(bundle);
 				vTag = MarkedLocationFragment.TAG;
 				break;
 				
 			case Utils.TYPE_LOCATIONS:
+				mLocationListListener = null;
 				if(isLogged)
 				{
 					vFragment = MyLocationFragment.getInstance();
@@ -310,14 +310,9 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 				}
 				break;
 				
-			case Utils.TYPE_SEARCH_MAP:
-				searchFragmentType = Utils.TYPE_SEARCH_MAP;
-				vFragment = SearchMapFragment.getInstance(bundle);
-				mLocationListListener = (ILocationsList) vFragment;
-				break;
-				
 			case Utils.TYPE_DETAIL:
 			{
+				mLocationListListener = null;
 				if (!Engine.get().imLocationOwner(LocationModel.fromBundle(bundle).getId()))
 				{
 					vFragment = DetailFragment.getInstance(bundle);
@@ -338,8 +333,10 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		}
 
 		FragmentManager fragmentManager = getFragmentManager();
-		String TAG = vFragment.getClass().toString();
-		fragmentManager.beginTransaction().replace(R.id.content_frame, vFragment, TAG).addToBackStack(TAG).commit();
+		String tag = vFragment.getClass().toString();
+		fragmentManager.beginTransaction()
+			.replace(R.id.content_frame, vFragment, tag)
+			.addToBackStack(tag).commit();
 	}
 
 	@Override
@@ -429,7 +426,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 	public void onFilterSave(Bundle aFilter)
 	{
 		mLocationList.clear();
-		mLocationListListener.notifyLocationsListChanged(mLocationList);
+		if (mLocationListListener != null) mLocationListListener.notifyLocationsListChanged(mLocationList);
 		Map<String, Object> vFilterMap = new HashMap<>();
 		if (aFilter != null)
 		{
@@ -513,6 +510,11 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 			}
 		}
 		
+		if (mLocationListListener == null) return;
+		
+		mLocationList.clear();
+		mAdapter.notifyDataSetChanged();
+		
 		mProgressBar.setVisibility(View.VISIBLE);
 		String vUrl = String.format(Utils.LOCATION_URL_TEMPLATE, vLat, vLng, vR, vFilter);
 		ConnectionManager.obtain().get(vUrl, null, new JsonResponse()
@@ -523,7 +525,6 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 				if (aResult)
 				{
 					JSONArray locationArray = (JSONArray) aResponse;
-					mLocationList.clear();
 					mLocationList.addAll(LocationModel.getListFromJsonArray(locationArray));
 					if (mLocationListListener != null) mLocationListListener.notifyLocationsListChanged(mLocationList);
 					mProgressBar.setVisibility(View.GONE);
@@ -595,5 +596,11 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 				}
 			}
 		});
+	}
+
+	@Override
+	public void setILocationsList(ILocationsList f)
+	{
+		mLocationListListener = f;
 	}
 }

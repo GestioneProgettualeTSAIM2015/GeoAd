@@ -5,6 +5,8 @@ import android.os.Bundle;
 
 public interface IFragment
 {
+	void setILocationsList(ILocationsList f);
+	
 	void loadFragment(int fragmentType, Bundle bundle, Fragment target);
 	
 	void toggleActionMenu(int... options);

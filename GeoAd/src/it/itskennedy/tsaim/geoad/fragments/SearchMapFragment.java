@@ -81,43 +81,43 @@ public class SearchMapFragment extends Fragment implements ILocationsList
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) 
 	{
-		mMapView.onCreate(savedInstanceState);
+		if (mMapView != null) mMapView.onCreate(savedInstanceState);
 		super.onActivityCreated(savedInstanceState);
 	}
 
 	@Override
 	public void onDestroy() 
 	{
-		mMapView.onDestroy();
+		if (mMapView != null) mMapView.onDestroy();
 		super.onDestroy();
 	}
 
 	@Override
 	public void onLowMemory() 
 	{
-		mMapView.onLowMemory();
+		if (mMapView != null) mMapView.onLowMemory();
 		super.onLowMemory();
 	}
 
 	@Override
 	public void onPause() 
 	{
-		mMapView.onPause();
+		if (mMapView != null) mMapView.onPause();
 		super.onPause();
 	}
 
 	@Override
 	public void onResume() 
 	{
-		mMapView.onResume();
+		if (mMapView != null) mMapView.onResume();
+		if (mListener != null) mListener.setILocationsList(this);
 		super.onResume();
 	}
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) 
 	{
-		if (mMapView != null)
-			mMapView.onSaveInstanceState(outState);
+		if (mMapView != null) mMapView.onSaveInstanceState(outState);
 		super.onSaveInstanceState(outState);
 	}
 

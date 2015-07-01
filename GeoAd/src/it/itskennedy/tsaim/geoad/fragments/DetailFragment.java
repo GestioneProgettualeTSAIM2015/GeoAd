@@ -122,8 +122,7 @@ public class DetailFragment extends Fragment
 	{
 		switch(item.getItemId())
 		{
-			case R.id.action_map:
-			{ 
+			case R.id.action_map: 
 				String vName = mLoc.getName();  
 				String uriBegin = "geo:" + mLoc.getLat() + "," + mLoc.getLng();  
 				String query = mLoc.getLat() + "," + mLoc.getLng() + "(" + vName + ")";  
@@ -132,20 +131,21 @@ public class DetailFragment extends Fragment
 				Uri uri = Uri.parse(uriString);  
 				Intent intent = new Intent(Intent.ACTION_VIEW, uri);
 				getActivity().startActivity(intent);
-			
-				return true;
-			}
+				break;
+				
 			case R.id.action_mark:
-			{
 				LocationState vActual = Engine.get().getLocationState(mLoc.getId());
 				boolean vIsIgnorable = mLoc.getType().equals(Utils.LOC_TYPE_CA);
 				MarkingDialogFragment vDial = MarkingDialogFragment.get(vActual, vIsIgnorable);
 				vDial.setTargetFragment(DetailFragment.this, LOCATION_STATE_RC);
 				vDial.show(getFragmentManager(), MarkingDialogFragment.TAG);
-				return true;
-			}
+				break;
+				
+			default:
+				return super.onOptionsItemSelected(item);
 		}
-		return super.onOptionsItemSelected(item);
+		
+		return true;
 	}
 
 	@Override
@@ -160,7 +160,6 @@ public class DetailFragment extends Fragment
 		mProgressThumb = (ProgressBar) view.findViewById(R.id.progressBarThumb);
 		mName = (TextView) view.findViewById(R.id.textViewName);
 		mType = (TextView) view.findViewById(R.id.textViewType);
-		mButtonImageGoToMap = (ImageButton) view.findViewById(R.id.btnGoToMap);
 		
 		mExpandable.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
 
@@ -171,20 +170,6 @@ public class DetailFragment extends Fragment
 				return false;
 			}
 		});
-		
-		mButtonImageGoToMap.setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				if (mLoc != null) {
-					double lat = mLoc.getLat();
-					double lng = mLoc.getLng();
-					Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("geo:" + lat + "," + lng + "?q= " + lat + "," + lng + "( " + mLoc.getName() + ")"));
-					getActivity().startActivity(intent);
-				}
-			}
-		});
-		
 		FacebookSdk.sdkInitialize(getActivity());
 		
 		return view;
@@ -221,7 +206,7 @@ public class DetailFragment extends Fragment
 		mPCat.setText(mLoc.getPCat());
 		if(mLoc.getSCat() != null && !mLoc.getSCat().isEmpty())
 		{
-			mSCat.setText("(" + mLoc.getSCat() + ")");	
+			mSCat.setText(mLoc.getSCat());	
 		}
 		
 		mDesc.setText(mLoc.getDesc());

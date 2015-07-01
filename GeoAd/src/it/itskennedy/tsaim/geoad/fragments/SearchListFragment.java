@@ -40,6 +40,13 @@ public class SearchListFragment extends Fragment implements ILocationsList
 
 	private CustomListAdapter adapter;
 	private ArrayList<LocationModel> mLocationList;
+	
+	@Override
+	public void onResume()
+	{
+		if (mListener != null) mListener.setILocationsList(this);
+		super.onResume();
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
