@@ -1,13 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
     <TextView
-        android:id="@+id/textViewOffDesc"
+        android:id="@+id/textViewNameLocation"
+        android:layout_width="wrap_content"
+        android:textSize="42sp"
+        android:layout_height="wrap_content"
+        android:visibility="gone"  />
+
+    <TextView
+        android:id="@+id/textViewOfferDescription"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView" />
+        android:textSize="26sp"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/textViewNameLocation"
+        android:layout_marginTop="16dp"
+        android:visibility="gone" />
 
-</LinearLayout>
+        <TextView
+        android:id="@+id/textViewValidUntil"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="26sp"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/textViewOfferDescription"
+        android:visibility="gone" />
+
+        <Button
+            android:id="@+id/btnGoToLocationDetail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/textViewValidUntil"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/textViewLocationCat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/textViewNameLocation"
+            android:textSize="20sp"
+            android:visibility="gone" />
+
+        <ProgressBar
+            android:id="@+id/progressBarDetailOffer"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true" />
+
+</RelativeLayout>

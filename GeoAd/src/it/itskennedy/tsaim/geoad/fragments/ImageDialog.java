@@ -5,6 +5,7 @@ import it.itskennedy.tsaim.geoad.Utils;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager;
 import it.itskennedy.tsaim.geoad.core.Engine;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager.JsonResponse;
+import it.itskennedy.tsaim.geoad.core.Routes;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -46,7 +47,7 @@ public class ImageDialog extends DialogFragment
 		String vCacheImage = Engine.get().getCache().getImage(mId); 
 		if(vCacheImage == null)
 		{
-			ConnectionManager.obtain().get("api/photos/data/" + mId, null, new JsonResponse()
+			ConnectionManager.obtain().get(Routes.PHOTOS_DATA + mId, null, new JsonResponse()
 			{	
 				@Override
 				public void onResponse(boolean aResult, Object aResponse)

@@ -2,16 +2,18 @@ package it.itskennedy.tsaim.geoad.fragments;
 
 import it.itskennedy.tsaim.geoad.OfferExpandableListAdapter;
 import it.itskennedy.tsaim.geoad.OfferExpandableListAdapter.OfferDetail;
-import it.itskennedy.tsaim.geoad.OfferExpandableListAdapter.ShareOfferListener;
+import it.itskennedy.tsaim.geoad.OfferExpandableListAdapter.ActionOfferListener;
 import it.itskennedy.tsaim.geoad.R;
 import it.itskennedy.tsaim.geoad.Utils;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager.JsonResponse;
 import it.itskennedy.tsaim.geoad.core.Engine;
 import it.itskennedy.tsaim.geoad.core.Engine.LocationState;
+import it.itskennedy.tsaim.geoad.core.Routes;
 import it.itskennedy.tsaim.geoad.entity.LocationModel;
 import it.itskennedy.tsaim.geoad.entity.Offer;
 import it.itskennedy.tsaim.geoad.entity.Thumb;
+import it.itskennedy.tsaim.geoad.fragment.EditLocationFragment.ActionType;
 
 import java.util.List;
 
@@ -149,6 +151,16 @@ public class DetailFragment extends Fragment
 		mExpandable = (ExpandableListView) view.findViewById(R.id.expandableListViewOffer);
 		mProgressThumb = (ProgressBar) view.findViewById(R.id.progressBarThumb);
 		
+		mExpandable.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+
+			@Override
+			public boolean onGroupClick(ExpandableListView parent, View v,
+					int groupPosition, long id) {
+				Utils.setListViewHeight(parent, groupPosition);
+				return false;
+			}
+		});
+		
 		return view;
 	}
 
@@ -189,7 +201,7 @@ public class DetailFragment extends Fragment
 				
 		if(mOffersString == null)
 		{
-			ConnectionManager.obtain().get("api/offerings/fromlocation/" + mLoc.getId(), null, new JsonResponse()
+			ConnectionManager.obtain().get(Routes.OFFERS_FROM_LOCATION + mLoc.getId(), null, new JsonResponse()
 			{	
 				@Override
 				public void onResponse(boolean aResult, Object aResponse)
@@ -245,7 +257,7 @@ public class DetailFragment extends Fragment
 			RequestParams vParams = new RequestParams();
 			vParams.put("cache", Engine.get().getCache().getThumbIdList(mLoc.getId()).toString());
 			
-			ConnectionManager.obtain().get("api/photos/fromlocation/" + mLoc.getId(), vParams, new JsonResponse()
+				ConnectionManager.obtain().get(Routes.PHOTO_FROM_LOCATION + mLoc.getId(), vParams, new JsonResponse()
 			{
 				@Override
 				public void onResponse(boolean aResult, Object aResponse) 
@@ -305,17 +317,19 @@ public class DetailFragment extends Fragment
 	private void fillOffersList(JSONArray aArray)
 	{
 		List<Offer> vList = Offer.getListFromJsonArray(aArray);
-		mAdapter = new OfferExpandableListAdapter(getActivity(), vList, new ShareOfferListener()
+		mAdapter = new OfferExpandableListAdapter(getActivity(), vList, new ActionOfferListener()
 		{	
 			@Override
-			public void share(OfferDetail aToShare)
+			public void onAction(ActionType actionType, OfferDetail aToShare)
 			{
-				Intent intent = new Intent();
-				intent.setAction(Intent.ACTION_SEND);
+				if (actionType == ActionType.SHARE){
+					Intent intent = new Intent();
+					intent.setAction(Intent.ACTION_SEND);
 
-				intent.setType("text/plain");
-				intent.putExtra(Intent.EXTRA_TEXT, "Location: " + mLoc.getName() + " aToShare: " + aToShare.toString());
-				startActivity(Intent.createChooser(intent, "Share"));
+					intent.setType("text/plain");
+					intent.putExtra(Intent.EXTRA_TEXT, "Location: " + mLoc.getName() + " aToShare: " + aToShare.toString());
+					startActivity(Intent.createChooser(intent, "Share"));
+				}
 			}
 		});
 		mExpandable.setAdapter(mAdapter);

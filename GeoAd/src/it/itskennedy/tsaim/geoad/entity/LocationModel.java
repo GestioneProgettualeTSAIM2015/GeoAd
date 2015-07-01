@@ -209,7 +209,7 @@ public class LocationModel implements Serializable
 	{
 		return mLng;
 	}
-
+	
 	public ContentValues getContentValues()
 	{
 		ContentValues vCont = new ContentValues();

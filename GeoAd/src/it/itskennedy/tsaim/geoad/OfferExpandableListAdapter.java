@@ -1,6 +1,7 @@
 package it.itskennedy.tsaim.geoad;
 
 import it.itskennedy.tsaim.geoad.entity.Offer;
+import it.itskennedy.tsaim.geoad.fragment.EditLocationFragment.ActionType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,17 +18,19 @@ import android.widget.TextView;
 public class OfferExpandableListAdapter extends BaseExpandableListAdapter 
 {
 	
-	private ShareOfferListener mListener;
 	
-	public interface ShareOfferListener
+	
+	private ActionOfferListener mListener;
+	
+	public interface ActionOfferListener
 	{
-		void share(OfferDetail aToShare);
+		void onAction(ActionType actionType, OfferDetail aToShare);
 	}
 	
 	private Context mContext;
 	private List<ArrayList<OfferDetail>> mContents = new ArrayList<ArrayList<OfferDetail>>();
 	
-	public OfferExpandableListAdapter(Context context, List<Offer> vList, ShareOfferListener aListener)
+	public OfferExpandableListAdapter(Context context, List<Offer> vList, ActionOfferListener aListener)
 	{
 		super();
 		
@@ -77,7 +80,19 @@ public class OfferExpandableListAdapter extends BaseExpandableListAdapter
 			{
 				if(mListener != null)
 				{
-					mListener.share(getChild(groupPosition, childPosition));
+					mListener.onAction(ActionType.SHARE, getChild(groupPosition, childPosition));
+				}
+			}
+		});
+	    
+	    ImageButton vDelete = (ImageButton) convertView.findViewById(R.id.imageButtonDelete);
+	    vDelete.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				if(mListener != null)
+				{
+					mListener.onAction(ActionType.DELETE, getChild(groupPosition, childPosition));
 				}
 			}
 		});
@@ -105,7 +120,7 @@ public class OfferExpandableListAdapter extends BaseExpandableListAdapter
 	@Override
 	public long getGroupId(int groupPosition)
 	{
-		return 0;
+		return mContents.get(groupPosition).get(0).mId;
 	}
 
 	@Override
@@ -135,17 +150,17 @@ public class OfferExpandableListAdapter extends BaseExpandableListAdapter
 		return true;
 	}
 	
-	public void remove(int aGroup, int aId)
+	public void remove(int aId)
 	{
-		List<OfferDetail> vElem = mContents.get(aGroup);
-		for(int i = 0; i < vElem.size(); ++i)
+		for(int i = 0; i < mContents.size(); ++i)
 		{
-			if(vElem.get(i).mId == aId)
+			long vGroupId = getGroupId(i);
+			if(vGroupId == aId)
 			{
-				vElem.remove(i);			
-				return;
+				mContents.remove(i);
 			}
 		}
+		notifyDataSetChanged();
 	}
 	
 	public class OfferDetail

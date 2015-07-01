@@ -3,6 +3,7 @@ package it.itskennedy.tsaim.geoad.core;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager.JsonResponse;
 
 import org.apache.http.Header;
+import org.apache.http.client.HttpResponseException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -53,7 +54,7 @@ public class MyJsonHttpResponseHandler extends JsonHttpResponseHandler
 		}
 		else if(mListener != null)
 		{
-			mListener.onResponse(false, null);
+			mListener.onResponse(false, responseString);
 		}
 	}
 

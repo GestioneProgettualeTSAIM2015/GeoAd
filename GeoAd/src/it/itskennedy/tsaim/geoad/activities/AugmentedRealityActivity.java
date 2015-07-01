@@ -64,18 +64,10 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 	private AugmentedRealityManager mArgReality;
 
 	private AugmentedRealityListener mArgReaListener = new AugmentedRealityListener() {
-		@Override
-		public void tooLowAccuracy() {
-			System.out.println("LOW ACCURACY");
-		}
 
 		@Override
-		public void onUnreliableSensor() {
-			System.out.println("UNRELIABLE SENSOR");
-		}
-
-		@Override
-		public void onNewNearLocations(List<LocationModel> aToDraw) {
+		public void onNewPosition(Location aCurrentLocation, List<LocationModel> aToDraw) {
+			mWorld.setGeoPosition(aCurrentLocation.getLatitude(),aCurrentLocation.getLongitude());
 			List<LocationModel> toAdd = new ArrayList<>();
 
 			//for every world object I check if they are still to be drawn or not
@@ -103,6 +95,8 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 				go.setName(lm.getName());
 				switch (lm.getType()) {
 				case "POI":
+				case "poi":
+				case "Poi":
 					if (activeOffersLocationIDs.contains(lm.getId()))
 						go.setImageResource(R.drawable.poi_o);
 					else
@@ -119,11 +113,6 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 					break;
 				}
 			}
-		}
-
-		@Override
-		public void onNewPosition(Location aCurrentLocation) {
-			mWorld.setGeoPosition(aCurrentLocation.getLatitude(),aCurrentLocation.getLongitude());
 		}
 	};
 
@@ -196,7 +185,7 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 		mBeyondarFragment.setWorld(mWorld);
 
 		mBeyondarFragment.setMaxDistanceToRender(10000);
-		mBeyondarFragment.setPullCloserDistance(60);
+		mBeyondarFragment.setPullCloserDistance(50);
 		mBeyondarFragment.setPushAwayDistance(10);
 		
 		mBeyondarFragment.setRetainInstance(true);
@@ -334,15 +323,13 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 	}
 	
 	public BeyondarObject findWorldObjectById (long id) {
-		BeyondarObject result = null;
-		
 		for (BeyondarObjectList objList : mWorld.getBeyondarObjectLists()) {
 			for (BeyondarObject obj : objList) {
 				if (obj.getId() == id) 
 					return obj;
 			}
 		}
-		return result;
+		return null;
 	}
 	
 	public LocationModel findLocationFromId(long id, List<LocationModel> list) {

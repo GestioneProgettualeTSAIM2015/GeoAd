@@ -6,6 +6,7 @@ import it.itskennedy.tsaim.geoad.Utils;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager.JsonResponse;
 import it.itskennedy.tsaim.geoad.core.Engine;
+import it.itskennedy.tsaim.geoad.core.Routes;
 import it.itskennedy.tsaim.geoad.entity.LocationModel;
 import it.itskennedy.tsaim.geoad.interfaces.IFragment;
 import it.itskennedy.tsaim.geoad.localdb.DataFavContentProvider;
@@ -113,7 +114,7 @@ public class MyLocationFragment extends Fragment implements LoaderCallbacks<Curs
 		{
 			final int vId = data.getIntExtra(DialogDelete.LOCATION_ID, 0);
 			
-			ConnectionManager.obtain().delete("api/locations?Id=" + vId, new JsonResponse()
+			ConnectionManager.obtain().delete(Routes.LOCATIONS + "?Id=" + vId, new JsonResponse()
 			{	
 				@Override
 				public void onResponse(boolean aResult, Object aResponse)
@@ -156,7 +157,8 @@ public class MyLocationFragment extends Fragment implements LoaderCallbacks<Curs
 		if(aActivity instanceof IFragment)
 		{
 			mListener = (IFragment) aActivity;
+			mListener.checkAuth();
 		}
 		super.onAttach(aActivity);
-	}	
+	}
 }

@@ -44,10 +44,7 @@ public class AugmentedRealityManager implements LocationListener
 	
 	public interface AugmentedRealityListener
 	{
-		void onNewNearLocations(List<LocationModel> aToDraw);
-		void onNewPosition(Location aCurrentLocation);
-		void tooLowAccuracy();
-		void onUnreliableSensor();
+		void onNewPosition(Location aCurrentLocation, List<LocationModel> aToDraw);
 	}
 	
 	public AugmentedRealityManager(Context aContext)
@@ -87,8 +84,7 @@ public class AugmentedRealityManager implements LocationListener
 		
 		if(mListener != null)
 		{
-			mListener.onNewPosition(aLocation);
-			mListener.onNewNearLocations(mNears);
+			mListener.onNewPosition(aLocation, mNears);
 		}
 	}
 	

@@ -64,7 +64,28 @@
     <string name="add_offering">Nuova offerta</string>
     <string name="edit_name">Modifica nome</string>
     <string name="edit_description">Modifica descrizione</string>
-    <string name="edit_position">Modifica posizione</string>
+    <string name="take_photo">Scatta foto</string>
+    <string name="choose_image">Foto da galleria</string>
+    
+    <string name="unauthorized">Non autorizzato. Effettuare login!</string>
+    <string name="offer_title">Offerta: </string>
+    <string name="offer_exp_date">Scadenza: </string>
+    <string name="location_cat">Categoria: </string>
+    <string name="location_button_goto">Vai al dettaglio della location</string>
+    <string name="actvity_offer_detail_title">Dettaglio offerta</string>
+    <string name="edit_upload_finished">Upload terminato</string>
+    <string name="edit_offer_deleted">Offerta eliminata</string>
+    <string name="edit_offer_inserted">Offerta inserita</string>
+    
+    <string name="delete_photo_dialog_title">Cancella foto</string>
+    <string name="delete_photo_dialog_text">Sei sicuro di voler cancellare questa foto?</string>
+    <string name="delete_photo_dialog_yes">Si</string>
+    <string name="delete_photo_dialog_no">No</string>
+    
+    
+
+    
+    
     
     <string name="filter">Filtra</string>
     <string name="reset">Reset</string>

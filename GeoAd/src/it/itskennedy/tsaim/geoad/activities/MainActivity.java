@@ -6,6 +6,7 @@ import it.itskennedy.tsaim.geoad.core.ConnectionManager;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager.JsonResponse;
 import it.itskennedy.tsaim.geoad.core.Engine;
 import it.itskennedy.tsaim.geoad.core.LocationManager;
+import it.itskennedy.tsaim.geoad.core.Routes;
 import it.itskennedy.tsaim.geoad.core.LocationManager.LocationListener;
 import it.itskennedy.tsaim.geoad.core.SettingsManager;
 import it.itskennedy.tsaim.geoad.entity.LocationModel;
@@ -59,6 +60,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 	public static final String DETAIL_ACTION = "detail_action";
 	public static final String DETAIL_DATA = "detail_data";
 	public static final String TAG = "tag";
+	public static final String MY_LOCATION_ACTION = "location_action";
 	private static final String LOCATION_LIST = "locationList";
 	private static final String POSITION_LAT = "positionlat";
 	private static final String POSITION_LNG = "positionlng";
@@ -173,11 +175,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 				mLocationList = (ArrayList<LocationModel>) vList;
 			}
 			
-			switch (vLauncher.getAction()) {
-			case DETAIL_ACTION:
 				loadFragment(Utils.TYPE_DETAIL, vLauncher.getBundleExtra(DETAIL_DATA), null);
-				break;
-			}
 		}
 		
 		mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
@@ -201,9 +199,15 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		super.onNewIntent(intent);
 		switch (intent.getAction())
 		{
+
+
+	private void checkIntent(Intent intent) {
 			case DETAIL_ACTION:
 				loadFragment(Utils.TYPE_DETAIL, intent.getBundleExtra(DETAIL_DATA), null);
 				break;
+		case MY_LOCATION_ACTION:
+			loadFragment(Utils.TYPE_LOCATIONS, null);
+			break;
 			default:
 				break;
 		}
@@ -318,7 +322,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 				vTag = MarkedLocationFragment.TAG;
 				break;
 			case Utils.TYPE_LOCATIONS:
-				if(isLogged) //TODO
+				if(isLogged)
 				{
 					vFragment = MyLocationFragment.getInstance();
 				}
@@ -327,6 +331,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 					LoginDialogFragment loginDialog = new LoginDialogFragment();
 					loginDialog.setCancelable(false);
 					loginDialog.show(getFragmentManager(), "LoginDialog");
+					return;
 				}
 				break;
 			case Utils.TYPE_SEARCH_MAP:
@@ -337,16 +342,18 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 				break;
 			case Utils.TYPE_DETAIL:
 			{
-				if (!Engine.get().imLocationOwner(LocationModel.fromBundle(bundle).getId()))
-				{
-					vFragment = DetailFragment.getInstance(bundle);
-					vTag = DetailFragment.TAG;	
-				}
-				else 
-				{
-					vFragment = EditLocationFragment.getInstance(bundle);
-					vTag = EditLocationFragment.TAG;	
-				}
+				vFragment = EditLocationFragment.getInstance(bundle);
+				vTag = EditLocationFragment.TAG;
+//				if (!Engine.get().imLocationOwner(LocationModel.fromBundle(bundle).getId()))
+//				{
+//					vFragment = DetailFragment.getInstance(bundle);
+//					vTag = DetailFragment.TAG;	
+//				}
+//				else 
+//				{
+//					vFragment = EditLocationFragment.getInstance(bundle);
+//					vTag = EditLocationFragment.TAG;	
+//				}
 			
 				break;
 			}
@@ -369,7 +376,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		vParams.put("password", password);
 		vParams.put("grant_type", "password");
 
-		ConnectionManager.obtain().post("Token", vParams, new JsonResponse()
+		ConnectionManager.obtain().post(Routes.TOKEN, vParams, new JsonResponse()
 		{
 			@Override
 			public void onResponse(boolean aResult, Object aResponse)
@@ -385,7 +392,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 
 						selectItem(Utils.TYPE_LOCATIONS);
 						Toast.makeText(MainActivity.this, "Loggato", Toast.LENGTH_SHORT).show();
-
+						isLogged = true;
 					}
 					catch (JSONException e)
 					{

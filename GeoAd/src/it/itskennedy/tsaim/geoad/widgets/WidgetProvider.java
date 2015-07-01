@@ -61,6 +61,7 @@ public class WidgetProvider extends AppWidgetProvider
 		if(vLogged)
 		{
 			Intent vAdminClick = new Intent(context, MainActivity.class);
+			vAdminClick.setAction(MainActivity.MY_LOCATION_ACTION);
 			PendingIntent vAdminClickPending = PendingIntent.getActivity(context, 0, vAdminClick, PendingIntent.FLAG_UPDATE_CURRENT);  
 		    widget.setOnClickPendingIntent(R.id.ButtonWAdmin, vAdminClickPending);
 		}
