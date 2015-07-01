@@ -195,6 +195,8 @@ Thumbs.db
 *.gradle
 build/
 
+##TestFiles
+Tests-*.*
 
 ##Exceptions
 !Npgsql.dll
