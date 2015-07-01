@@ -35,10 +35,14 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.facebook.FacebookSdk;
+import com.facebook.share.model.ShareLinkContent;
+import com.facebook.share.widget.ShareDialog;
 import com.loopj.android.http.RequestParams;
 
 public class DetailFragment extends Fragment
@@ -59,6 +63,9 @@ public class DetailFragment extends Fragment
 	private ProgressBar mProgressThumb;
 	private String mOffersString;
 	private boolean mThumbUpdated = false;
+	private TextView mName;
+	private TextView mType;
+	private ImageButton mButtonImageGoToMap;
 	
 	private OnClickListener mThumbClickListener = new OnClickListener()
 	{	
@@ -73,6 +80,7 @@ public class DetailFragment extends Fragment
 			}
 		}
 	};
+
 	
 	public static DetailFragment getInstance(Bundle aBundle)
 	{
@@ -150,6 +158,9 @@ public class DetailFragment extends Fragment
 		mThumbScroll = (LinearLayout) view.findViewById(R.id.thumbContainer);
 		mExpandable = (ExpandableListView) view.findViewById(R.id.expandableListViewOffer);
 		mProgressThumb = (ProgressBar) view.findViewById(R.id.progressBarThumb);
+		mName = (TextView) view.findViewById(R.id.textViewName);
+		mType = (TextView) view.findViewById(R.id.textViewType);
+		mButtonImageGoToMap = (ImageButton) view.findViewById(R.id.btnGoToMap);
 		
 		mExpandable.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
 
@@ -160,6 +171,21 @@ public class DetailFragment extends Fragment
 				return false;
 			}
 		});
+		
+		mButtonImageGoToMap.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				if (mLoc != null) {
+					double lat = mLoc.getLat();
+					double lng = mLoc.getLng();
+					Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("geo:" + lat + "," + lng + "?q= " + lat + "," + lng + "( " + mLoc.getName() + ")"));
+					getActivity().startActivity(intent);
+				}
+			}
+		});
+		
+		FacebookSdk.sdkInitialize(getActivity());
 		
 		return view;
 	}
@@ -173,7 +199,8 @@ public class DetailFragment extends Fragment
 
 	private void populateFragment()
 	{
-		getActivity().setTitle(mLoc.getName());
+		getActivity().getActionBar().setTitle("GeoAd");
+		mName.setText(mLoc.getName());
 		
 		String vSub = "";
 		switch(mLoc.getType())
@@ -189,7 +216,7 @@ public class DetailFragment extends Fragment
 				break;
 			}
 		}
-		getActivity().getActionBar().setSubtitle(vSub);
+		mType.setText(vSub);
 		
 		mPCat.setText(mLoc.getPCat());
 		if(mLoc.getSCat() != null && !mLoc.getSCat().isEmpty())
@@ -323,12 +350,7 @@ public class DetailFragment extends Fragment
 			public void onAction(ActionType actionType, OfferDetail aToShare)
 			{
 				if (actionType == ActionType.SHARE){
-					Intent intent = new Intent();
-					intent.setAction(Intent.ACTION_SEND);
-
-					intent.setType("text/plain");
-					intent.putExtra(Intent.EXTRA_TEXT, "Location: " + mLoc.getName() + " aToShare: " + aToShare.toString());
-					startActivity(Intent.createChooser(intent, "Share"));
+					shareAction(aToShare.mId, aToShare.mDesc);
 				}
 			}
 		});
@@ -340,7 +362,6 @@ public class DetailFragment extends Fragment
 			@Override
 			public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id)
 			{
-				// TODO dialog condivisione? topas 
 				return false;
 			}
 		});
@@ -409,4 +430,19 @@ public class DetailFragment extends Fragment
 		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}	
+	
+	private void shareAction(int aId, String aDesc)
+	{
+		if (ShareDialog.canShow(ShareLinkContent.class))
+		{
+			ShareLinkContent content = new ShareLinkContent.Builder()
+			.setContentTitle("New offer")
+			.setContentDescription(aDesc)
+			.setContentUrl(Uri.parse("http://geoad.somee.com/offer/" + aId))
+			.build();
+
+			ShareDialog shareDialog = new ShareDialog(getActivity());
+		    shareDialog.show(content);
+		}		
+	}
 }

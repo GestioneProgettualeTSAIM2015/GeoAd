@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,6 +58,7 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -64,6 +66,9 @@ import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.Toast;
 
 import com.beyondar.android.util.ImageUtils;
+import com.facebook.FacebookSdk;
+import com.facebook.share.model.ShareLinkContent;
+import com.facebook.share.widget.ShareDialog;
 import com.google.android.gms.maps.model.LatLng;
 import com.loopj.android.http.RequestParams;
 
@@ -76,7 +81,7 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 							   EDIT_LOCATION_NAME_FRAGMENT_TAG = "editlocationnamefragmenttag",
 							   EDIT_LOCATION_DESCRIPTION_FRAGMENT_TAG = "editlocationdescriptionfragmenttag";
 	
-	public enum ActionType {SHARE, DELETE}
+	public enum ActionType {SHARE, SHARE_FB, DELETE}
 	
 	public static final int LOCATION_STATE_RC = 0;
 	
@@ -87,20 +92,19 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 	protected static final int TAKE_PHOTO = 1;
 	protected static final int PHOTO_FROM_GALLERY = 2;
 	private LocationModel mLoc;
-	private TextView mPCat;
-	private TextView mSCat;
-	private TextView mDesc;
+	private TextView mPCat, mName, mSCat, mDesc, mType;
 	private LinearLayout mThumbScroll;
 	private ExpandableListView mExpandable;
 	private OfferExpandableListAdapter mAdapter;
 	private ProgressBar mProgressThumb;
+	private ImageButton mButtonImageGoToMap;
 	private String mOffersString;
 	private boolean mThumbUpdated = false;
 	
 	private File mPhotoFile;
 	private Bitmap mSelectedImage;
 	private String mPath;
-	
+		
 	private String mUriString;
 	
 	public static EditLocationFragment getInstance(Bundle aBundle)
@@ -118,12 +122,16 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 			Bundle savedInstanceState) {
 		
 		View view = inflater.inflate(R.layout.fragment_detail, container, false);
+		mName = (TextView) view.findViewById(R.id.textViewName);
 		mPCat = (TextView) view.findViewById(R.id.textViewPCat);
 		mSCat = (TextView) view.findViewById(R.id.textViewSCat);
 		mDesc = (TextView) view.findViewById(R.id.textViewDesc);
+		mType = (TextView) view.findViewById(R.id.textViewType);
 		mThumbScroll = (LinearLayout) view.findViewById(R.id.thumbContainer);
 		mExpandable = (ExpandableListView) view.findViewById(R.id.expandableListViewOffer);
 		mProgressThumb = (ProgressBar) view.findViewById(R.id.progressBarThumb);
+		mButtonImageGoToMap = (ImageButton) view.findViewById(R.id.btnGoToMap);
+		
 		setHasOptionsMenu(true);
 		
 		mPhotoFile = Utils.createPhotoFile();
@@ -138,6 +146,21 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 				return false;
 			}
 		});
+		
+		mButtonImageGoToMap.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				if (mLoc != null) {
+					double lat = mLoc.getLat();
+					double lng = mLoc.getLng();
+					Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("geo:" + lat + "," + lng + "?q= " + lat + "," + lng + "( " + mLoc.getName() + ")"));
+					getActivity().startActivity(intent);
+				}
+			}
+		});
+		
+		FacebookSdk.sdkInitialize(getActivity());
 		
 		return view;
 	}
@@ -226,7 +249,7 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 			mLoc = LocationModel.fromBundle(savedInstanceState.getBundle(LOCATION));
 			mOffersString = savedInstanceState.getString(OFFERS);
 		}
-		
+
 		setHasOptionsMenu(true);
 		
 		super.onCreate(savedInstanceState);
@@ -235,8 +258,8 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 
 	private void populateFragment()
 	{
-		getActivity().setTitle(mLoc.getName());
-		
+		getActivity().getActionBar().setTitle("GeoAd");
+		mName.setText(mLoc.getName());
 		String vSub = "";
 		switch(mLoc.getType())
 		{
@@ -251,12 +274,12 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 				break;
 			}
 		}
-		getActivity().getActionBar().setSubtitle(vSub);
+		mType.setText(vSub);
 		
 		mPCat.setText(mLoc.getPCat());
-		if(!mLoc.getSCat().isEmpty())
+		if(mLoc.getSCat() != null && !mLoc.getSCat().isEmpty())
 		{
-			mSCat.setText("(" + mLoc.getSCat() + ")");	
+			mSCat.setText(mLoc.getSCat());	
 		}
 		
 		mDesc.setText(mLoc.getDesc());
@@ -301,6 +324,13 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 				vT.setOnLongClickListener(mThumbLongClickListener);
 				mThumbScroll.addView(vT);
 			}
+			TextView vView = (TextView) getView().findViewById(R.id.no_image);
+			vView.setVisibility(TextView.INVISIBLE);
+		}
+		else
+		{
+			TextView vView = (TextView) getView().findViewById(R.id.no_image);
+			vView.setVisibility(TextView.VISIBLE);
 		}
 		if(!mThumbUpdated) {
 			if(vCachedThumb == null)
@@ -479,6 +509,10 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 					intent.setType("text/plain");
 					intent.putExtra(Intent.EXTRA_TEXT, "Location: " + mLoc.getName() + " aToShare: " + aToAction.toString());
 					startActivity(Intent.createChooser(intent, "Share"));
+					
+					break;
+				case SHARE_FB:
+					shareAction(aToAction.mId, aToAction.mDesc);
 					break;
 				case DELETE:
 					ConnectionManager.obtain().delete(Routes.OFFERS + "/" + aToAction.mId, new JsonResponse() {
@@ -608,8 +642,8 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 
 	@Override
 	public void onStart() {
-		populateFragment();
 		super.onStart();
+		populateFragment();
 	}
 
 	@Override
@@ -703,5 +737,20 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 				if (aResult)
 					removeThumb(id);
 			}});
+	}
+	
+	private void shareAction(int aId, String aDesc)
+	{
+		if (ShareDialog.canShow(ShareLinkContent.class))
+		{
+			ShareLinkContent content = new ShareLinkContent.Builder()
+			.setContentTitle("New offer")
+			.setContentDescription(aDesc)
+			.setContentUrl(Uri.parse("http://geoad.somee.com/offer/" + aId))
+			.build();
+
+			ShareDialog shareDialog = new ShareDialog(getActivity());
+		    shareDialog.show(content);
+		}		
 	}
 }
