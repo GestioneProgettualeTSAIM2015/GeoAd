@@ -14,13 +14,36 @@
             android:id="@+id/detailContent"
             android:layout_width="wrap_content"
             android:layout_height="match_parent" >
+            
+            <TextView
+                android:id="@+id/textViewName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TextView"
+                android:textSize="32sp" />
+            
+            <ImageButton
+                android:id="@+id/btnGoToMap"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:background="@android:drawable/ic_menu_mapmode" />
 
             <TextView
                 android:id="@+id/textViewPCat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="TextView"
+                android:layout_below="@+id/textViewName"
+                android:text="primary"
                 android:textSize="18sp" />
+            
+             <TextView
+                android:id="@+id/textViewType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textViewPCat"
+                android:textSize="12sp" />
 
             <RelativeLayout
                 android:id="@+id/thumbLayout"
@@ -58,12 +81,7 @@
                 </HorizontalScrollView>
             </RelativeLayout>
 
-            <TextView
-                android:id="@+id/textViewSCat"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true" />
+
 
             <TextView
                 android:id="@+id/textViewDesc"
@@ -103,7 +121,15 @@
                 android:layout_below="@+id/textViewOffTitle" >
 
             </ExpandableListView>
+
+            <TextView
+                android:id="@+id/textViewSCat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/textViewName"
+                android:textSize="18sp" />
+
         </RelativeLayout>
     </ScrollView>
-
 </RelativeLayout>

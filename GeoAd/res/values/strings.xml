@@ -5,6 +5,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="new_offer">New offer for</string>
     <string name="title_activity_new_offer">New Offer</string>
+    <string name="facebook_app_id">473533626128152</string>
     
     <string-array name="navigation_drawer_strings">
         <item>Ricerca</item>
@@ -77,6 +78,7 @@
     <string name="edit_upload_finished">Upload terminato</string>
     <string name="edit_offer_deleted">Offerta eliminata</string>
     <string name="edit_offer_inserted">Offerta inserita</string>
+    <string name="facebook_share_text">Condividi</string>
     
     <string name="delete_photo_dialog_title">Cancella foto</string>
     <string name="delete_photo_dialog_text">Sei sicuro di voler cancellare questa foto?</string>

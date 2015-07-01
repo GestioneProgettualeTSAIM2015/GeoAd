@@ -6,6 +6,8 @@ import it.itskennedy.tsaim.geoad.fragments.EditLocationFragment.ActionType;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.facebook.share.widget.ShareButton;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -70,8 +72,8 @@ public class OfferExpandableListAdapter extends BaseExpandableListAdapter
 	    vDesc.setText(mContents.get(groupPosition).get(childPosition).mDesc);
 
 	    TextView vExp = (TextView) convertView.findViewById(R.id.textViewChildExp);
+	    
 	    vExp.setText(mContext.getString(R.string.expire) + ": " + mContents.get(groupPosition).get(childPosition).mExp);
-	   
 	    ImageButton vShare = (ImageButton) convertView.findViewById(R.id.imageButtonShare);
 	    vShare.setOnClickListener(new OnClickListener()
 	    {	
@@ -81,6 +83,19 @@ public class OfferExpandableListAdapter extends BaseExpandableListAdapter
 				if(mListener != null)
 				{
 					mListener.onAction(ActionType.SHARE, getChild(groupPosition, childPosition));
+				}
+			}
+		});
+	    
+	    ImageButton vShareFacebook = (ImageButton) convertView.findViewById(R.id.imageButtonFacebookShare);
+	    vShareFacebook.setOnClickListener(new OnClickListener()
+	    {	
+			@Override
+			public void onClick(View v)
+			{
+				if(mListener != null)
+				{
+					mListener.onAction(ActionType.SHARE_FB, getChild(groupPosition, childPosition));
 				}
 			}
 		});
