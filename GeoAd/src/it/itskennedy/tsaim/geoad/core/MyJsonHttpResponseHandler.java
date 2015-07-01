@@ -41,7 +41,7 @@ public class MyJsonHttpResponseHandler extends JsonHttpResponseHandler
     {
     	if(mListener != null)
     	{
-    		mListener.onResponse(false, null);
+    		mListener.onResponse(false, errorResponse);
     	}
     }
     
@@ -63,11 +63,11 @@ public class MyJsonHttpResponseHandler extends JsonHttpResponseHandler
 	{
 		if(mListener != null && statusCode == 200)
 		{
-			mListener.onResponse(true, null);
+			mListener.onResponse(true, errorResponse);
 		}
 		else if(mListener != null)
 		{
-			mListener.onResponse(false, null);
+			mListener.onResponse(false, errorResponse);
 		}
 	}
 }

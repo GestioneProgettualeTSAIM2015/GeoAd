@@ -124,6 +124,9 @@ public class LocationManager implements LocationListener, ConnectionCallbacks, O
 			mListeners = new ArrayList<LocationListener>();
 		}
 		
+		if (mPosition != null)
+			aListener.onLocationUpdated(mPosition);
+		
 		mListeners.add(aListener);
 	}
 	

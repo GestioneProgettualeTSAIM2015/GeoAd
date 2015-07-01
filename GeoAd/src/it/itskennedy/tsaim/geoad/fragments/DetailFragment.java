@@ -13,7 +13,7 @@ import it.itskennedy.tsaim.geoad.core.Routes;
 import it.itskennedy.tsaim.geoad.entity.LocationModel;
 import it.itskennedy.tsaim.geoad.entity.Offer;
 import it.itskennedy.tsaim.geoad.entity.Thumb;
-import it.itskennedy.tsaim.geoad.fragment.EditLocationFragment.ActionType;
+import it.itskennedy.tsaim.geoad.fragments.EditLocationFragment.ActionType;
 
 import java.util.List;
 

@@ -199,17 +199,12 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		super.onNewIntent(intent);
 		switch (intent.getAction())
 		{
-
-
-	private void checkIntent(Intent intent) {
-			case DETAIL_ACTION:
-				loadFragment(Utils.TYPE_DETAIL, intent.getBundleExtra(DETAIL_DATA), null);
-				break;
-		case MY_LOCATION_ACTION:
-			loadFragment(Utils.TYPE_LOCATIONS, null);
+		case DETAIL_ACTION:
+			loadFragment(Utils.TYPE_DETAIL, intent.getBundleExtra(DETAIL_DATA), null);
 			break;
-			default:
-				break;
+		case MY_LOCATION_ACTION:
+			loadFragment(Utils.TYPE_LOCATIONS, null, null);
+			break;
 		}
 	}
 
@@ -442,6 +437,8 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 	@Override
 	public void onLocationUpdated(Location aLocation)
 	{
+		if (aLocation == null) return;
+		
 		mCurrentLocation = aLocation;
 		setFilterLocation(null, aLocation);
 //		LocationManager.get(this).removeListener(this);
@@ -562,9 +559,11 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 	@Override
 	protected void onSaveInstanceState(Bundle outState) 
 	{
-		outState.putSerializable(LOCATION_LIST, mLocationList);
-		outState.putSerializable(POSITION_LAT, mCurrentLocation.getLatitude());
-		outState.putSerializable(POSITION_LNG, mCurrentLocation.getLongitude());
+		if (mLocationList != null) {
+			outState.putSerializable(LOCATION_LIST, mLocationList);
+			outState.putSerializable(POSITION_LAT, mCurrentLocation.getLatitude());
+			outState.putSerializable(POSITION_LNG, mCurrentLocation.getLongitude());
+		}
 		super.onSaveInstanceState(outState);
 	}
 
@@ -576,5 +575,24 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 	public int getCurrentRadiusFilter()
 	{
 		return mFilterMap != null ? Integer.parseInt(mFilterMap.get(Utils.RADIUS).toString()) : 8;
+	}
+
+	@Override
+	public void checkAuth()
+	{
+		ConnectionManager.obtain().get(Routes.AUTH, null, new JsonResponse()
+		{	
+			@Override
+			public void onResponse(boolean aResult, Object aResponse) 
+			{
+				if(!aResult)
+				{
+					Toast.makeText(MainActivity.this, getString(R.string.unauthorized), Toast.LENGTH_SHORT).show();
+					isLogged = false;
+					SettingsManager.get(MainActivity.this).saveToken(null);
+					loadFragment(Utils.TYPE_LOCATIONS, null, null);
+				}
+			}
+		});
 	}
 }

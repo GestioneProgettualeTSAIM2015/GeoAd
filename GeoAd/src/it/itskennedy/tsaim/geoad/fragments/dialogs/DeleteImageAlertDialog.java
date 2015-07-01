@@ -1,10 +1,10 @@
-package it.itskennedy.tsaim.geoad.fragment.dialogs;
+package it.itskennedy.tsaim.geoad.fragments.dialogs;
 
 import it.itskennedy.tsaim.geoad.R;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager;
 import it.itskennedy.tsaim.geoad.core.Routes;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager.JsonResponse;
-import it.itskennedy.tsaim.geoad.fragment.EditLocationFragment;
+import it.itskennedy.tsaim.geoad.fragments.EditLocationFragment;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;

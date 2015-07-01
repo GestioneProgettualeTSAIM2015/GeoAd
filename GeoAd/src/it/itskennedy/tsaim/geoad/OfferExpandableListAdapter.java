@@ -1,7 +1,7 @@
 package it.itskennedy.tsaim.geoad;
 
 import it.itskennedy.tsaim.geoad.entity.Offer;
-import it.itskennedy.tsaim.geoad.fragment.EditLocationFragment.ActionType;
+import it.itskennedy.tsaim.geoad.fragments.EditLocationFragment.ActionType;
 
 import java.util.ArrayList;
 import java.util.List;

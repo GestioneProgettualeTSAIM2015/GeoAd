@@ -52,6 +52,7 @@
     <string name="action_map">Visualizza su mappa</string>
     
     <string name="name">Nome</string>
+    <string name="type">Tipo</string>
     <string name="desc">Descrizione</string>
     <string name="expiring_date">Data di scadenza</string>
     

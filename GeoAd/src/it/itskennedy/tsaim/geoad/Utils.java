@@ -7,8 +7,6 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import com.google.android.gms.appdatasearch.GetRecentContextCall;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
