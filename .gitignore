@@ -189,14 +189,12 @@ Thumbs.db
 **/*.project
 
 # Android Studio
-*.iml
-.idea/
-#.idea/workspace.xml - remove # and delete .idea if it better suit your needs.
-*.gradle
-build/
-
-##TestFiles
-Tests-*.*
+.gradle
+**/local.properties
+**/.idea/workspace.xml
+**/.idea/libraries
+.DS_Store
+**/build
 
 ##Exceptions
 !Npgsql.dll
@@ -206,3 +204,6 @@ Tests-*.*
 Tests-*.*
 *.secret.config
 *config.json
+
+GeoAd/.settings/org.eclipse.jdt.core.prefs
+GeoAd/project.properties

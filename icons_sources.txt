@@ -1,0 +1,4 @@
+edit map	http://www.icons4android.com/icon/1577
+add photo	http://www.icons4android.com/icon/1489
+edit		http://www.icons4android.com/icon/1219
+star		http://www.icons4android.com/icon/1397

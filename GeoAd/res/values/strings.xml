@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">GeoAd</string>
+    <string name="new_offer">Nuova offerta per</string>
+    <string name="title_activity_new_offer">Nuova offerta</string>
+    <string name="facebook_app_id">473533626128152</string>
+    
+    <string-array name="navigation_drawer_strings">
+        <item>Ricerca</item>
+        <item>Realtà Aumentata</item>
+        <item>Preferiti/Ignorati</item>
+    </string-array>
+    
+    <string name="poi">Punto d\'interesse</string>
+    <string name="ca">Attività commerciale</string>
+    
+    <string name="offers">Offerte</string>
+    <string name="expire">Scadenza</string>
+    
+    <string name="my_location">Le tue attività</string>
+    <string name="my_location_empty">Non hai registrato nessuna attività</string>
+    <string name="location_edit">Modifica Attività</string>
+    <string name="remove_myloc">Cancellare la tua attività?</string>
+    
+    <string name="location_state">Opzioni Luogo</string>
+    <string name="favorite">Preferito</string>
+    <string name="ignored">Ignorato</string>
+    
+    <string name="save">Salva</string>
+    <string name="close">Chiudi</string>
+    
+    <string name="dont_show_again">Non mostrare più</string>
+    
+    <string name="favorite_desc">Aggiungendo un luogo tra i preferiti potrai consultarne i dettagli anche in assenza di rete e abiliterai la ricezione delle offerte anche se non ti trovi vicino ad esso.</string>
+    <string name="ignored_desc">Aggungendo un luogo tra quelli ignorati interromperai la ricezione delle sue offerte. Puoi rimuovere un luogo dagli ignorati in qualsiasi momento.</string>
+    
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    
+    <string name="widget_title">Offerte GeoAd</string>
+    <string name="widget_button">Gestisci le tue attività</string>
+    <string name="no_offer">Non sono presenti offerte</string>
+    
+    <string name="favorite_loc">Luoghi preferiti</string>
+    <string name="ignored_loc">Luoghi ignorati</string>
+    
+    <string name="remove_marked_fav">Rimuovere il luogo dai preferiti?</string>
+    <string name="remove_marked_ign">Rimuovere il luogo dagli ignorati?</string>
+    
+    <string name="action_map">Visualizza su mappa</string>
+    
+    <string name="name">Nome</string>
+    <string name="type">Tipo</string>
+    <string name="desc">Descrizione</string>
+    <string name="expiring_date">Data di scadenza</string>
+    
+    <string name="cancel">Annulla</string>
+    <string name="create">Crea</string>
+    <string name="edit">Modifica</string>
+    <string name="confirm">Conferma</string>
+    
+    <string name="add_photo">Aggiungi foto</string>
+    <string name="add_offering">Nuova offerta</string>
+    <string name="edit_name">Modifica nome</string>
+    <string name="edit_description">Modifica descrizione</string>
+    <string name="take_photo">Scatta foto</string>
+    <string name="choose_image">Foto da galleria</string>
+    
+    <string name="unauthorized">Non autorizzato. Effettuare login!</string>
+    <string name="offer_title">Offerta: </string>
+    <string name="offer_exp_date">Scadenza: </string>
+    <string name="location_cat">Categoria: </string>
+    <string name="location_button_goto">Vai al dettaglio della location</string>
+    <string name="actvity_offer_detail_title">Dettaglio offerta</string>
+    <string name="edit_upload_finished">Upload terminato</string>
+    <string name="edit_offer_deleted">Offerta eliminata</string>
+    <string name="edit_offer_inserted">Offerta inserita</string>
+    <string name="facebook_share_text">Condividi</string>
+    
+    <string name="delete_photo_dialog_title">Cancella foto</string>
+    <string name="delete_photo_dialog_text">Sei sicuro di voler cancellare questa foto?</string>
+
+    <string name="delete_offer_dialog_title">Cancella offerta</string>
+    <string name="delete_offer_dialog_text">Sei sicuro di voler cancellare questa offerta?</string>
+
+    <string name="filter">Filtra</string>
+    <string name="reset">Reset</string>
+    
+    <string name="login">Login</string>
+    <string name="my_activities">Le mie attività</string>
+    
+    <string name="category">Categoria</string>
+    <string name="primary">Primaria</string>
+    <string name="secondary">Secondaria</string>
+    <string name="distance">Distanza</string>
+    
+    <string name="no_image">Non sono presenti immagini</string>
+
+</resources>
