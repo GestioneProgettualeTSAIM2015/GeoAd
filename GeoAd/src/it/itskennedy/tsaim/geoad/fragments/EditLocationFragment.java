@@ -315,6 +315,7 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 			}
 		}
 
+		TextView vView = (TextView) mView.findViewById(R.id.no_image);
 		List<Thumb> vCachedThumb = Engine.get().getCache().getThumbs(mLoc.getId());
 		if(vCachedThumb != null)
 		{
@@ -325,16 +326,16 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 				vT.setOnLongClickListener(mThumbLongClickListener);
 				mThumbScroll.addView(vT);
 			}
+			
+			vView.setVisibility(TextView.INVISIBLE);
 		}
 		else
 		{
-			TextView vView = (TextView) mView.findViewById(R.id.no_image);
 			vView.setVisibility(TextView.VISIBLE);
 		}
 		if(!mThumbUpdated) {
 			if(vCachedThumb == null){
 				mProgressThumb.setVisibility(ProgressBar.VISIBLE);
-				TextView vView = (TextView) mView.findViewById(R.id.no_image);
 				vView.setVisibility(TextView.INVISIBLE);
 			}
 			RequestParams vParams = new RequestParams();
@@ -348,12 +349,8 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 					if(aResult && aResponse != null)
 					{
 						JSONArray vThumbArray = (JSONArray) aResponse;
-						
-						if(vThumbArray.length() == 0)
-						{
-							TextView vView = (TextView) mView.findViewById(R.id.no_image);
-							vView.setVisibility(TextView.VISIBLE);
-						}
+						TextView vView = (TextView) mView.findViewById(R.id.no_image);
+
 						for(int i = 0; i < vThumbArray.length(); ++i)
 						{
 							int vId;
@@ -391,10 +388,15 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 
 						mThumbUpdated = true;
 						mProgressThumb.setVisibility(ProgressBar.INVISIBLE);
+						if(mThumbScroll.getChildCount() > 0)
+						{
+							vView.setVisibility(TextView.INVISIBLE);
+						} else {
+							vView.setVisibility(TextView.VISIBLE);
+						}
 					}
 				}
 			});
-
 		}
 	}
 	

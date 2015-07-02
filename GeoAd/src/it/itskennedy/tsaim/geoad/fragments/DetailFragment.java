@@ -317,12 +317,7 @@ public class DetailFragment extends Fragment
 					if(aResult && aResponse != null)
 					{
 						JSONArray vThumbArray = (JSONArray) aResponse;
-						
-						if(vThumbArray.length() == 0)
-						{
-							TextView vView = (TextView) mView.findViewById(R.id.no_image);
-							vView.setVisibility(TextView.VISIBLE);
-						}
+						TextView vView = (TextView) mView.findViewById(R.id.no_image);
 						
 						for(int i = 0; i < vThumbArray.length(); ++i)
 						{
@@ -360,6 +355,12 @@ public class DetailFragment extends Fragment
 						
 						mThumbUpdated = true;
 						mProgressThumb.setVisibility(ProgressBar.INVISIBLE);
+						if(mThumbScroll.getChildCount() > 0)
+						{
+							vView.setVisibility(TextView.INVISIBLE);
+						} else {
+							vView.setVisibility(TextView.VISIBLE);
+						}
 					}
 				}
 			});
