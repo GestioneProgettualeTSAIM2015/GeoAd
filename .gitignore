@@ -200,3 +200,9 @@ Tests-*.*
 
 ##Exceptions
 !Npgsql.dll
+
+
+##Others
+Tests-*.*
+*.secret.config
+*config.json

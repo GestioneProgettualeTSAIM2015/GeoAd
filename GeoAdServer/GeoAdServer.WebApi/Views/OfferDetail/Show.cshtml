@@ -1,0 +1,62 @@
+﻿@model GeoAdServer.Domain.Entities.DTOs.OfferDTO
+
+<h2>Offerta &ldquo;@Model.Name&rdquo;</h2>
+
+<br />
+<div class="container">
+    <div class="row">
+        <table class="table-bordered table-striped">
+            <tr>
+                <th class="text-center">
+                    Nome
+                </th>
+                <th class="text-center">
+                    Descrizione
+                </th>
+                <th class="text-center">
+                    Inserimento
+                </th>
+                <th class="text-center">
+                    Scadenza
+                </th>
+            </tr>
+            <tr>
+                <td class="col-md-2">
+                    @Html.Raw(@Model.Name)
+                </td>
+                <td class="col-md-2">
+                    @Html.Raw(@Model.Desc)
+                </td>
+                <td class="col-md-2">
+                    @{
+                        var date = new DateTime(1970, 1, 1);
+                        date = date.AddMilliseconds(@Model.InsDateMillis);
+                        @Html.Raw(date.ToString("yyyy-MM-dd"))
+                    }
+                </td>
+                <td class="col-md-2">
+                    @{
+                        var dateexp = new DateTime(1970, 1, 1);
+                        dateexp = dateexp.AddMilliseconds(@Model.ExpDateMillis);
+                        @Html.Raw(dateexp.ToString("yyyy-MM-dd"))
+                    }
+
+                </td>
+            </tr>
+        </table>
+    </div>
+    <br /><hr />
+    <div class="row">
+        <div class="text-center">
+            <h4><b>Scarica l'app GeoAd</b></h4>
+        </div>
+    </div>
+    <br />
+    <div class="row text-center">
+        <a style="padding: 5px" href="http://store.apple.com/us" target="_blank"><img src="~/Content/images/apstore.png" alt="app store" /></a>
+        &nbsp;
+        <a style="padding: 5px" href="https://play.google.com/store" target="_blank"><img src="~/Content/images/gpstore.png" alt="google play store" /></a>
+        &nbsp;
+        <a style="padding: 5px" href="https://www.windowsphone.com/en-us/store" target="_blank"><img src="~/Content/images/wpstore.png" alt="windows phone store" /></a>
+    </div>
+</div>

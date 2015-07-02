@@ -1,0 +1,254 @@
+﻿
+@if (ViewBag.IsAdmin)
+{
+    <h2>Modifica Punto d'Interesse</h2>
+}
+else
+{
+    <h2>Modifica Attività Commerciale</h2>
+}
+    
+<div class="row">
+    <div class="form-horizontal col-md-5">
+
+        <input type="hidden" name="lat" id="lat" required title="Indicare sulla mappa dove si trova" value="@Model.Location.Lat" />
+        <input type="hidden" name="lng" id="lng" required title="Indicare sulla mappa dove si trova" value="@Model.Location.Lng" />
+
+        <span class="form-group">
+            <input type="text" id="locName" name="Name" class="form-control" placeholder="Nome" value="@Model.Location.Name" required autofocus />
+        </span>
+
+        <span class="form-group">
+            <textarea id="locDesc" class="form-control" style="resize:none;" rows="6" placeholder="Descrizione" maxlength="@(System.Configuration.ConfigurationManager.AppSettings["maxLocationDescriptionLength"])">@Model.Location.Desc</textarea>
+        </span>
+
+        <span class="form-group">
+            <span class="selectLabel ">Categoria Principale</span>
+            <select class="form-control" id="selectPCat" name="PCat" required>
+                @foreach (var pcat in @Model.CategoriesMap.Keys)
+                {
+                    <option @(Model.Location.PCat == pcat ? "selected" : "") value="@pcat">@pcat</option>
+                }
+            </select>
+        </span>
+
+        <span class="form-group">
+            <span class="selectLabel ">Categoria Secondaria</span>
+            <select class="form-control" id="selectSCat" name="SCat" required></select>
+            <select id="hiddenSCats" name="SCat" hidden>
+                @foreach (var pair in @Model.CategoriesMap)
+                {
+                    foreach (var scat in pair.Value)
+                    {
+                        <option @(Model.Location.SCat == scat ? "selected" : "") data-pcat="@pair.Key" value="@scat">@scat</option>
+                    }
+                }
+            </select>
+            <input type="text" class="form-control" id="newSCat" placeholder="Nuova categoria secondaria" />
+        </span>
+        <span class="form-group">
+            @Html.ActionLink("Annulla", "ManageLocations", "Dashboard", null,
+            new
+            {
+                @class = "btn btn-default",
+                @id = "btnAnnulla"
+            })
+            <button type="button" id="btnCreate" class="btn btn-primary" data-toggle="modal" style="margin-left: 40px">Modifica</button>
+        </span>
+    </div>
+
+    <div class="col-md-7">
+        <div id="map_container" style="min-height:350px;">&nbsp;</div>
+        <br />
+        <span class="alert alert-danger" role="alert" id="errorAlert" style="display: none; float: right"></span>
+        <span class="alert alert-success" role="alert" id="successAlert" style="display: none; float: right">Luogo modificato!</span>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="modalConferma" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Conferma modifica</h4>
+            </div>
+            <div class="modal-body">
+                <b>Confermi la modifica del@(ViewBag.IsAdmin ? " punto di interesse" : "l'attività commerciale") con i seguenti dati?</b>
+                <div style="margin-top: 20px">
+                    <table class="table table-striped table-bordered table-condensed" id="confirmData"></table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="cancelModal" class="btn btn-default" data-dismiss="modal">Annulla</button>
+                <button class="btn btn-primary" id="btnConfirmAndCreate">Conferma e modifica</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript">
+
+        $(function () {
+
+            var errorAlert = $("#errorAlert");
+            var successAlert = $("#successAlert");
+
+            var confirmData = $("#confirmData");
+
+            var newSCat = $("#newSCat");
+            var selectPCat = $("#selectPCat");
+            var selectSCat = $("#selectSCat");
+            var hiddenSCats = $("#hiddenSCats");
+
+            newSCat.on('input', function () {
+                if (newSCat.val().length > 0) {
+                    selectSCat.find("option").remove().end()
+                        .append("<option value='" + newSCat.val() + "'>" + newSCat.val() + "</option>");
+                } else {
+                    showSCats(selectPCat.val());
+                }
+            });
+
+            selectPCat.on('change', function () {
+                newSCat.val("");
+                showSCats(this.value);
+            });
+
+            function showSCats(pCatValue) {
+                var optionsPerCat = $("option[data-pcat='" + pCatValue + "']", hiddenSCats);
+                selectSCat.find("option").remove().end().append("<option value='null'>N/S</option>").append(optionsPerCat.clone());
+            }
+
+            showSCats(selectPCat.val());
+
+            var map;
+            var marker;
+
+            function initializeMap() {
+                var options = {
+                    zoom: 15,
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                };
+                map = new google.maps.Map(document.getElementById("map_container"), options);
+            }
+
+            initializeMap();
+
+            google.maps.event.addListenerOnce(map, 'idle', function() {
+                var position = new google.maps.LatLng(@Model.Location.Lat, @Model.Location.Lng);
+                marker = new google.maps.Marker({
+                    position: position,
+                });
+
+                marker.setMap(map);
+                map.panTo(position);
+            });
+
+            function placeMarker(location) {
+                document.getElementById('lat').value = location.A;
+                document.getElementById('lng').value = location.F;
+
+                if (marker != undefined) {
+                    marker.setMap(null);
+                }
+
+                marker = new google.maps.Marker({
+                    position: location,
+                    map: map
+                });
+            }
+
+            var location;
+
+            $("#btnCreate").click(function () {
+                errorAlert.hide();
+
+                var name = $("#locName").val();
+                var desc = $("#locDesc").val();
+                var pcat = selectPCat.val();
+                var scat = selectSCat.val();
+                var lat = $("#lat").val();
+                var lng = $("#lng").val();
+
+                location = {
+                    Name: name,
+                    PCat: pcat,
+                    SCat: scat,
+                    Lat: lat,
+                    Lng: lng,
+                    Desc: desc
+                };
+
+                confirmData.html("");
+                if (!checkAndConfirm("Name", "Nome")) return;
+                if (!checkAndConfirm("Desc", "Descrizione")) return;
+                if (!checkAndConfirm("PCat", "Categoria primaria")) return;
+                if (!checkAndConfirm("SCat", "Categoria secondaria")) return;
+                if (!checkAndConfirm("Lat", "Latitudine")) return;
+                if (!checkAndConfirm("Lng", "Longitudine")) return;
+
+                console.log("location is valid");
+
+                $("#btnConfirmAndCreate").prop("disabled", false);
+                $('#modalConferma').modal({
+                    keyboard: true,
+                    show: true
+                });
+
+                $("#btnCreate").prop("disabled", true);
+            });
+
+            function checkAndConfirm(propName, alias) {
+                if (location[propName] == "null" || location[propName].length === 0) {
+                    if (propName !== "SCat") {
+                        errorAlert.text("Errore di compilazione del form: alcuni campi sono manganti o errati").fadeIn();
+                        return false;
+                    } else {
+                        delete location.SCat;
+                        return true;
+                    }
+                } else {
+                    if (propName !== "SCat" || (location[propName].length > 0 && location[propName] != "null")) {
+                        confirmData.append("<tr><td><i>" + (!alias ? propName : alias) + "</i></td><td>" + location[propName] + "</td></tr>");
+                    }
+
+                    return true;
+                }
+            }
+
+            $("#btnConfirmAndCreate").click(function () {
+
+                $("#cancelModal").prop("disabled", false);
+                $("#btnConfirmAndCreate").prop("disabled", true);
+                $("#cancelModal").prop("disabled", true);
+                $('#modalConferma').modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+
+                $.ajax({
+                    url: '../../api/Locations/' + @Model.Location.Id,
+                    type: 'PUT',
+                    data: location,
+                    beforeSend: function (xhr, settings) { xhr.setRequestHeader('Authorization', 'Bearer ' + getToken()); },
+                    success: function (result) {
+                        $('#modalConferma').modal("hide");
+                        successAlert.fadeIn();
+                        setTimeout(function () {
+                            $("#btnAnnulla")[0].click();
+                        }, 1000);
+                    },
+                    error: function (error) {
+                        $('#modalConferma').modal("hide");
+                        errorAlert.text("Errore:\n" + error.responseText).fadeIn();
+                        $("#btnCreate").prop("disabled", false);
+                    }
+                });
+            });
+        });
+
+</script>
+}

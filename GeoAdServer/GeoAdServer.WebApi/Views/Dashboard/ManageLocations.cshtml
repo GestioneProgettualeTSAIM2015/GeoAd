@@ -1,0 +1,128 @@
+﻿@model IEnumerable<GeoAdServer.Domain.Entities.DTOs.LocationDTO>
+
+@if (ViewBag.IsAdmin)
+{
+    <h2>Gestione Punti di interesse</h2>
+}
+else
+{ 
+    <h2>Gestione Attività Commerciali</h2>
+}
+
+@if (Model.Count() > 0)
+{
+    <table class="table-bordered table-striped">
+        <tr>
+            <th class="text-center">
+                Nome
+            </th>
+            <th class="text-center">
+                Categoria Primaria
+            </th>
+            <th class="text-center">
+                Categoria Secondaria
+            </th>
+            <th class="text-center">
+                Descrizione
+            </th>
+            <th class ="text-center">
+                Modifica
+            </th>
+            <th class="text-center">
+                Foto
+            </th>
+            @if (!ViewBag.IsAdmin)
+            {
+                <th class ="text-center">Offerte</th>
+            }
+            <th class ="text-center">
+                Elimina
+            </th>
+        </tr>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td class="col-md-2">
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td class="col-md-2">
+                    @Html.DisplayFor(modelItem => item.PCat)
+                </td>
+                <td class="col-md-2">
+                    @Html.DisplayFor(modelItem => item.SCat)
+                </td>
+                <td class="col-md-2">
+                    @Html.DisplayFor(modelItem => item.Desc)
+                </td>
+                <td class="col-md-1 text-center">
+                    @Html.ActionLink(" ", "EditLocation", "Dashboard", new { Id = item.Id }, new { @class = "glyphicon glyphicon-pencil", @style="color:black; text-decoration:none;" })                  
+                </td>
+                <td class="col-md-1 text-center">
+                    @Html.ActionLink(" ", "ManagePhotos", "Dashboard", new { Id = item.Id }, new { @class = "glyphicon glyphicon-camera", @style = "color:black; text-decoration:none;" })
+                </td>
+                @if (!ViewBag.IsAdmin)
+                {
+                    <td class="col-md-1 text-center">
+                        @Html.ActionLink(" ", "ManageOffers", "Dashboard", new { Id = item.Id }, new { @class = "glyphicon glyphicon-star", @style = "color:black; text-decoration:none;" }) 
+                    </td> 
+                }
+                <td class="col-md-1 text-center">
+                    <span class="glyphicon glyphicon-trash delete" id="@item.Id" data-name="@item.Name" style="cursor:pointer;"></span>
+                </td>
+            </tr>
+        }
+    </table>
+}
+else
+{
+    if (ViewBag.IsAdmin)
+    {
+        <h5>Non sono presenti punti d'interesse</h5>
+    }
+    else
+    {
+        <h5>Non hai registrato attività commerciali</h5>
+    }
+}
+<br />
+@Html.ActionLink("Home", "Home", "Dashboard", null, new
+{
+    @class = "btn btn-default"
+})
+
+@section scripts {
+    <script type="text/javascript">
+
+        $(".delete").click(function () {
+            var name = $(this).data("name");
+            var id = $(this).attr("id");
+
+            var r = confirm("Cancellare @{
+                if (ViewBag.IsAdmin)
+                {
+                     @Html.Raw("il punto d'interesse") 
+                }   
+                else
+                {
+                    @Html.Raw("l'attività commerciale")
+                }
+            } " + name + "?");
+            if (r == true)
+            {
+                $.ajax({
+                    url: '../api/Locations/' + id,
+                    type: 'DELETE',
+                    beforeSend: function(xhr, settings) { xhr.setRequestHeader('Authorization','Bearer ' + getToken()); },
+                    success: function (result)
+                    {
+                        window.location.reload();
+                    },
+                    error: function (error)
+                    {
+                        alert(error.responseText);
+                    }
+                });
+            }
+        });
+    </script>
+}

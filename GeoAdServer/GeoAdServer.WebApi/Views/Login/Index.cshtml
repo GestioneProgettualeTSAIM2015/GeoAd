@@ -1,0 +1,48 @@
+﻿@{
+    ViewBag.Title = "Account";
+}
+
+<h2>Account</h2>
+<div class="row" id="loginDiv">
+    <div class="col-md-6">
+        <form action="#" method="POST" id="regisForm">
+            <fieldset>
+                <input type="text" id="user" placeholder="Username" required class="form-control" autofocus /><br />
+                <input type="password" id="pass" placeholder="Password" required class="form-control" /><br />
+                <input type="password" id="confpass" placeholder="Confirm Password" required class="form-control" /><br />
+                <input type="submit" value="Register" class="btn btn-default" id="regis" />
+            </fieldset>
+        </form>
+        <span class="wploading" id="loadingRegis" style="visibility: hidden">
+            <span class="l-1"></span>
+            <span class="l-2"></span>
+            <span class="l-3"></span>
+            <span class="l-4"></span>
+            <span class="l-5"></span>
+            <span class="l-6"></span>
+        </span>
+    </div>
+    <div class="col-md-6">
+        <form action="#" method="POST" id="loginForm">
+            <fieldset>
+                <input type="text" id="user" placeholder="Username" required class="form-control" /><br />
+                <input type="password" id="pass" placeholder="Password" required class="form-control" /><br />
+                <input type="hidden" id="tokenInput" />
+                <input type="submit" value="Login" class="btn btn-primary" />
+            </fieldset>
+        </form>
+        <span class="wploading" id="loadingLogin" style="visibility: hidden">
+            <span class="l-1"></span>
+            <span class="l-2"></span>
+            <span class="l-3"></span>
+            <span class="l-4"></span>
+            <span class="l-5"></span>
+            <span class="l-6"></span>
+        </span>
+    </div>
+    <span class="alert alert-danger" role="alert" id="errorAlert" style="display: none">Errore:</span>
+</div>
+
+@section scripts {
+    <script src="~/Scripts/loginScript.js"></script>
+}

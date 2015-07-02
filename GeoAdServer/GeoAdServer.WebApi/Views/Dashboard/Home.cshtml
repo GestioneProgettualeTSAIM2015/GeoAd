@@ -1,0 +1,53 @@
+﻿<h2>Bentornato @ViewBag.Name</h2>
+
+<div>   
+        @if (ViewBag.IsAdmin)
+        {
+            <h5>Gestione Punti d'Interesse</h5>
+            <ul>
+                <li>@Html.ActionLink("Inserisci nuovo punto d'interesse", "NewLocation", "Dashboard")</li>
+                <li>@Html.ActionLink("Gestione punti d'interesse", "ManageLocations", "Dashboard")</li>
+            </ul>
+            <br />
+            <h5>Gestione Account</h5>
+            <ul>
+                <li id="logout"><a href="#">Logout</a></li>
+            </ul>
+        }
+        else
+        {
+            <h5>Gestione Attività Commerciali</h5>
+            <ul>
+                <li>@Html.ActionLink("Inserisci nuova attività commerciale", "NewLocation", "Dashboard")</li>
+                <li>@Html.ActionLink("Gestisci le tue attività", "ManageLocations", "Dashboard")</li>
+            </ul>
+            <br />
+            <h5>Gestione Account</h5>
+            <ul>
+                <li>@Html.ActionLink("Cambio Password", "ChangePassword", "Dashboard")</li>
+                <li id="logout"><a href="#">Logout</a></li>
+            </ul>
+        }
+</div>
+
+@section scripts {
+    <script src="~/Scripts/loginScript.js"></script>
+    <script type="text/javascript">
+        $("#logout").click(function ()
+        {
+            $.ajax({
+                url: '../api/Account/Logout',
+                type: 'POST',
+                beforeSend: function (xhr, settings) { xhr.setRequestHeader('Authorization', 'Bearer ' + getToken()); },
+                success: function (obj) {
+                    localStorage.clear();
+                    window.location.replace("../Login/Index");
+                },
+                error: function (error) {
+                    alert(error.responseText);
+                }
+            });
+        });
+    </script>
+}
+

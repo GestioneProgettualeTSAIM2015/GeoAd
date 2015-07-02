@@ -1,0 +1,35 @@
+﻿
+.selectLabel {
+    color: #555;
+    font-size: 14px;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.thumb {
+    margin-bottom: 30px;
+}
+
+.thumb div {
+    padding: 7px 0 7px 0;
+    border-radius: 5%;
+}
+
+.photo:hover {
+    background-color: azure;
+}
+
+.right-top-corner {
+    position: absolute;
+    right: 30px;
+    top: 10px;
+    border-radius: 20%;
+    padding: 7px;
+    font-size: 16px;
+    background-color: #ddd;
+}
+
+.right-top-corner:hover {
+    background-color: #ccc;
+}
