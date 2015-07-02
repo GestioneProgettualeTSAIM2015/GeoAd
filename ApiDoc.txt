@@ -76,8 +76,8 @@
 --- USER PREFERENCES --------------------------------------
 
 - /api/UserPreferences/MyPreferences/ijbao89h3 [GET][DELETE]
-- /api/UserPreferences/Favorites [POST][DELETE]
-- /api/UserPreferences/Ignored [POST][DELETE]
+- /api/UserPreferences/Favorites [POST][DELETE:URL_ENCODED]
+- /api/UserPreferences/Ignored [POST][DELETE:URL_ENCODED]
 
     {
         "Id": 549,
