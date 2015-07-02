@@ -19,9 +19,6 @@ import android.widget.TextView;
 
 public class OfferExpandableListAdapter extends BaseExpandableListAdapter 
 {
-	
-	
-	
 	private ActionOfferListener mListener;
 	
 	public interface ActionOfferListener
@@ -100,17 +97,6 @@ public class OfferExpandableListAdapter extends BaseExpandableListAdapter
 			}
 		});
 	    
-	    ImageButton vDelete = (ImageButton) convertView.findViewById(R.id.imageButtonDelete);
-	    vDelete.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				if(mListener != null)
-				{
-					mListener.onAction(ActionType.DELETE, getChild(groupPosition, childPosition));
-				}
-			}
-		});
 	    return convertView;
 	}
 
@@ -195,7 +181,7 @@ public class OfferExpandableListAdapter extends BaseExpandableListAdapter
 		
 		public String toString()
 		{
-			return "toString " + mExp;
+			return String.format("Offerta \"%s\": %s\nScadenza: %s", mName, mDesc, mExp);
 		}
 	}
 }

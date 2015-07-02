@@ -3,6 +3,7 @@ package it.itskennedy.tsaim.geoad.activities;
 import it.itskennedy.tsaim.geoad.R;
 import it.itskennedy.tsaim.geoad.augmentedreality.AugmentedRealityManager;
 import it.itskennedy.tsaim.geoad.augmentedreality.AugmentedRealityManager.AugmentedRealityListener;
+import it.itskennedy.tsaim.geoad.augmentedreality.AugmentedRealityManager.IAugmentedReality;
 import it.itskennedy.tsaim.geoad.entity.LocationModel;
 import it.itskennedy.tsaim.geoad.localdb.DataOffersContentProvider;
 import it.itskennedy.tsaim.geoad.localdb.OffersHelper;
@@ -43,7 +44,7 @@ import com.beyondar.android.world.GeoObject;
 import com.beyondar.android.world.World;
 
 public class AugmentedRealityActivity extends FragmentActivity implements
-		OnClickBeyondarObjectListener {
+		OnClickBeyondarObjectListener, IAugmentedReality {
 
 	private static final int TYPE_POI = 0;
 	private static final int TYPE_CA = 1;
@@ -67,52 +68,59 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 
 		@Override
 		public void onNewPosition(Location aCurrentLocation, List<LocationModel> aToDraw) {
-			mWorld.setGeoPosition(aCurrentLocation.getLatitude(),aCurrentLocation.getLongitude());
-			List<LocationModel> toAdd = new ArrayList<>();
+			handleNewPosition(aCurrentLocation, aToDraw);
+		}
+	};
+	
+	private void handleNewPosition(Location aCurrentLocation, List<LocationModel> aToDraw) {
+		
+		if (aCurrentLocation == null || aToDraw == null) return;
+		
+		mWorld.setGeoPosition(aCurrentLocation.getLatitude(),aCurrentLocation.getLongitude());
+		List<LocationModel> toAdd = new ArrayList<>();
 
-			//for every world object I check if they are still to be drawn or not
-			for (BeyondarObjectList objList : mWorld.getBeyondarObjectLists()) {
-				for (BeyondarObject obj : objList) {
-					if (findLocationFromId(obj.getId(), aToDraw) == null) {
-						mWorld.remove(obj);
-						LocationModel lmToDelete = findLocationFromId(obj.getId(), activeLocations);
-						activeLocations.remove(lmToDelete);
-					}
-				}
-			}
-			// for every location to draw I check if its new and I need to add it
-			for (LocationModel lm : aToDraw) {
-				if (findWorldObjectById(lm.getId()) == null) {
-					toAdd.add(lm);
-				}
-			}
-
-			for (int i = 0; i < toAdd.size(); ++i) {
-				LocationModel lm = toAdd.get(i);
-				activeLocations.add(lm);
-				GeoObject go = new GeoObject(lm.getId());
-				go.setGeoPosition(lm.getLocation().getLatitude(), lm.getLocation().getLongitude());
-				go.setName(lm.getName());
-				switch (lm.getType().toLowerCase()) {
-				case "poi":
-					if (activeOffersLocationIDs.contains(lm.getId()))
-						go.setImageResource(R.drawable.poi_o);
-					else
-						go.setImageResource(R.drawable.poi);
-					mWorld.addBeyondarObject(go, TYPE_POI);
-					break;
-
-				default:
-					if (activeOffersLocationIDs.contains(lm.getId()))
-						go.setImageResource(R.drawable.ca_o);
-					else
-						go.setImageResource(R.drawable.ca);
-					mWorld.addBeyondarObject(go, TYPE_CA);
-					break;
+		//for every world object I check if they are still to be drawn or not
+		for (BeyondarObjectList objList : mWorld.getBeyondarObjectLists()) {
+			for (BeyondarObject obj : objList) {
+				if (findLocationFromId(obj.getId(), aToDraw) == null) {
+					mWorld.remove(obj);
+					LocationModel lmToDelete = findLocationFromId(obj.getId(), activeLocations);
+					activeLocations.remove(lmToDelete);
 				}
 			}
 		}
-	};
+		// for every location to draw I check if its new and I need to add it
+		for (LocationModel lm : aToDraw) {
+			if (findWorldObjectById(lm.getId()) == null) {
+				toAdd.add(lm);
+			}
+		}
+
+		for (int i = 0; i < toAdd.size(); ++i) {
+			LocationModel lm = toAdd.get(i);
+			activeLocations.add(lm);
+			GeoObject go = new GeoObject(lm.getId());
+			go.setGeoPosition(lm.getLocation().getLatitude(), lm.getLocation().getLongitude());
+			go.setName(lm.getName());
+			switch (lm.getType().toLowerCase()) {
+			case "poi":
+				if (activeOffersLocationIDs.contains(lm.getId()))
+					go.setImageResource(R.drawable.poi_o);
+				else
+					go.setImageResource(R.drawable.poi);
+				mWorld.addBeyondarObject(go, TYPE_POI);
+				break;
+
+			default:
+				if (activeOffersLocationIDs.contains(lm.getId()))
+					go.setImageResource(R.drawable.ca_o);
+				else
+					go.setImageResource(R.drawable.ca);
+				mWorld.addBeyondarObject(go, TYPE_CA);
+				break;
+			}
+		}
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -120,6 +128,7 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 		setContentView(R.layout.activity_augmented_reality);
 		
 		mArgReality = new AugmentedRealityManager(this);
+		mArgReality.setIAugmentedRealityListener(this);
 		showViewOn = Collections.synchronizedList(new ArrayList<BeyondarObject>());
 		activeLocations = new ArrayList<LocationModel>();
 		
@@ -336,5 +345,10 @@ public class AugmentedRealityActivity extends FragmentActivity implements
 				return lm;
 		}
 		return null;
+	}
+
+	@Override
+	public void onServiceReady() {
+		handleNewPosition(mArgReality.getCurrentPosition(), mArgReality.getNears());
 	}
 }

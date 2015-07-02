@@ -1,11 +1,7 @@
 package it.itskennedy.tsaim.geoad.fragments.dialogs;
 
 import it.itskennedy.tsaim.geoad.R;
-import it.itskennedy.tsaim.geoad.core.ConnectionManager;
-import it.itskennedy.tsaim.geoad.core.Routes;
-import it.itskennedy.tsaim.geoad.core.ConnectionManager.JsonResponse;
 import it.itskennedy.tsaim.geoad.fragments.EditLocationFragment;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -13,16 +9,17 @@ import android.app.Fragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
-public class DeleteImageAlertDialog extends DialogFragment {
+public class DeleteOfferAlertDialog extends DialogFragment {
 
-	public static final String TAG = "image_delete_dialog";
+	public static final String TAG = "offer_delete_dialog";
 	private static final String ID = "id";
-	private int id;
+	private static final String POSITION = "position";
 	
-	public static DeleteImageAlertDialog getInstance(int id) {
-		DeleteImageAlertDialog vDialog = new DeleteImageAlertDialog();
+	public static DeleteOfferAlertDialog getInstance(int position, long id) {
+		DeleteOfferAlertDialog vDialog = new DeleteOfferAlertDialog();
 		Bundle bundle = new Bundle();
-		bundle.putInt(ID, id);
+		bundle.putLong(ID, id);
+		bundle.putInt(POSITION, position);
 		vDialog.setArguments(bundle);
 		
 		return vDialog;
@@ -32,14 +29,9 @@ public class DeleteImageAlertDialog extends DialogFragment {
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		
-		Bundle bundle = getArguments();
-		if (bundle != null) {
-			id = bundle.getInt(ID);
-		}
+		builder.setTitle(getResources().getString(R.string.delete_offer_dialog_title));
 		
-		builder.setTitle(getResources().getString(R.string.delete_photo_dialog_title));
-		
-		builder.setMessage(getResources().getString(R.string.delete_photo_dialog_text));
+		builder.setMessage(getResources().getString(R.string.delete_offer_dialog_text));
 		
 		builder.setPositiveButton(getResources().getString(R.string.confirm), new DialogInterface.OnClickListener() {
 			
@@ -47,8 +39,12 @@ public class DeleteImageAlertDialog extends DialogFragment {
 			public void onClick(DialogInterface dialog, int which) {
 				
 				Fragment f = getTargetFragment();
-				if (f instanceof EditLocationFragment)
-					((EditLocationFragment)f).deletePhoto(id);
+				Bundle args = getArguments();
+				if (f instanceof EditLocationFragment && args != null) {					
+					((EditLocationFragment)f).deleteOffer(
+							args.getInt(POSITION),
+							args.getLong(ID));
+				}
 			}
 		});
 		

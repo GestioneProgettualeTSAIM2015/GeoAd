@@ -1,5 +1,6 @@
 package it.itskennedy.tsaim.geoad.core;
 
+import it.itskennedy.tsaim.geoad.core.ConnectionManager.JsonResponse;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;

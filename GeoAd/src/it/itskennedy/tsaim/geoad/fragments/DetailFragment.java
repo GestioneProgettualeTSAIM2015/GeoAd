@@ -15,6 +15,7 @@ import it.itskennedy.tsaim.geoad.entity.Offer;
 import it.itskennedy.tsaim.geoad.entity.Thumb;
 import it.itskennedy.tsaim.geoad.fragments.EditLocationFragment.ActionType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -65,7 +66,8 @@ public class DetailFragment extends Fragment
 	private boolean mThumbUpdated = false;
 	private TextView mName;
 	private TextView mType;
-	private ImageButton mButtonImageGoToMap;
+	private List<Offer> mOffersList;
+	private View mView;
 	
 	private OnClickListener mThumbClickListener = new OnClickListener()
 	{	
@@ -80,8 +82,8 @@ public class DetailFragment extends Fragment
 			}
 		}
 	};
-
 	
+
 	public static DetailFragment getInstance(Bundle aBundle)
 	{
 		DetailFragment vFragment = new DetailFragment();
@@ -98,6 +100,7 @@ public class DetailFragment extends Fragment
 		if(savedInstanceState == null)
 		{
 			mLoc = LocationModel.fromBundle(getArguments());
+			mOffersList = new ArrayList<>();
 		}
 		else
 		{
@@ -151,15 +154,52 @@ public class DetailFragment extends Fragment
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
-		View view = inflater.inflate(R.layout.fragment_detail, container, false);
-		mPCat = (TextView) view.findViewById(R.id.textViewPCat);
-		mSCat = (TextView) view.findViewById(R.id.textViewSCat);
-		mDesc = (TextView) view.findViewById(R.id.textViewDesc);
-		mThumbScroll = (LinearLayout) view.findViewById(R.id.thumbContainer);
-		mExpandable = (ExpandableListView) view.findViewById(R.id.expandableListViewOffer);
-		mProgressThumb = (ProgressBar) view.findViewById(R.id.progressBarThumb);
-		mName = (TextView) view.findViewById(R.id.textViewName);
-		mType = (TextView) view.findViewById(R.id.textViewType);
+		mView = inflater.inflate(R.layout.fragment_detail, container, false);
+		mPCat = (TextView) mView.findViewById(R.id.textViewPCat);
+		mSCat = (TextView) mView.findViewById(R.id.textViewSCat);
+		mDesc = (TextView) mView.findViewById(R.id.textViewDesc);
+		mThumbScroll = (LinearLayout) mView.findViewById(R.id.thumbContainer);
+		mExpandable = (ExpandableListView) mView.findViewById(R.id.expandableListViewOffer);
+		mProgressThumb = (ProgressBar) mView.findViewById(R.id.progressBarThumb);
+		mName = (TextView) mView.findViewById(R.id.textViewName);
+		mType = (TextView) mView.findViewById(R.id.textViewType);
+		
+		mAdapter = new OfferExpandableListAdapter(getActivity(), mOffersList, new ActionOfferListener()
+		{	
+			@Override
+			public void onAction(ActionType actionType, OfferDetail aToAction)
+			{
+				switch (actionType) {
+				case SHARE:
+					Intent intent = new Intent();
+					intent.setAction(Intent.ACTION_SEND);
+	
+					intent.setType("text/plain");
+					intent.putExtra(Intent.EXTRA_TEXT, aToAction.toString() + "\nPresso " + mLoc.getName() + "\n\nCondiviso da GeoAd");
+					startActivity(Intent.createChooser(intent, "Share"));
+					
+					break;
+				case SHARE_FB:
+					shareFacebook(aToAction.mId, aToAction.mDesc);
+					break;
+
+				default:
+					break;
+				}
+			}
+		});
+		
+		mExpandable.setAdapter(mAdapter);
+		mExpandable.setEmptyView(mView.findViewById(R.id.textViewEmpty));
+		
+		mExpandable.setOnChildClickListener(new OnChildClickListener()
+		{	
+			@Override
+			public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id)
+			{
+				return false;
+			}
+		});
 		
 		mExpandable.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
 
@@ -172,7 +212,7 @@ public class DetailFragment extends Fragment
 		});
 		FacebookSdk.sdkInitialize(getActivity());
 		
-		return view;
+		return mView;
 	}
 
 	@Override
@@ -253,7 +293,7 @@ public class DetailFragment extends Fragment
 		}
 		else
 		{
-			TextView vView = (TextView) getView().findViewById(R.id.no_image);
+			TextView vView = (TextView) mView.findViewById(R.id.no_image);
 			vView.setVisibility(TextView.VISIBLE);
 		}
 		
@@ -262,14 +302,14 @@ public class DetailFragment extends Fragment
 			if(vCachedThumb == null)
 			{
 				mProgressThumb.setVisibility(ProgressBar.VISIBLE);
-				TextView vView = (TextView) getView().findViewById(R.id.no_image);
+				TextView vView = (TextView) mView.findViewById(R.id.no_image);
 				vView.setVisibility(TextView.INVISIBLE);
 			}
 			
 			RequestParams vParams = new RequestParams();
 			vParams.put("cache", Engine.get().getCache().getThumbIdList(mLoc.getId()).toString());
 			
-				ConnectionManager.obtain().get(Routes.PHOTO_FROM_LOCATION + mLoc.getId(), vParams, new JsonResponse()
+			ConnectionManager.obtain().get(Routes.PHOTO_FROM_LOCATION + mLoc.getId(), vParams, new JsonResponse()
 			{
 				@Override
 				public void onResponse(boolean aResult, Object aResponse) 
@@ -280,7 +320,7 @@ public class DetailFragment extends Fragment
 						
 						if(vThumbArray.length() == 0)
 						{
-							TextView vView = (TextView) getView().findViewById(R.id.no_image);
+							TextView vView = (TextView) mView.findViewById(R.id.no_image);
 							vView.setVisibility(TextView.VISIBLE);
 						}
 						
@@ -328,28 +368,11 @@ public class DetailFragment extends Fragment
 	
 	private void fillOffersList(JSONArray aArray)
 	{
-		List<Offer> vList = Offer.getListFromJsonArray(aArray);
-		mAdapter = new OfferExpandableListAdapter(getActivity(), vList, new ActionOfferListener()
-		{	
-			@Override
-			public void onAction(ActionType actionType, OfferDetail aToShare)
-			{
-				if (actionType == ActionType.SHARE){
-					shareAction(aToShare.mId, aToShare.mDesc);
-				}
-			}
-		});
-		mExpandable.setAdapter(mAdapter);
-		mExpandable.setEmptyView(getView().findViewById(R.id.textViewEmpty));
-		
-		mExpandable.setOnChildClickListener(new OnChildClickListener()
-		{	
-			@Override
-			public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id)
-			{
-				return false;
-			}
-		});
+		if (mOffersList != null) {
+			mOffersList.clear();
+			mOffersList.addAll(Offer.getListFromJsonArray(aArray));
+			mAdapter.notifyDataSetChanged();	
+		}
 	}
 	
 	private boolean alreadyAdded(int aThumbId)
@@ -416,15 +439,15 @@ public class DetailFragment extends Fragment
 		super.onActivityResult(requestCode, resultCode, data);
 	}	
 	
-	private void shareAction(int aId, String aDesc)
+	private void shareFacebook(int aId, String aDesc)
 	{
 		if (ShareDialog.canShow(ShareLinkContent.class))
 		{
 			ShareLinkContent content = new ShareLinkContent.Builder()
-			.setContentTitle("New offer")
-			.setContentDescription(aDesc)
-			.setContentUrl(Uri.parse("http://geoad.somee.com/offer/" + aId))
-			.build();
+				.setContentTitle("Offerta Geoad")
+				.setContentDescription(aDesc)
+				.setContentUrl(Uri.parse(Engine.SERVER_URL + Routes.OFFER_DETAIL_DASHBOARD + aId))
+				.build();
 
 			ShareDialog shareDialog = new ShareDialog(getActivity());
 		    shareDialog.show(content);

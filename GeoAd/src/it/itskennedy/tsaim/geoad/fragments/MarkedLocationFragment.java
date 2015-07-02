@@ -1,14 +1,22 @@
 package it.itskennedy.tsaim.geoad.fragments;
 
+import com.loopj.android.http.RequestParams;
+
 import it.itskennedy.tsaim.geoad.MarkedExpandableListAdapter;
 import it.itskennedy.tsaim.geoad.R;
 import it.itskennedy.tsaim.geoad.Utils;
+import it.itskennedy.tsaim.geoad.core.ConnectionManager;
 import it.itskennedy.tsaim.geoad.core.Engine;
+import it.itskennedy.tsaim.geoad.core.Routes;
 import it.itskennedy.tsaim.geoad.core.SettingsManager;
+import it.itskennedy.tsaim.geoad.core.ConnectionManager.JsonResponse;
 import it.itskennedy.tsaim.geoad.entity.LocationModel;
 import it.itskennedy.tsaim.geoad.interfaces.IFragment;
 import it.itskennedy.tsaim.geoad.localdb.DataFavContentProvider;
+import it.itskennedy.tsaim.geoad.localdb.DataOffersContentProvider;
 import it.itskennedy.tsaim.geoad.localdb.FavoritesHelper;
+import it.itskennedy.tsaim.geoad.localdb.IgnoredHelper;
+import it.itskennedy.tsaim.geoad.localdb.OffersHelper;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
@@ -86,6 +94,7 @@ public class MarkedLocationFragment extends Fragment
 			{
 				if(groupPosition == 0 && mListener != null)
 				{
+
 					Cursor vC = getActivity().getContentResolver().query(DataFavContentProvider.FAVORITES_URI, null, FavoritesHelper._ID + " = " + id, null, null);
 					
 					if(vC.moveToFirst())
@@ -109,7 +118,7 @@ public class MarkedLocationFragment extends Fragment
 						vC.close();
 						
 						LocationModel vLoc = new LocationModel((int)id, vPCat,vSCat, vName, vLat, vLng, vDesc, vType);
-						
+
 						mListener.loadFragment(Utils.TYPE_DETAIL, vLoc.getBundle(), null);
 					}
 				}
@@ -157,6 +166,19 @@ public class MarkedLocationFragment extends Fragment
 				{
 					mExpandable.collapseGroup(0);
 				}
+				
+				getActivity().getContentResolver().delete(DataFavContentProvider.FAVORITES_URI, FavoritesHelper._ID + " = " + vId, null);
+				
+				String k = Routes.MY_FAVORITES + "?id=" + vId + "&key=" + Engine.get().getKey();
+				ConnectionManager.obtain().delete(Routes.MY_FAVORITES + "?id=" + vId + "&key=" + Engine.get().getKey(), new JsonResponse() {
+					
+					@Override
+					public void onResponse(boolean aResult, Object aResponse) {
+						if (aResult) {
+							
+						}
+					}
+				});
 			}
 			else
 			{
@@ -164,8 +186,17 @@ public class MarkedLocationFragment extends Fragment
 				{
 					mExpandable.collapseGroup(1);
 				}
+				getActivity().getContentResolver().delete(DataFavContentProvider.IGNORED_URI, IgnoredHelper._ID + " = " + vId, null);
+				ConnectionManager.obtain().delete(Routes.MY_IGNORED + "?id=" + vId + "&key=" + Engine.get().getKey(), new JsonResponse() {
+					
+					@Override
+					public void onResponse(boolean aResult, Object aResponse) {
+						if (aResult) {
+							
+						}
+					}
+				});
 			}
-			
 			Engine.get().setNeutralLocationState(vId);
 		}
 	}

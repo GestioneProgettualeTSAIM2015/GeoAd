@@ -18,6 +18,7 @@ import it.itskennedy.tsaim.geoad.OfferExpandableListAdapter.ActionOfferListener;
 import it.itskennedy.tsaim.geoad.activities.MainActivity;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager;
 import it.itskennedy.tsaim.geoad.fragments.dialogs.DeleteImageAlertDialog;
+import it.itskennedy.tsaim.geoad.fragments.dialogs.DeleteOfferAlertDialog;
 import it.itskennedy.tsaim.geoad.fragments.dialogs.EditLocationDescriptionDialogFragment;
 import it.itskennedy.tsaim.geoad.fragments.dialogs.EditLocationNameDialogFragment;
 import it.itskennedy.tsaim.geoad.fragments.dialogs.EditLocationNameDialogFragment.IEditLocationNameDialogFragment;
@@ -56,6 +57,8 @@ import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ImageButton;
@@ -95,6 +98,7 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 	private TextView mPCat, mName, mSCat, mDesc, mType;
 	private LinearLayout mThumbScroll;
 	private ExpandableListView mExpandable;
+	private List<Offer> mOfferList;
 	private OfferExpandableListAdapter mAdapter;
 	private ProgressBar mProgressThumb;
 	private ImageButton mButtonImageGoToMap;
@@ -321,8 +325,6 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 				vT.setOnLongClickListener(mThumbLongClickListener);
 				mThumbScroll.addView(vT);
 			}
-			TextView vView = (TextView) getView().findViewById(R.id.no_image);
-			vView.setVisibility(TextView.INVISIBLE);
 		}
 		else
 		{
@@ -493,8 +495,8 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 	
 	private void fillOffersList(JSONArray aArray)
 	{
-		List<Offer> vList = Offer.getListFromJsonArray(aArray);
-		mAdapter = new OfferExpandableListAdapter(getActivity(), vList, new ActionOfferListener() {
+		mOfferList = Offer.getListFromJsonArray(aArray);
+		mAdapter = new OfferExpandableListAdapter(getActivity(), mOfferList, new ActionOfferListener() {
 			
 			@Override
 			public void onAction(ActionType actionType, final OfferDetail aToAction) {
@@ -504,26 +506,12 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 					intent.setAction(Intent.ACTION_SEND);
 	
 					intent.setType("text/plain");
-					intent.putExtra(Intent.EXTRA_TEXT, "Location: " + mLoc.getName() + " aToShare: " + aToAction.toString());
+					intent.putExtra(Intent.EXTRA_TEXT, aToAction.toString() + "\nPresso " + mLoc.getName() + "\n\nCondiviso da GeoAd");
 					startActivity(Intent.createChooser(intent, "Share"));
 					
 					break;
 				case SHARE_FB:
-					shareAction(aToAction.mId, aToAction.mDesc);
-					break;
-				case DELETE:
-					ConnectionManager.obtain().delete(Routes.OFFERS + "/" + aToAction.mId, new JsonResponse() {
-
-						@Override
-						public void onResponse(boolean aResult,Object aResponse) {
-							if (aResult) {
-								Toast.makeText(getActivity(), getResources().getString(R.string.edit_offer_deleted), Toast.LENGTH_SHORT).show();
-								mAdapter.remove(aToAction.mId);
-								getActivity().getContentResolver().delete(DataOffersContentProvider.OFFERS_URI, OffersHelper.OFF_ID + " = " + aToAction.mId, null);
-							}
-							
-						}});
-				
+					shareFacebook(aToAction.mId, aToAction.mDesc);
 					break;
 
 				default:
@@ -536,12 +524,16 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 		mExpandable.setAdapter(mAdapter);
 		mExpandable.setEmptyView(getView().findViewById(R.id.textViewEmpty));
 		
-		mExpandable.setOnChildClickListener(new OnChildClickListener()
-		{	
+		mExpandable.setOnItemLongClickListener(new OnItemLongClickListener() {
+
 			@Override
-			public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id)
-			{
-				return false;
+			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+				
+				DeleteOfferAlertDialog.getInstance(position, id).show(
+						getFragmentManager(),
+						DeleteOfferAlertDialog.class.toString());
+				
+				return true;
 			}
 		});
 	}
@@ -635,8 +627,6 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 		}
 	}
 	
-	//--------------------------------------
-
 	@Override
 	public void onStart() {
 		super.onStart();
@@ -736,18 +726,32 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 			}});
 	}
 	
-	private void shareAction(int aId, String aDesc)
+	private void shareFacebook(int aId, String aDesc)
 	{
 		if (ShareDialog.canShow(ShareLinkContent.class))
 		{
 			ShareLinkContent content = new ShareLinkContent.Builder()
-			.setContentTitle("New offer")
-			.setContentDescription(aDesc)
-			.setContentUrl(Uri.parse("http://geoad.somee.com/offer/" + aId))
-			.build();
+				.setContentTitle("Offerta Geoad")
+				.setContentDescription(aDesc)
+				.setContentUrl(Uri.parse(Engine.SERVER_URL + Routes.OFFER_DETAIL_DASHBOARD + aId))
+				.build();
 
 			ShareDialog shareDialog = new ShareDialog(getActivity());
 		    shareDialog.show(content);
 		}		
+	}
+
+	public void deleteOffer(final int positon, final long id) {
+		ConnectionManager.obtain().delete(Routes.OFFERS + "/" + id, new JsonResponse() {
+
+			@Override
+			public void onResponse(boolean aResult,Object aResponse) {
+				if (aResult) {
+					Toast.makeText(getActivity(), getResources().getString(R.string.edit_offer_deleted), Toast.LENGTH_SHORT).show();
+					mOfferList.remove(positon);
+					mAdapter.notifyDataSetChanged();
+					getActivity().getContentResolver().delete(DataOffersContentProvider.OFFERS_URI, OffersHelper.OFF_ID + " = " + id, null);
+				}
+			}});
 	}
 }

@@ -20,6 +20,12 @@ import android.os.IBinder;
 
 public class AugmentedRealityManager implements LocationListener 
 {	
+	public interface IAugmentedReality {
+		void onServiceReady();
+	}
+	
+	private IAugmentedReality iListener;
+	
 	private Location mActualLocation;
 	private List<LocationModel> mNears;
 	private Context mContext;
@@ -39,8 +45,25 @@ public class AugmentedRealityManager implements LocationListener
 		public void onServiceConnected(ComponentName name, IBinder service)
 		{
 			mService = ((GeoAdBinder) service).getService();
+			if (iListener != null)
+				iListener.onServiceReady();
 		}
 	};
+	
+	public void setIAugmentedRealityListener(IAugmentedReality iListener) {
+		this.iListener = iListener;
+	}
+	
+	public List<LocationModel> getNears() 
+	{
+		if (mService == null) return null;
+		return mService.getNears();
+	}
+	
+	public Location getCurrentPosition() {
+		if (mService == null) return null;
+		return mService.getCurrentPosition();
+	}
 	
 	public interface AugmentedRealityListener
 	{

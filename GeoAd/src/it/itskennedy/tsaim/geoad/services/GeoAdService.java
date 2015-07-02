@@ -70,6 +70,10 @@ public class GeoAdService extends Service implements LocationListener
 		public void onLoad(LocationModel aLocation);
 	}
 	
+	public Location getCurrentPosition() {
+		return mPosition;
+	}
+	
 	@Override
 	public void onCreate() 
 	{

@@ -15,4 +15,6 @@ public class Routes {
 	public static final String PHOTOS_DATA = "api/photos/data/";
 	public static final String REGISTER_ACCOUNT = "api/Account/Register";
 	public static final String AUTH = "api/Account/isTokenValid";
+	public static final String OFFER_DETAIL_DASHBOARD = "offerdetail/show/";
+	
 }

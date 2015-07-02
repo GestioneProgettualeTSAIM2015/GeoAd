@@ -57,6 +57,8 @@ import com.loopj.android.http.RequestParams;
 
 public class MainActivity extends Activity implements IFragment, ILoginDialogFragment, LocationListener, IFilterDialogFragment
 {
+	private static final String CATEGORY_JSON = "category_json";
+	private static final String FILTER_MAP = "FILTER_MAP";
 	public static final String DETAIL_ACTION = "detail_action";
 	public static final String DETAIL_DATA = "detail_data";
 	public static final String MY_LOCATION_ACTION = "location_action";
@@ -83,7 +85,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 	
 	ILocationsList mLocationListListener;
 
-	private Map<String, Object> mFilterMap;
+	private HashMap<String, Object> mFiltersMap;
 
 	private ProgressBar mProgressBar;
 	
@@ -105,7 +107,6 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerList = (ListView) findViewById(R.id.left_drawer);
-
 		
 		mAdapter = new ArrayAdapter<String>(this, R.layout.drawer_list_item, mNavActions);
 		mDrawerList.setAdapter(mAdapter);
@@ -145,7 +146,12 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		
 		if (savedInstanceState == null) 
 		{
-			selectItem(Utils.TYPE_SEARCH_LIST);
+			searchFragmentType = Utils.TYPE_SEARCH_LIST;
+			Fragment vFragment = SearchListFragment.getInstance(null);
+			getFragmentManager().beginTransaction()
+				.replace(R.id.content_frame, vFragment,
+						 vFragment.getClass().toString()).commit();
+			
 			mCurrentLocation = LocationManager.get(this).getLocation();
 		} else {
 			double vLat = savedInstanceState.getDouble(POSITION_LAT);
@@ -155,6 +161,8 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 			mCurrentLocation.setLongitude(vLng);
 			Serializable vList = savedInstanceState.getSerializable(LOCATION_LIST);
 			if(vList != null) mLocationList = (ArrayList<LocationModel>) vList;
+			mFiltersMap = (HashMap<String, Object>)savedInstanceState.getSerializable(FILTER_MAP);
+			mCategoryJson = savedInstanceState.getString(CATEGORY_JSON);
 		}
 		
 		manageIntent(vLauncher);
@@ -331,8 +339,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 				break;
 			}
 			case Utils.TYPE_FILTER:
-				FilterDialogFragment filterDialog = new FilterDialogFragment(mCategoryJson, mFilterMap  );
-				filterDialog.show(getFragmentManager(), "FilterDialog");
+				FilterDialogFragment.getNewInstance().show(getFragmentManager(), "FilterDialog");
 				return;
 		}
 
@@ -431,7 +438,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 	{
 		mLocationList.clear();
 		if (mLocationListListener != null) mLocationListListener.notifyLocationsListChanged(mLocationList);
-		Map<String, Object> vFilterMap = new HashMap<>();
+		HashMap<String, Object> vFilterMap = new HashMap<>();
 		if (aFilter != null)
 		{
 			for (String key : aFilter.keySet()) {
@@ -439,7 +446,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 			}
 			setFilterLocation(vFilterMap, mCurrentLocation);
 		}
-		mFilterMap = vFilterMap;
+		mFiltersMap = vFilterMap;
 	}
 
 	@Override
@@ -448,7 +455,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 		mLocationList.clear();
 		mLocationListListener.notifyLocationsListChanged(mLocationList);
 		setFilterLocation(null, mCurrentLocation);
-		mFilterMap = null;
+		mFiltersMap = null;
 	}
 	
 	private void setFilterLocation(Map<String, Object> aFilterMap, Location aLocation)
@@ -563,6 +570,11 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 	{
 		if (mLocationList != null)
 			outState.putSerializable(LOCATION_LIST, mLocationList);
+		if (mFiltersMap != null) 
+			outState.putSerializable(FILTER_MAP, mFiltersMap);
+		if (mCategoryJson != null) 
+			outState.putString(CATEGORY_JSON, mCategoryJson);
+		
 		
 		if (mCurrentLocation != null) {
 			outState.putSerializable(POSITION_LAT, mCurrentLocation.getLatitude());
@@ -578,7 +590,7 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 	
 	public double getCurrentRadiusFilter()
 	{
-		return mFilterMap != null ? Double.parseDouble(mFilterMap.get(Utils.RADIUS).toString()) : 8;
+		return mFiltersMap != null ? Double.parseDouble(mFiltersMap.get(Utils.RADIUS).toString()) : 8;
 	}
 
 	@Override
@@ -606,5 +618,15 @@ public class MainActivity extends Activity implements IFragment, ILoginDialogFra
 	public void setILocationsList(ILocationsList f)
 	{
 		mLocationListListener = f;
+	}
+
+	@Override
+	public Map<String, Object> getFiltersMap() {
+		return mFiltersMap;
+	}
+
+	@Override
+	public String getJsonCategoriesString() {
+		return mCategoryJson;
 	}
 }

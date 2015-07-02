@@ -59,24 +59,15 @@ public class FilterDialogFragment extends DialogFragment
 	private Map<String, ArrayList<String>> mAllCategory;
 	private ArrayList<String> mPrimaryCategory;
 	private ArrayList<String> mSecondaryCategory;
-
-	private String mCategoryJson;
-	private Map<String, Object> mFilterMap;
 	
 	CheckBox mCategoryCheckBox;
 	CheckBox mDistanceCheckBox;
 	CheckBox mNameCheckBox;
 	CheckBox mTypeCheckBox;
 	
-	public FilterDialogFragment()
-	{
-		
-	}
-	
-	public FilterDialogFragment(String aCategoryJson, Map<String, Object> aFilterMap)
-	{
-		mCategoryJson = aCategoryJson;
-		mFilterMap = aFilterMap;
+	public static FilterDialogFragment getNewInstance() {
+		FilterDialogFragment filterDialogFragment = new FilterDialogFragment();
+		return filterDialogFragment;
 	}
 
 	@Override
@@ -117,7 +108,7 @@ public class FilterDialogFragment extends DialogFragment
 		});
 		secondarySpinner.setEnabled(false);
 		
-		setAllCategory(mCategoryJson);
+		setAllCategory(mListener.getJsonCategoriesString());
 		
 		distanceBar = (SeekBar) view.findViewById(R.id.seekBar);
 		distanceBar.setProgress(8);
@@ -251,43 +242,45 @@ public class FilterDialogFragment extends DialogFragment
 
 		return createFilterDialog.create();
 	}
-	
-	
 
 	@Override
 	public void onResume()
 	{
-		if (mFilterMap != null)
+		Map<String, Object> filtersMap = mListener.getFiltersMap();
+		String xx = mListener.getJsonCategoriesString();
+		setAllCategory(mListener.getJsonCategoriesString());
+		if (filtersMap != null)
 		{
-			if (mFilterMap.containsKey(Utils.PRIMARY_CATEGORY))
+			if (filtersMap.containsKey(Utils.PRIMARY_CATEGORY))
 			{
-				ArrayList<String> vPrimary = (ArrayList<String>) mFilterMap.get(Utils.PRIMARY_CATEGORY);
+				ArrayList<String> vPrimary = (ArrayList<String>) filtersMap.get(Utils.PRIMARY_CATEGORY);
+				
 				primarySpinner.setSelection(vPrimary);
 				primarySpinner.setEnabled(true);
 				mCategoryCheckBox.setChecked(true);
 			}
-			if (mFilterMap.containsKey(Utils.SECONDARY_CATEGORY))
+			if (filtersMap.containsKey(Utils.SECONDARY_CATEGORY))
 			{
-				ArrayList<String> vSecondary = (ArrayList<String>) mFilterMap.get(Utils.SECONDARY_CATEGORY);
+				ArrayList<String> vSecondary = (ArrayList<String>) filtersMap.get(Utils.SECONDARY_CATEGORY);
 				secondarySpinner.setSelection(vSecondary);
 				secondarySpinner.setEnabled(true);
 				mCategoryCheckBox.setChecked(true);
 			}
-			if (mFilterMap.containsKey(Utils.RADIUS))
+			if (filtersMap.containsKey(Utils.RADIUS))
 			{
-				double vRadius = Double.valueOf(mFilterMap.get(Utils.RADIUS).toString());
+				double vRadius = Double.valueOf(filtersMap.get(Utils.RADIUS).toString());
 				distanceBar.setProgress((int)vRadius);
 				mDistanceCheckBox.setChecked(true);
 			}
-			if (mFilterMap.containsKey(Utils.NAME))
+			if (filtersMap.containsKey(Utils.NAME))
 			{
-				String vName = mFilterMap.get(Utils.NAME).toString();
+				String vName = filtersMap.get(Utils.NAME).toString();
 				nameFilter.setText(vName);
 				mNameCheckBox.setChecked(true);
 			}
-			if (mFilterMap.containsKey(Utils.TYPE))
+			if (filtersMap.containsKey(Utils.TYPE))
 			{
-				String vType = mFilterMap.get(Utils.TYPE).toString();
+				String vType = filtersMap.get(Utils.TYPE).toString();
 				int vId = 0;
 				switch (vType)
 				{
@@ -342,6 +335,8 @@ public class FilterDialogFragment extends DialogFragment
 
 	private void setAllCategory(String aCategoryJson)
 	{
+		if (aCategoryJson == null) return;
+		
 		final Map<String, ArrayList<String>> categoryMap = new HashMap<String, ArrayList<String>>();
 		JSONObject categoryJson = null;
 		try
@@ -350,7 +345,9 @@ public class FilterDialogFragment extends DialogFragment
 		}
 		catch (JSONException e1)
 		{
+			Log.d("parsing_error", aCategoryJson);
 			e1.printStackTrace();
+			return;
 		}
 		
 		Iterator<String> iter = categoryJson.keys();
@@ -383,10 +380,15 @@ public class FilterDialogFragment extends DialogFragment
 	@Override
 	public void onAttach(Activity activity)
 	{
-		if (activity instanceof IFilterDialogFragment)
-		{
+		if (activity instanceof IFilterDialogFragment) {
 			mListener = (IFilterDialogFragment) activity;
-		}
+		} else mListener = new IFilterDialogFragment() {
+			public void onFilterSave(Bundle aFilter) {}
+			public void onFilterReset() {}
+			public String getJsonCategoriesString() { return null; }
+			public Map<String, Object> getFiltersMap() { return null; }
+		};
+		
 		super.onAttach(activity);
 	}
 

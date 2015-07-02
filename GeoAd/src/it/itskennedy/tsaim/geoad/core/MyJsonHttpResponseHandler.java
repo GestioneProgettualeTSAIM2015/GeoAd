@@ -3,9 +3,10 @@ package it.itskennedy.tsaim.geoad.core;
 import it.itskennedy.tsaim.geoad.core.ConnectionManager.JsonResponse;
 
 import org.apache.http.Header;
-import org.apache.http.client.HttpResponseException;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import android.util.Log;
 
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -42,6 +43,7 @@ public class MyJsonHttpResponseHandler extends JsonHttpResponseHandler
     	if(mListener != null)
     	{
     		mListener.onResponse(false, errorResponse);
+    		Log.d("http_failed", throwable.getMessage() + " >>>>>>>>>> " + errorResponse);
     	}
     }
     
@@ -55,6 +57,7 @@ public class MyJsonHttpResponseHandler extends JsonHttpResponseHandler
 		else if(mListener != null)
 		{
 			mListener.onResponse(false, responseString);
+			Log.d("http_failed", throwable.getMessage() + " >>>>>>>>>> " + responseString);
 		}
 	}
 
@@ -68,6 +71,7 @@ public class MyJsonHttpResponseHandler extends JsonHttpResponseHandler
 		else if(mListener != null)
 		{
 			mListener.onResponse(false, errorResponse);
+			Log.d("http_failed", throwable.getMessage() + " >>>>>>>>>> " + errorResponse);
 		}
 	}
 }

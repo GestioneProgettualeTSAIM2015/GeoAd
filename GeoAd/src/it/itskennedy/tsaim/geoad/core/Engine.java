@@ -94,7 +94,8 @@ public class Engine extends Application implements PushKeyReceiver
             reader = new BufferedReader(
                     new InputStreamReader(getResources().openRawResource(R.raw.config)));
 
-            JSONObject vObj = new JSONObject(reader.readLine());
+            String aaaa = reader.readLine();
+            JSONObject vObj = new JSONObject(aaaa);
 
             SERVER_URL = vObj.getString("server_url");
             PROJECT_NUMBER = vObj.getString("project_num");

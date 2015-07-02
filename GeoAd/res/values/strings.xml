@@ -2,9 +2,8 @@
 <resources>
 
     <string name="app_name">GeoAd</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="new_offer">New offer for</string>
-    <string name="title_activity_new_offer">New Offer</string>
+    <string name="new_offer">Nuova offerta per</string>
+    <string name="title_activity_new_offer">Nuova offerta</string>
     <string name="facebook_app_id">473533626128152</string>
     
     <string-array name="navigation_drawer_strings">
@@ -81,14 +80,10 @@
     
     <string name="delete_photo_dialog_title">Cancella foto</string>
     <string name="delete_photo_dialog_text">Sei sicuro di voler cancellare questa foto?</string>
-    <string name="delete_photo_dialog_yes">Si</string>
-    <string name="delete_photo_dialog_no">No</string>
-    
-    
 
-    
-    
-    
+    <string name="delete_offer_dialog_title">Cancella offerta</string>
+    <string name="delete_offer_dialog_text">Sei sicuro di voler cancellare questa offerta?</string>
+
     <string name="filter">Filtra</string>
     <string name="reset">Reset</string>
     
