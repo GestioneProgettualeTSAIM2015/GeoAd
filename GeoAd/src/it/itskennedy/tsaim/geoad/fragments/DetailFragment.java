@@ -416,7 +416,6 @@ public class DetailFragment extends Fragment
 	public void onStop()
 	{
 		mThumbScroll.removeAllViews();
-		getActivity().getActionBar().setSubtitle(null);
 		super.onStop();
 	}
 

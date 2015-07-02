@@ -101,13 +101,13 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 	private List<Offer> mOfferList;
 	private OfferExpandableListAdapter mAdapter;
 	private ProgressBar mProgressThumb;
-	private ImageButton mButtonImageGoToMap;
 	private String mOffersString;
 	private boolean mThumbUpdated = false;
 	
 	private File mPhotoFile;
 	private Bitmap mSelectedImage;
 	private String mPath;
+	private View mView;
 		
 	private String mUriString;
 	
@@ -125,15 +125,15 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		
-		View view = inflater.inflate(R.layout.fragment_detail, container, false);
-		mName = (TextView) view.findViewById(R.id.textViewName);
-		mPCat = (TextView) view.findViewById(R.id.textViewPCat);
-		mSCat = (TextView) view.findViewById(R.id.textViewSCat);
-		mDesc = (TextView) view.findViewById(R.id.textViewDesc);
-		mType = (TextView) view.findViewById(R.id.textViewType);
-		mThumbScroll = (LinearLayout) view.findViewById(R.id.thumbContainer);
-		mExpandable = (ExpandableListView) view.findViewById(R.id.expandableListViewOffer);
-		mProgressThumb = (ProgressBar) view.findViewById(R.id.progressBarThumb);
+		mView = inflater.inflate(R.layout.fragment_detail, container, false);
+		mName = (TextView) mView.findViewById(R.id.textViewName);
+		mPCat = (TextView) mView.findViewById(R.id.textViewPCat);
+		mSCat = (TextView) mView.findViewById(R.id.textViewSCat);
+		mDesc = (TextView) mView.findViewById(R.id.textViewDesc);
+		mType = (TextView) mView.findViewById(R.id.textViewType);
+		mThumbScroll = (LinearLayout) mView.findViewById(R.id.thumbContainer);
+		mExpandable = (ExpandableListView) mView.findViewById(R.id.expandableListViewOffer);
+		mProgressThumb = (ProgressBar) mView.findViewById(R.id.progressBarThumb);
 		
 		setHasOptionsMenu(true);
 		
@@ -152,7 +152,7 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 		
 		FacebookSdk.sdkInitialize(getActivity());
 		
-		return view;
+		return mView;
 	}
 	
 	@Override
@@ -328,12 +328,15 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 		}
 		else
 		{
-			TextView vView = (TextView) getView().findViewById(R.id.no_image);
+			TextView vView = (TextView) mView.findViewById(R.id.no_image);
 			vView.setVisibility(TextView.VISIBLE);
 		}
 		if(!mThumbUpdated) {
-			if(vCachedThumb == null)
+			if(vCachedThumb == null){
 				mProgressThumb.setVisibility(ProgressBar.VISIBLE);
+				TextView vView = (TextView) mView.findViewById(R.id.no_image);
+				vView.setVisibility(TextView.INVISIBLE);
+			}
 			RequestParams vParams = new RequestParams();
 			vParams.put("cache", Engine.get().getCache().getThumbIdList(mLoc.getId()).toString());
 
@@ -345,6 +348,12 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 					if(aResult && aResponse != null)
 					{
 						JSONArray vThumbArray = (JSONArray) aResponse;
+						
+						if(vThumbArray.length() == 0)
+						{
+							TextView vView = (TextView) mView.findViewById(R.id.no_image);
+							vView.setVisibility(TextView.VISIBLE);
+						}
 						for(int i = 0; i < vThumbArray.length(); ++i)
 						{
 							int vId;
@@ -476,6 +485,9 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 					vThumb.setOnClickListener(mThumbClickListener);
 					vThumb.setOnLongClickListener(mThumbLongClickListener);
 					mThumbScroll.addView(vThumb);
+					TextView vView = (TextView) mView.findViewById(R.id.no_image);
+					vView.setVisibility(TextView.INVISIBLE);
+					
 					Engine.get().getCache().cacheThumb(vThumb, mLoc.getId());
 				}
 				resetPhotoFile();
@@ -522,7 +534,7 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 		});
 
 		mExpandable.setAdapter(mAdapter);
-		mExpandable.setEmptyView(getView().findViewById(R.id.textViewEmpty));
+		mExpandable.setEmptyView(mView.findViewById(R.id.textViewEmpty));
 		
 		mExpandable.setOnItemLongClickListener(new OnItemLongClickListener() {
 
@@ -579,7 +591,6 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 	public void onStop()
 	{
 		mThumbScroll.removeAllViews();
-		getActivity().getActionBar().setSubtitle(null);
 		super.onStop();
 	}
 
@@ -669,7 +680,7 @@ IEditLocationNameDialogFragment, IEditLocationDescriptionDialogFragment {
 		vParams.put("Lat", mLoc.getLat());
 		vParams.put("Lng", mLoc.getLng());
 		vParams.put("Desc", mLoc.getDesc());
-		getActivity().setTitle(newName);
+		mName.setText(newName);
 		
 		ConnectionManager.obtain().put(Routes.LOCATIONS + "/" + mLoc.getId(), vParams, new JsonResponse()
 		{	
