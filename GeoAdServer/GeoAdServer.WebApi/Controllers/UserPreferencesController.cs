@@ -24,17 +24,17 @@ namespace GeoAdServer.WebApi.Controllers
             if (!ModelState.IsValid) return Request.CreateResponseForInvalidModelState();
 
             var result = EventService.Instance.SetPreference(prefModel.Id, prefModel.Key, PreferenceTypes.FAVORITE);
-            return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.Conflict);
+            return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
         }
 
         [HttpDelete]
         [Route("Favorites")]
-        public HttpResponseMessage DeleteFav(LocationPreferenceModel prefModel)
+        public HttpResponseMessage DeleteFav([FromUri]LocationPreferenceModel prefModel)
         {
             if (!ModelState.IsValid) return Request.CreateResponseForInvalidModelState();
 
             var result = EventService.Instance.DeletePreference(prefModel.Id, prefModel.Key, PreferenceTypes.FAVORITE);
-            return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.Conflict);
+            return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
         }
 
         [HttpPost]
@@ -44,17 +44,17 @@ namespace GeoAdServer.WebApi.Controllers
             if (!ModelState.IsValid) return Request.CreateResponseForInvalidModelState();
 
             var result = EventService.Instance.SetPreference(prefModel.Id, prefModel.Key, PreferenceTypes.IGNORED);
-            return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.Conflict);
+            return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
         }
 
         [HttpDelete]
         [Route("Ignored")]
-        public HttpResponseMessage DeleteIgn(LocationPreferenceModel prefModel)
+        public HttpResponseMessage DeleteIgn([FromUri]LocationPreferenceModel prefModel)
         {
             if (!ModelState.IsValid) return Request.CreateResponseForInvalidModelState();
 
             var result = EventService.Instance.DeletePreference(prefModel.Id, prefModel.Key, PreferenceTypes.IGNORED);
-            return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.Conflict);
+            return Request.CreateResponse(result ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
         }
 
         [HttpGet]
