@@ -1,7 +1,7 @@
 # GeoAd
 
 ###Abstract
-Application to receive notifications of offers of shops nearby.
+Mobile application to receive notifications of offers from shops nearby.
 The commercial activities are created from registered users, which can use the web interface, having all the functionalities,
 or login into the app and use some of them.
 
