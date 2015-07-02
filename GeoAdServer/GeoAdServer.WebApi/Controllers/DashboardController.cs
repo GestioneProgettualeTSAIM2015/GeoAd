@@ -136,7 +136,7 @@ namespace GeoAdServer.WebApi.Controllers
             }
         }
 
-        public ViewResult NewErrorView()
+        private ViewResult NewErrorView()
         {
             ViewBag.Title = "Unauthorize";
             ViewBag.Message = "You don't have permissions to see this page";

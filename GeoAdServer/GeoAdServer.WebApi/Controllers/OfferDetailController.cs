@@ -15,8 +15,17 @@ namespace GeoAdServer.WebApi.Controllers
             using (var repos = DataRepos.Instance)
             {
                 OfferDTO offer = repos.Offers.GetById(id);
+                if (offer == null) return NewErrorView();
+                ViewBag.LocationName = repos.Locations.GetById(offer.LocationId).Name;
                 return View(offer);
             }
+        }
+
+        private ViewResult NewErrorView()
+        {
+            ViewBag.Title = "404 Not Found";
+            ViewBag.Message = "It seems like we couldn't find the specified offer...";
+            return View("~/Views/Dashboard/Error.cshtml");
         }
     }
 }
