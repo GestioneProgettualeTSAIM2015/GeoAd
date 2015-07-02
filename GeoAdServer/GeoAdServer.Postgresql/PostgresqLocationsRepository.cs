@@ -188,7 +188,7 @@ namespace GeoAdServer.Postgresql
             return (int)row;
         }
 
-        bool ILocationsRepository.Update(int id, Location location, bool allowPositionChange = true)
+        bool ILocationsRepository.Update(int id, Location location, bool allowPositionChange)
         {
             var templateCommand = @"UPDATE ""Locations""
                                     SET ""UserId"" = '{0}',

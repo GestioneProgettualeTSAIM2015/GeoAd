@@ -3,3 +3,11 @@
 <h5>@ViewBag.Message</h5>
 
 @Html.ActionLink("Home", "Home", "Dashboard")
+
+@section Scripts {
+    <script type="text/javascript">
+        setTimeout(function () {
+            window.history.back();
+        }, 2000);
+    </script>
+}

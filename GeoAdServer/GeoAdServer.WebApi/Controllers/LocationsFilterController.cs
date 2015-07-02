@@ -12,6 +12,7 @@ using System.Web.Http;
 using GeoAdServer.WebApi.Support;
 using System.Net.Http.Formatting;
 using System.Web.Http.OData;
+using System.Device.Location;
 
 namespace GeoAdServer.WebApi.Controllers
 {
@@ -37,11 +38,25 @@ namespace GeoAdServer.WebApi.Controllers
             else if (pos.R <= _MIN_LOCATIONS_SEARCH_R) pos.R = _MIN_LOCATIONS_SEARCH_R;
             else pos.R = (int)pos.R;
 
+            var locations = new List<LocationDTO>();
+            IEnumerable<LocationDTO> dbLocations;
             using (var repos = DataRepos.Instance)
             {
-                return Request.CreateResponse(HttpStatusCode.OK,
-                    repos.Locations.GetAllAround(pos.P.Lat, pos.P.Lng, pos.R));
+                dbLocations = repos.Locations.GetAllAround(pos.P.Lat, pos.P.Lng, pos.R);
             }
+
+            var myCoord = new GeoCoordinate(double.Parse(pos.P.Lat, CultureInfo.InvariantCulture),
+                                            double.Parse(pos.P.Lng, CultureInfo.InvariantCulture));
+            double distance = pos.R * 1000;
+            foreach (var location in dbLocations)
+            {
+                var locCoord = new GeoCoordinate(double.Parse(location.Lat, CultureInfo.InvariantCulture),
+                                                 double.Parse(location.Lng, CultureInfo.InvariantCulture));
+
+                if (myCoord.GetDistanceTo(locCoord) <= distance) locations.Add(location);
+            }
+
+            return Request.CreateResponse(HttpStatusCode.OK, locations);
         }
 
         [HttpGet]

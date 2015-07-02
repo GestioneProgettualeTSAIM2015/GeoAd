@@ -77,6 +77,8 @@ namespace GeoAdServer.WebApi.Controllers
 
             using (var repos = DataRepos.Instance)
             {
+                if (!Id.IsLocationOwner(User.Identity.GetUserId(), repos.Locations)) return NewErrorView();
+
                 IEnumerable<OfferDTO> offers = repos.Offers.GetByLocationId(Id);
 
                 ViewBag.LocId = Id;
@@ -86,14 +88,16 @@ namespace GeoAdServer.WebApi.Controllers
             }
         }
 
-        public ActionResult ManagePhotos(int Id)
+        public ActionResult ManagePhotos(int id)
         {
             using (var repos = DataRepos.Instance)
             {
-                IEnumerable<PhotoDTO> photos = repos.Photos.GetByLocationId(Id);
+                if (!id.IsLocationOwner(User.Identity.GetUserId(), repos.Locations)) return NewErrorView();
 
-                ViewBag.LocId = Id;
-                ViewBag.LocName = repos.Locations.GetById(Id).Name;
+                IEnumerable<PhotoDTO> photos = repos.Photos.GetByLocationId(id);
+
+                ViewBag.LocId = id;
+                ViewBag.LocName = repos.Locations.GetById(id).Name;
 
                 return View(photos);
             }
@@ -103,6 +107,8 @@ namespace GeoAdServer.WebApi.Controllers
         {
             using (var repos = DataRepos.Instance)
             {
+                if (!id.IsLocationOwner(User.Identity.GetUserId(), repos.Locations)) return NewErrorView();
+
                 ViewBag.IsAdmin = User.Identity.IsAdmin();
 
                 dynamic models = new ExpandoObject();
@@ -123,14 +129,11 @@ namespace GeoAdServer.WebApi.Controllers
             using (var repos = DataRepos.Instance)
             {
                 var offer = repos.Offers.GetById(id);
-                ViewBag.Title = TruncDesc(offer.Desc);
+                if (!offer.LocationId.IsLocationOwner(User.Identity.GetUserId(), repos.Locations)) return NewErrorView();
+
+                ViewBag.Title = offer.Name;
                 return View(offer);
             }
-        }
-
-        private string TruncDesc(string aDesc)
-        {
-            return aDesc.Length <= 20 ? aDesc : aDesc.Substring(0, 20) + "...";
         }
 
         public ViewResult NewErrorView()

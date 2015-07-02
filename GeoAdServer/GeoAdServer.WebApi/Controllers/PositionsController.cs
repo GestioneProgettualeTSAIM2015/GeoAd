@@ -36,7 +36,9 @@ namespace GeoAdServer.WebApi.Controllers
                     double.Parse(x.Lng, CultureInfo.InvariantCulture) > double.Parse(chp.NWCoord.Lng, CultureInfo.InvariantCulture)))
                 {
                     locations.AddLast(location);
-                    foreach (var offer in repos.Offers.GetByLocationId(location.Id))
+
+                    var nowMillis = (DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds;
+                    foreach (var offer in repos.Offers.GetByLocationId(location.Id, (long)nowMillis))
                     {
                         offers.AddLast(offer.AddProperty("LocationName", location.Name));
                     }

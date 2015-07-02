@@ -21,7 +21,7 @@ namespace GeoAdServer.Postgresql
         {
         }
 
-        IEnumerable<OfferDTO> IOffersRepository.GetAll(long? currentUTCMillis = null)
+        IEnumerable<OfferDTO> IOffersRepository.GetAll(long? currentUTCMillis)
         {
             string query = @"SELECT *
                              FROM ""Offers""";
@@ -43,7 +43,7 @@ namespace GeoAdServer.Postgresql
             });
         }
 
-        IEnumerable<OfferDTO> IOffersRepository.GetByLocationId(int locationId, long? currentUTCMillis = null)
+        IEnumerable<OfferDTO> IOffersRepository.GetByLocationId(int locationId, long? currentUTCMillis)
         {
             string query = @"SELECT *
                              FROM ""Offers""
